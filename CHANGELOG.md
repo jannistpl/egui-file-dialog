@@ -1,5 +1,9 @@
 # egui-file-dialog changelog
 
+## Unreleased
+
+ -Updated `FileDialog::state` to borrow the file dialog's state instead of cloning it [#282](https://github.com/jannistpl/egui-file-dialog/pull/282)
+
 ## 2025-07-10 - v0.11.0 - egui update and QoL changes
 
 ### 🚨 Breaking Changes
