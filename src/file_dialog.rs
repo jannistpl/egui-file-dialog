@@ -1155,8 +1155,8 @@ impl FileDialog {
     }
 
     /// Returns the state the dialog is currently in.
-    pub fn state(&self) -> DialogState {
-        self.state.clone()
+    pub const fn state(&self) -> &DialogState {
+        &self.state
     }
 
     /// Get the window Id
