@@ -2,7 +2,10 @@
 
 ## Unreleased
 
+### 🚨 Breaking Changes
+
 - Updated `FileDialog::state` to borrow the file dialog's state instead of cloning it [#282](https://github.com/jannistpl/egui-file-dialog/pull/282)
+- Prevent user data from being cleared when file dialog is reset [#285](https://github.com/jannistpl/egui-file-dialog/pull/285)
 
 ## 2025-07-10 - v0.11.0 - egui update and QoL changes
 
