@@ -1112,6 +1112,7 @@ impl FileDialog {
     ///
     /// See [`FileDialog::set_user_data`].
     pub fn user_data<U: Any>(&self) -> Option<&U> {
+        #[allow(clippy::coerce_container_to_any)]
         self.user_data.as_ref().and_then(|u| u.downcast_ref())
     }
 
@@ -1119,6 +1120,7 @@ impl FileDialog {
     ///
     /// See [`FileDialog::set_user_data`].
     pub fn user_data_mut<U: Any>(&mut self) -> Option<&mut U> {
+        #[allow(clippy::coerce_container_to_any)]
         self.user_data.as_mut().and_then(|u| u.downcast_mut())
     }
 
@@ -2880,7 +2882,6 @@ impl FileDialog {
             self.close_path_edit();
         } else if !self.any_focused_last_frame {
             self.cancel();
-            return;
         }
     }
 
