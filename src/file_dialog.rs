@@ -3102,12 +3102,15 @@ impl FileDialog {
     }
 
     /// Resets the dialog to use default values.
-    /// Configuration variables are retained.
+    /// The user data and configuration variables are retained.
     fn reset(&mut self) {
+        let user_data = std::mem::take(&mut self.user_data);
         let storage = self.storage.clone();
         let config = self.config.clone();
+
         *self = Self::with_config(config);
         self.storage = storage;
+        self.user_data = user_data;
     }
 
     /// Refreshes the dialog.
