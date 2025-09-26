@@ -290,7 +290,7 @@ impl FileDialog {
     #[must_use]
     pub fn with_file_system(file_system: Arc<dyn FileSystem + Send + Sync>) -> Self {
         let mut obj = Self::new();
-        obj.config.initial_directory = file_system.current_dir().unwrap_or_default();
+        obj.config.initial_path = file_system.current_dir().unwrap_or_default();
         obj.config.file_system = file_system;
         obj.create_directory_dialog =
             CreateDirectoryDialog::from_filesystem(obj.config.file_system.clone());
@@ -376,7 +376,17 @@ impl FileDialog {
             .id
             .map_or_else(|| egui::Id::new(self.get_window_title()), |id| id);
 
-        self.load_directory(&self.get_initial_directory());
+        let init_dir = self.get_initial_directory();
+        self.load_directory(&init_dir);
+        let init_path = &self.config.initial_path;
+        // If the initial path has an extra component, use it to pre-select an item.
+        if init_path != &init_dir && init_path.starts_with(init_dir) {
+            self.select_item(&mut DirectoryEntry::from_path(
+                &self.config,
+                &self.config.initial_path,
+                &*self.config.file_system,
+            ));
+        }
     }
 
     /// Shortcut function to open the file dialog to prompt the user to pick a directory.
@@ -548,7 +558,7 @@ impl FileDialog {
     /// Since `fs::canonicalize` is used, both absolute paths and relative paths are allowed.
     /// See `FileDialog::canonicalize_paths` for more information.
     pub fn initial_directory(mut self, directory: PathBuf) -> Self {
-        self.config.initial_directory = directory;
+        self.config.initial_path = directory;
         self
     }
 
@@ -3188,17 +3198,17 @@ impl FileDialog {
     ///   - Attempts to use the parent directory if the path is a file
     fn get_initial_directory(&self) -> PathBuf {
         let path = match self.config.opening_mode {
-            OpeningMode::AlwaysInitialDir => &self.config.initial_directory,
+            OpeningMode::AlwaysInitialPath => &self.config.initial_path,
             OpeningMode::LastVisitedDir => self
                 .storage
                 .last_visited_dir
                 .as_deref()
-                .unwrap_or(&self.config.initial_directory),
+                .unwrap_or(&self.config.initial_path),
             OpeningMode::LastPickedDir => self
                 .storage
                 .last_picked_dir
                 .as_deref()
-                .unwrap_or(&self.config.initial_directory),
+                .unwrap_or(&self.config.initial_path),
         };
 
         let mut path = self.canonicalize_path(path);
