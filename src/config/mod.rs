@@ -37,8 +37,8 @@ impl PinnedFolder {
 /// Sets which directory is loaded when opening the file dialog.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum OpeningMode {
-    /// The configured initial directory (`FileDialog::initial_directory`) should always be opened.
-    AlwaysInitialDir,
+    /// The configured initial directory (`FileDialog::initial_path`) should always be opened.
+    AlwaysInitialPath,
     /// The directory most recently visited by the user should be opened regardless of
     /// whether anything was picked.
     LastVisitedDir,
@@ -52,7 +52,7 @@ pub enum OpeningMode {
 ///
 /// If you only need to configure a single file dialog, you don't need to
 /// manually use a `FileDialogConfig` object. `FileDialog` provides setter methods for
-/// each of these configuration options, for example: `FileDialog::initial_directory`
+/// each of these configuration options, for example: `FileDialog::initial_path`
 /// or `FileDialog::default_size`.
 ///
 /// `FileDialogConfig` is useful when you need to configure multiple `FileDialog` objects with the
@@ -64,7 +64,7 @@ pub enum OpeningMode {
 /// use egui_file_dialog::{FileDialog, FileDialogConfig};
 ///
 /// let config = FileDialogConfig {
-///     initial_directory: std::path::PathBuf::from("/app/config"),
+///     initial_path: std::path::PathBuf::from("/app/config"),
 ///     fixed_pos: Some(egui::Pos2::new(40.0, 40.0)),
 ///     show_left_panel: false,
 ///     ..Default::default()
@@ -96,7 +96,10 @@ pub struct FileDialogConfig {
     /// Color of the overlay that is displayed under the modal to prevent user interaction.
     pub modal_overlay_color: egui::Color32,
     /// The first directory that will be opened when the dialog opens.
-    pub initial_directory: PathBuf,
+    ///
+    /// If the path is a file, the parent directory will be opened, and the file will be
+    /// selected as a pick candidate.
+    pub initial_path: PathBuf,
     /// The default filename when opening the dialog in `DialogMode::SaveFile` mode.
     pub default_file_name: String,
     /// If the user is allowed to select an already existing file when the dialog is
@@ -243,7 +246,7 @@ impl FileDialogConfig {
             opening_mode: OpeningMode::LastPickedDir,
             as_modal: true,
             modal_overlay_color: egui::Color32::from_rgba_premultiplied(0, 0, 0, 120),
-            initial_directory: file_system.current_dir().unwrap_or_default(),
+            initial_path: file_system.current_dir().unwrap_or_default(),
             default_file_name: String::from("Untitled"),
             allow_file_overwrite: true,
             allow_path_edit_to_save_file_without_extension: false,

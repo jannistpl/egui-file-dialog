@@ -122,7 +122,7 @@
 //! use egui_file_dialog::FileDialog;
 //!
 //! FileDialog::new()
-//!     .initial_directory(PathBuf::from("/path/to/app"))
+//!     .initial_path(PathBuf::from("/path/to/app"))
 //!     .default_file_name("app.cfg")
 //!     .default_size([600.0, 400.0])
 //!     .resizable(false)

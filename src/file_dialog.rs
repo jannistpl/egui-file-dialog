@@ -290,7 +290,7 @@ impl FileDialog {
     #[must_use]
     pub fn with_file_system(file_system: Arc<dyn FileSystem + Send + Sync>) -> Self {
         let mut obj = Self::new();
-        obj.config.initial_directory = file_system.current_dir().unwrap_or_default();
+        obj.config.initial_path = file_system.current_dir().unwrap_or_default();
         obj.config.file_system = file_system;
         obj.create_directory_dialog =
             CreateDirectoryDialog::from_filesystem(obj.config.file_system.clone());
@@ -376,14 +376,24 @@ impl FileDialog {
             .id
             .map_or_else(|| egui::Id::new(self.get_window_title()), |id| id);
 
-        self.load_directory(&self.get_initial_directory());
+        let init_dir = self.get_initial_directory();
+        self.load_directory(&init_dir);
+        let init_path = &self.config.initial_path;
+        // If the initial path has an extra component, use it to pre-select an item.
+        if init_path != &init_dir && init_path.starts_with(init_dir) {
+            self.select_item(&mut DirectoryEntry::from_path(
+                &self.config,
+                &self.config.initial_path,
+                &*self.config.file_system,
+            ));
+        }
     }
 
     /// Shortcut function to open the file dialog to prompt the user to pick a directory.
     /// If used, no files in the directories will be shown to the user.
     /// Use the `open()` method instead, if you still want to display files to the user.
     /// This function resets the file dialog. Configuration variables such as
-    /// `initial_directory` are retained.
+    /// `initial_path` are retained.
     ///
     /// The function ignores the result of the initial directory loading operation.
     pub fn pick_directory(&mut self) {
@@ -394,7 +404,7 @@ impl FileDialog {
 
     /// Shortcut function to open the file dialog to prompt the user to pick a file.
     /// This function resets the file dialog. Configuration variables such as
-    /// `initial_directory` are retained.
+    /// `initial_path` are retained.
     ///
     /// The function ignores the result of the initial directory loading operation.
     pub fn pick_file(&mut self) {
@@ -405,7 +415,7 @@ impl FileDialog {
 
     /// Shortcut function to open the file dialog to prompt the user to pick multiple
     /// files and folders.
-    /// This function resets the file dialog. Configuration variables such as `initial_directory`
+    /// This function resets the file dialog. Configuration variables such as `initial_path`
     /// are retained.
     ///
     /// The function ignores the result of the initial directory loading operation.
@@ -417,7 +427,7 @@ impl FileDialog {
 
     /// Shortcut function to open the file dialog to prompt the user to save a file.
     /// This function resets the file dialog. Configuration variables such as
-    /// `initial_directory` are retained.
+    /// `initial_path` are retained.
     ///
     /// The function ignores the result of the initial directory loading operation.
     pub fn save_file(&mut self) {
@@ -540,15 +550,17 @@ impl FileDialog {
     }
 
     /// Sets the first loaded directory when the dialog opens.
-    /// If the path is a file, the file's parent directory is used. If the path then has no
-    /// parent directory or cannot be loaded, the user will receive an error.
+    /// If the path is a file, the file's parent directory is used,
+    /// and the file will become selected.
+    /// If the path then has no parent directory or cannot be loaded,
+    /// the user will receive an error.
     /// However, the user directories and system disk allow the user to still select a file in
     /// the event of an error.
     ///
     /// Since `fs::canonicalize` is used, both absolute paths and relative paths are allowed.
     /// See `FileDialog::canonicalize_paths` for more information.
-    pub fn initial_directory(mut self, directory: PathBuf) -> Self {
-        self.config.initial_directory = directory;
+    pub fn initial_path(mut self, directory: PathBuf) -> Self {
+        self.config.initial_path = directory;
         self
     }
 
@@ -1885,36 +1897,36 @@ impl FileDialog {
         let user_directories = std::mem::take(&mut self.user_directories);
         let labels = std::mem::take(&mut self.config.labels);
 
-        let mut visible = false;
+        let visible = match &user_directories {
+            Some(dirs) => {
+                ui.add_space(spacing);
+                ui.label(labels.heading_places.as_str());
 
-        if let Some(dirs) = &user_directories {
-            ui.add_space(spacing);
-            ui.label(labels.heading_places.as_str());
-
-            if let Some(path) = dirs.home_dir() {
-                self.ui_update_left_panel_entry(ui, &labels.home_dir, path);
+                if let Some(path) = dirs.home_dir() {
+                    self.ui_update_left_panel_entry(ui, &labels.home_dir, path);
+                }
+                if let Some(path) = dirs.desktop_dir() {
+                    self.ui_update_left_panel_entry(ui, &labels.desktop_dir, path);
+                }
+                if let Some(path) = dirs.document_dir() {
+                    self.ui_update_left_panel_entry(ui, &labels.documents_dir, path);
+                }
+                if let Some(path) = dirs.download_dir() {
+                    self.ui_update_left_panel_entry(ui, &labels.downloads_dir, path);
+                }
+                if let Some(path) = dirs.audio_dir() {
+                    self.ui_update_left_panel_entry(ui, &labels.audio_dir, path);
+                }
+                if let Some(path) = dirs.picture_dir() {
+                    self.ui_update_left_panel_entry(ui, &labels.pictures_dir, path);
+                }
+                if let Some(path) = dirs.video_dir() {
+                    self.ui_update_left_panel_entry(ui, &labels.videos_dir, path);
+                }
+                true
             }
-            if let Some(path) = dirs.desktop_dir() {
-                self.ui_update_left_panel_entry(ui, &labels.desktop_dir, path);
-            }
-            if let Some(path) = dirs.document_dir() {
-                self.ui_update_left_panel_entry(ui, &labels.documents_dir, path);
-            }
-            if let Some(path) = dirs.download_dir() {
-                self.ui_update_left_panel_entry(ui, &labels.downloads_dir, path);
-            }
-            if let Some(path) = dirs.audio_dir() {
-                self.ui_update_left_panel_entry(ui, &labels.audio_dir, path);
-            }
-            if let Some(path) = dirs.picture_dir() {
-                self.ui_update_left_panel_entry(ui, &labels.pictures_dir, path);
-            }
-            if let Some(path) = dirs.video_dir() {
-                self.ui_update_left_panel_entry(ui, &labels.videos_dir, path);
-            }
-
-            visible = true;
-        }
+            None => false,
+        };
 
         self.user_directories = user_directories;
         self.config.labels = labels;
@@ -3188,17 +3200,17 @@ impl FileDialog {
     ///   - Attempts to use the parent directory if the path is a file
     fn get_initial_directory(&self) -> PathBuf {
         let path = match self.config.opening_mode {
-            OpeningMode::AlwaysInitialDir => &self.config.initial_directory,
+            OpeningMode::AlwaysInitialPath => &self.config.initial_path,
             OpeningMode::LastVisitedDir => self
                 .storage
                 .last_visited_dir
                 .as_deref()
-                .unwrap_or(&self.config.initial_directory),
+                .unwrap_or(&self.config.initial_path),
             OpeningMode::LastPickedDir => self
                 .storage
                 .last_picked_dir
                 .as_deref()
-                .unwrap_or(&self.config.initial_directory),
+                .unwrap_or(&self.config.initial_path),
         };
 
         let mut path = self.canonicalize_path(path);
