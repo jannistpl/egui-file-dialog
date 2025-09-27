@@ -393,7 +393,7 @@ impl FileDialog {
     /// If used, no files in the directories will be shown to the user.
     /// Use the `open()` method instead, if you still want to display files to the user.
     /// This function resets the file dialog. Configuration variables such as
-    /// `initial_directory` are retained.
+    /// `initial_path` are retained.
     ///
     /// The function ignores the result of the initial directory loading operation.
     pub fn pick_directory(&mut self) {
@@ -404,7 +404,7 @@ impl FileDialog {
 
     /// Shortcut function to open the file dialog to prompt the user to pick a file.
     /// This function resets the file dialog. Configuration variables such as
-    /// `initial_directory` are retained.
+    /// `initial_path` are retained.
     ///
     /// The function ignores the result of the initial directory loading operation.
     pub fn pick_file(&mut self) {
@@ -415,7 +415,7 @@ impl FileDialog {
 
     /// Shortcut function to open the file dialog to prompt the user to pick multiple
     /// files and folders.
-    /// This function resets the file dialog. Configuration variables such as `initial_directory`
+    /// This function resets the file dialog. Configuration variables such as `initial_path`
     /// are retained.
     ///
     /// The function ignores the result of the initial directory loading operation.
@@ -427,7 +427,7 @@ impl FileDialog {
 
     /// Shortcut function to open the file dialog to prompt the user to save a file.
     /// This function resets the file dialog. Configuration variables such as
-    /// `initial_directory` are retained.
+    /// `initial_path` are retained.
     ///
     /// The function ignores the result of the initial directory loading operation.
     pub fn save_file(&mut self) {
@@ -550,14 +550,16 @@ impl FileDialog {
     }
 
     /// Sets the first loaded directory when the dialog opens.
-    /// If the path is a file, the file's parent directory is used. If the path then has no
-    /// parent directory or cannot be loaded, the user will receive an error.
+    /// If the path is a file, the file's parent directory is used,
+    /// and the file will become selected.
+    /// If the path then has no parent directory or cannot be loaded,
+    /// the user will receive an error.
     /// However, the user directories and system disk allow the user to still select a file in
     /// the event of an error.
     ///
     /// Since `fs::canonicalize` is used, both absolute paths and relative paths are allowed.
     /// See `FileDialog::canonicalize_paths` for more information.
-    pub fn initial_directory(mut self, directory: PathBuf) -> Self {
+    pub fn initial_path(mut self, directory: PathBuf) -> Self {
         self.config.initial_path = directory;
         self
     }
