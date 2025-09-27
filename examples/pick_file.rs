@@ -27,7 +27,7 @@ impl eframe::App for MyApp {
                 cfg.opening_mode = OpeningMode::LastVisitedDir;
                 if self.remember_pick {
                     if let Some(picked_file) = &self.picked_file {
-                        cfg.initial_path = picked_file.clone();
+                        cfg.initial_path.clone_from(picked_file);
                         cfg.opening_mode = OpeningMode::AlwaysInitialPath;
                     }
                 }
