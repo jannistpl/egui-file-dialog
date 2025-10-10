@@ -323,7 +323,7 @@ impl DirectoryContent {
         &self.state
     }
 
-    /// Returns an iterator in the given range of the directory cotnents.
+    /// Returns an iterator in the given range of the directory contents.
     /// No filters are applied using this iterator.
     pub fn iter_range_mut(
         &mut self,
