@@ -1284,12 +1284,12 @@ impl FileDialog {
             .interactable(true)
             .fixed_pos(egui::Pos2::ZERO)
             .show(ctx, |ui| {
-                let screen_rect = ctx.input(|i| i.screen_rect);
+                let content_rect = ctx.input(egui::InputState::content_rect);
 
-                ui.allocate_response(screen_rect.size(), egui::Sense::click());
+                ui.allocate_response(content_rect.size(), egui::Sense::click());
 
                 ui.painter().rect_filled(
-                    screen_rect,
+                    content_rect,
                     egui::CornerRadius::ZERO,
                     self.config.modal_overlay_color,
                 );
@@ -1885,9 +1885,7 @@ impl FileDialog {
         let user_directories = std::mem::take(&mut self.user_directories);
         let labels = std::mem::take(&mut self.config.labels);
 
-        let mut visible = false;
-
-        if let Some(dirs) = &user_directories {
+        let visible = if let Some(dirs) = &user_directories {
             ui.add_space(spacing);
             ui.label(labels.heading_places.as_str());
 
@@ -1913,8 +1911,10 @@ impl FileDialog {
                 self.ui_update_left_panel_entry(ui, &labels.videos_dir, path);
             }
 
-            visible = true;
-        }
+            true
+        } else {
+            false
+        };
 
         self.user_directories = user_directories;
         self.config.labels = labels;
@@ -2660,7 +2660,7 @@ impl FileDialog {
 
     /// Calculates the width of a single char.
     fn calc_char_width(ui: &egui::Ui, char: char) -> f32 {
-        ui.fonts(|f| f.glyph_width(&egui::TextStyle::Body.resolve(ui.style()), char))
+        ui.fonts_mut(|f| f.glyph_width(&egui::TextStyle::Body.resolve(ui.style()), char))
     }
 
     /// Calculates the width of the specified text using the current font configuration.
