@@ -153,6 +153,7 @@ fn gen_display_name(name: &str, mount_point: &str) -> String {
 
 #[cfg(windows)]
 fn load_disks(canonicalize_paths: bool) -> Vec<Disk> {
+    #![allow(unused_mut)]
     let mut disks: Vec<Disk> = sysinfo::Disks::new_with_refreshed_list()
         .iter()
         .map(|d| Disk::from_sysinfo_disk(d, canonicalize_paths))
