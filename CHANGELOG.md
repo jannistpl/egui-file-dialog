@@ -1,5 +1,11 @@
 # egui-file-dialog changelog
 
+## Unreleased
+
+### ✨ Features
+
+- Allow to customize more icons: parent directory, back, forward, new folder, menu [#294](https://github.com/jannistpl/egui-file-dialog/pull/294) (thanks [@Jupeyy](https://github.com/Jupeyy)!)
+
 ## 2025-10-10 - v0.12.0 - egui update and QoL changes
 
 ### 🚨 Breaking Changes
