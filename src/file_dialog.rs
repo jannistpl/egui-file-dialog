@@ -1436,7 +1436,7 @@ impl FileDialog {
                     BUTTON_SIZE,
                     egui::Layout::centered_and_justified(egui::Direction::LeftToRight),
                     |ui| {
-                       let menu_icon = std::mem::take(&mut self.config.menu_icon);
+                        let menu_icon = std::mem::take(&mut self.config.menu_icon);
                         ui.menu_button(&menu_icon, |ui| {
                             self.ui_update_hamburger_menu(ui);
                         });
