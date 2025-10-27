@@ -6,6 +6,10 @@
 
 - Allow to customize more icons: parent directory, back, forward, new folder, menu [#294](https://github.com/jannistpl/egui-file-dialog/pull/294) (thanks [@Jupeyy](https://github.com/Jupeyy)!)
 
+### 🐛 Bug Fixes
+
+- Fix compilation on i686-pc-windows-msvc and i686-win7-windows-msvc [#293](https://github.com/jannistpl/egui-file-dialog/pull/293) (thanks [@mq1](https://github.com/mq1)!)
+
 ## 2025-10-10 - v0.12.0 - egui update and QoL changes
 
 ### 🚨 Breaking Changes
