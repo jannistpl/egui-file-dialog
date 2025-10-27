@@ -657,6 +657,36 @@ impl FileDialog {
         self
     }
 
+    /// Sets the icon used for the parent directory navigation button.
+    pub fn parent_directory_icon(mut self, icon: &str) -> Self {
+        self.config.parent_directory_icon = icon.to_string();
+        self
+    }
+
+    /// Sets the icon used for the back navigation button.
+    pub fn back_icon(mut self, icon: &str) -> Self {
+        self.config.back_icon = icon.to_string();
+        self
+    }
+
+    /// Sets the icon used for the forward navigation button.
+    pub fn forward_icon(mut self, icon: &str) -> Self {
+        self.config.forward_icon = icon.to_string();
+        self
+    }
+
+    /// Sets the icon used for the create new folder button.
+    pub fn new_folder_icon(mut self, icon: &str) -> Self {
+        self.config.new_folder_icon = icon.to_string();
+        self
+    }
+
+    /// Sets the icon used for the top panel menu button.
+    pub fn menu_icon(mut self, icon: &str) -> Self {
+        self.config.menu_icon = icon.to_string();
+        self
+    }
+
     /// Adds a new file filter the user can select from a dropdown widget.
     ///
     /// NOTE: The name must be unique. If a filter with the same name already exists,
@@ -1406,9 +1436,11 @@ impl FileDialog {
                     BUTTON_SIZE,
                     egui::Layout::centered_and_justified(egui::Direction::LeftToRight),
                     |ui| {
-                        ui.menu_button("☰", |ui| {
+                        let menu_icon = std::mem::take(&mut self.config.menu_icon);
+                        ui.menu_button(&menu_icon, |ui| {
                             self.ui_update_hamburger_menu(ui);
                         });
+                        self.config.menu_icon = menu_icon;
                     },
                 );
             }
@@ -1425,11 +1457,23 @@ impl FileDialog {
     fn ui_update_nav_buttons(&mut self, ui: &mut egui::Ui, button_size: egui::Vec2) {
         if self.config.show_parent_button {
             if let Some(x) = self.current_directory() {
-                if self.ui_button_sized(ui, x.parent().is_some(), button_size, "⏶", None) {
+                if self.ui_button_sized(
+                    ui,
+                    x.parent().is_some(),
+                    button_size,
+                    self.config.parent_directory_icon.as_str(),
+                    None,
+                ) {
                     self.load_parent_directory();
                 }
             } else {
-                let _ = self.ui_button_sized(ui, false, button_size, "⏶", None);
+                let _ = self.ui_button_sized(
+                    ui,
+                    false,
+                    button_size,
+                    self.config.parent_directory_icon.as_str(),
+                    None,
+                );
             }
         }
 
@@ -1438,7 +1482,7 @@ impl FileDialog {
                 ui,
                 self.directory_offset + 1 < self.directory_stack.len(),
                 button_size,
-                "⏴",
+                self.config.back_icon.as_str(),
                 None,
             )
         {
@@ -1446,7 +1490,13 @@ impl FileDialog {
         }
 
         if self.config.show_forward_button
-            && self.ui_button_sized(ui, self.directory_offset != 0, button_size, "⏵", None)
+            && self.ui_button_sized(
+                ui,
+                self.directory_offset != 0,
+                button_size,
+                self.config.forward_icon.as_str(),
+                None,
+            )
         {
             self.load_next_directory();
         }
@@ -1456,7 +1506,7 @@ impl FileDialog {
                 ui,
                 !self.create_directory_dialog.is_open(),
                 button_size,
-                "+",
+                self.config.new_folder_icon.as_str(),
                 None,
             )
         {
