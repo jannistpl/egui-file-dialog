@@ -138,6 +138,16 @@ pub struct FileDialogConfig {
     pub device_icon: String,
     /// The icon used to display removable devices in the left panel.
     pub removable_device_icon: String,
+    /// The icon used for the parent directory navigation button.
+    pub parent_directory_icon: String,
+    /// The icon used for the back navigation button.
+    pub back_icon: String,
+    /// The icon used for the forward navigation button.
+    pub forward_icon: String,
+    /// The icon used for the create new folder button.
+    pub new_folder_icon: String,
+    /// The icon used for the top panel menu button.
+    pub menu_icon: String,
 
     /// File filters presented to the user in a dropdown.
     pub file_filters: Vec<FileFilter>,
@@ -272,6 +282,11 @@ impl FileDialogConfig {
             pinned_icon: String::from("📌"),
             device_icon: String::from("🖴"),
             removable_device_icon: String::from("💾"),
+            parent_directory_icon: String::from("⏶"),
+            back_icon: String::from("⏴"),
+            forward_icon: String::from("⏵"),
+            new_folder_icon: String::from("+"),
+            menu_icon: String::from("☰"),
 
             file_filters: Vec::new(),
             default_file_filter: None,

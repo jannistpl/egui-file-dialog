@@ -153,36 +153,40 @@ fn gen_display_name(name: &str, mount_point: &str) -> String {
 
 #[cfg(windows)]
 fn load_disks(canonicalize_paths: bool) -> Vec<Disk> {
+    #![allow(unused_mut)]
     let mut disks: Vec<Disk> = sysinfo::Disks::new_with_refreshed_list()
         .iter()
         .map(|d| Disk::from_sysinfo_disk(d, canonicalize_paths))
         .collect();
 
-    // `sysinfo::Disks` currently do not include mapped network drives on Windows.
-    // We will load all other available drives using the Windows API.
-    // However, the sysinfo disks have priority, we are just adding to the list.
-    #[allow(unsafe_code)]
-    let mut drives = unsafe { GetLogicalDrives() };
-    let mut letter = b'A';
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+    {
+        // `sysinfo::Disks` currently do not include mapped network drives on Windows.
+        // We will load all other available drives using the Windows API.
+        // However, the sysinfo disks have priority, we are just adding to the list.
+        #[allow(unsafe_code)]
+        let mut drives = unsafe { GetLogicalDrives() };
+        let mut letter = b'A';
 
-    while drives > 0 {
-        if drives & 1 != 0 {
-            let path = PathBuf::from(format!("{}:\\", letter as char));
-            let mount_point = canonicalize(&path, canonicalize_paths);
+        while drives > 0 {
+            if drives & 1 != 0 {
+                let path = PathBuf::from(format!("{}:\\", letter as char));
+                let mount_point = canonicalize(&path, canonicalize_paths);
 
-            if !disks.iter().any(|d| d.mount_point == mount_point) {
-                disks.push(Disk::new(None, &path, false, canonicalize_paths));
+                if !disks.iter().any(|d| d.mount_point == mount_point) {
+                    disks.push(Disk::new(None, &path, false, canonicalize_paths));
+                }
             }
-        }
 
-        drives >>= 1;
-        letter += 1;
+            drives >>= 1;
+            letter += 1;
+        }
     }
 
     disks
 }
 
-#[cfg(windows)]
+#[cfg(all(windows, any(target_arch = "x86_64", target_arch = "aarch64")))]
 extern "C" {
     pub fn GetLogicalDrives() -> u32;
 }

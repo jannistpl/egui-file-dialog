@@ -1,5 +1,27 @@
 # egui-file-dialog changelog
 
+## Unreleased
+
+### ✨ Features
+
+- Allow to customize more icons: parent directory, back, forward, new folder, menu [#294](https://github.com/jannistpl/egui-file-dialog/pull/294) (thanks [@Jupeyy](https://github.com/Jupeyy)!)
+
+### 🐛 Bug Fixes
+
+- Fix compilation on i686-pc-windows-msvc and i686-win7-windows-msvc [#293](https://github.com/jannistpl/egui-file-dialog/pull/293) (thanks [@mq1](https://github.com/mq1)!)
+
+## 2025-10-10 - v0.12.0 - egui update and QoL changes
+
+### 🚨 Breaking Changes
+
+- Updated `egui` from version `0.32` to version `0.33` [#289](https://github.com/jannistpl/egui-file-dialog/pull/289)
+- Updated `FileDialog::state` to borrow the file dialog's state instead of cloning it [#282](https://github.com/jannistpl/egui-file-dialog/pull/282)
+- Prevent user data from being cleared when the file dialog is reset [#285](https://github.com/jannistpl/egui-file-dialog/pull/285)
+
+### 🔧 Changes
+
+- Updated `sysinfo` from version `0.36` to version `0.37` [#290](https://github.com/jannistpl/egui-file-dialog/pull/290)
+
 ## 2025-07-10 - v0.11.0 - egui update and QoL changes
 
 ### 🚨 Breaking Changes
