@@ -2698,7 +2698,7 @@ impl FileDialog {
         ui.style()
             .text_styles
             .get(&TextStyle::Body)
-            .map_or(15.0, |font_id| 1.0 + ui.fonts(|f| f.row_height(font_id)))
+            .map_or(15.0, |font_id| 1.0 + ui.fonts_mut(|f| f.row_height(font_id)))
     }
 
     fn should_render_all_items(&self) -> bool {

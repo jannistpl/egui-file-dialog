@@ -4,7 +4,7 @@ use std::time::SystemTime;
 
 /// Calculates the width of a single char.
 fn calc_char_width(ui: &egui::Ui, char: char) -> f32 {
-    ui.fonts(|f| f.glyph_width(&egui::TextStyle::Body.resolve(ui.style()), char))
+    ui.fonts_mut(|f| f.glyph_width(&egui::TextStyle::Body.resolve(ui.style()), char))
 }
 
 /// Calculates the width of the specified text using the current font configuration.

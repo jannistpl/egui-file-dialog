@@ -331,8 +331,8 @@ impl DirectoryContent {
         range: std::ops::Range<usize>,
     ) -> impl Iterator<Item = &mut DirectoryEntry> {
         self.content[range].iter_mut()
-
-        /// Returns one directory entry by index
+    }
+    /// Returns one directory entry by index
     pub fn get(&mut self, i: usize) -> Option<&mut DirectoryEntry> {
         self.content.get_mut(i)
     }
