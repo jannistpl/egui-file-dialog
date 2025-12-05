@@ -147,6 +147,10 @@ pub struct FileDialogConfig {
     pub new_folder_icon: String,
     /// The icon used for the top panel menu button.
     pub menu_icon: String,
+    /// The icon used for the search input in the top panel.
+    pub search_icon: String,
+    /// The icon used for the path edit input in the top panel.
+    pub path_edit_icon: String,
 
     /// File filters presented to the user in a dropdown.
     pub file_filters: Vec<FileFilter>,
@@ -279,6 +283,8 @@ impl FileDialogConfig {
             forward_icon: String::from("⏵"),
             new_folder_icon: String::from("+"),
             menu_icon: String::from("☰"),
+            search_icon: String::from("🔍"),
+            path_edit_icon: String::from("🖊"),
 
             file_filters: Vec::new(),
             default_file_filter: None,
