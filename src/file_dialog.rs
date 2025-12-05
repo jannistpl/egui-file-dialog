@@ -687,6 +687,18 @@ impl FileDialog {
         self
     }
 
+    /// Sets the icon used for the top panel search button.
+    pub fn search_icon(mut self, icon: &str) -> Self {
+        self.config.search_icon = icon.to_string();
+        self
+    }
+
+    /// Sets the icon used for the top panel path edit button.
+    pub fn path_edit_icon(mut self, icon: &str) -> Self {
+        self.config.path_edit_icon = icon.to_string();
+        self
+    }
+
     /// Adds a new file filter the user can select from a dropdown widget.
     ///
     /// NOTE: The name must be unique. If a filter with the same name already exists,
@@ -1602,7 +1614,7 @@ impl FileDialog {
         if ui
             .add_sized(
                 edit_button_size,
-                egui::Button::new("🖊").fill(egui::Color32::TRANSPARENT),
+                egui::Button::new(self.config.path_edit_icon.as_str()).fill(egui::Color32::TRANSPARENT),
             )
             .clicked()
         {
@@ -1711,7 +1723,7 @@ impl FileDialog {
                 ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
                     ui.add_space(ui.ctx().style().spacing.item_spacing.y);
 
-                    ui.label(egui::RichText::from("🔍").size(15.0));
+                    ui.label(egui::RichText::from(self.config.search_icon.as_str()).size(15.0));
 
                     let re = ui.add_sized(
                         egui::Vec2::new(ui.available_width(), 0.0),
