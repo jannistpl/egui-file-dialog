@@ -1614,7 +1614,8 @@ impl FileDialog {
         if ui
             .add_sized(
                 edit_button_size,
-                egui::Button::new(self.config.path_edit_icon.as_str()).fill(egui::Color32::TRANSPARENT),
+                egui::Button::new(self.config.path_edit_icon.as_str())
+                    .fill(egui::Color32::TRANSPARENT),
             )
             .clicked()
         {
