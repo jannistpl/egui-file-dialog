@@ -124,7 +124,7 @@ impl FileSystem for NativeFileSystem {
             buffer.push_str(&chars_read);
         }
 
-        Ok(buffer.clone())
+        Ok(buffer)
     }
 
     fn get_disks(&self, canonicalize_paths: bool) -> Disks {
