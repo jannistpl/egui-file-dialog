@@ -376,7 +376,7 @@ impl FileDialog {
         self.window_id = self
             .config
             .id
-            .map_or_else(|| egui::Id::new(self.get_window_title()), |id| id);
+            .unwrap_or_else(|| egui::Id::new(self.get_window_title()));
 
         self.load_directory(&self.get_initial_directory());
     }
