@@ -10,6 +10,7 @@
 ### 🔧 Changes
 
 - Remove unnecessary clone [#297](https://github.com/jannistpl/egui-file-dialog/pull/297)
+- Improve format of imports using rusfmt nightly [#300](https://github.com/jannistpl/egui-file-dialog/pull/300)
 
 ### 🐛 Bug Fixes
 
