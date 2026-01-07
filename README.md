@@ -10,13 +10,13 @@
 <details>
 <summary>Table of contents</summary>
 
-1. [Git LFS](#git-lfs)
 1. [Features](#features)
 1. [Example](#example)
 1. [Keybindings](#keybindings)
 1. [Customization](#customization)
 1. [Multilingual support](#multilingual-support)
 1. [Persistent data](#persistent-data)
+1. [Development](#development)
 
 </details>
 
@@ -31,18 +31,8 @@ on all platforms.
 <img src="media/readme/demo.png">
 
 The latest changes included in the next release can be found in the
-[CHANGELOG.md](https://github.com/jannistpl/egui-file-dialog/blob/develop/CHANGELOG.md)
-file on the develop branch.
-
-## Git LFS
-
-This repository uses Git LFS (Large File Storage) to efficiently manage PNG files.
-Git LFS replaces large files with lightweight pointers in the repository, ensuring the
-repository remains fast and responsive.
-
-1. Install Git LFS: <https://git-lfs.com>
-2. Run `git lfs install` to initialize Git LFS
-3. Run `git lfs pull` to download all files tracked by Git LFS
+[CHANGELOG.md](https://github.com/jannistpl/egui-file-dialog/blob/main/CHANGELOG.md)
+file.
 
 ## Features
 
@@ -75,7 +65,7 @@ repository remains fast and responsive.
 ## Example
 
 Detailed examples that can be run can be found in the
-[examples](https://github.com/jannistpl/egui-file-dialog/tree/develop/examples) folder.
+[examples](https://github.com/jannistpl/egui-file-dialog/tree/main/examples) folder.
 
 The following example shows the basic use of the file dialog with
 [eframe](https://github.com/emilk/egui/tree/master/crates/eframe) to select a file.
@@ -236,7 +226,7 @@ update the file dialog with `update_with_right_panel_ui` instead of `update`.
 This allows e.g. to display custom image previews or further
 information about the selected item. See
 [custom-right-panel](
-https://github.com/jannistpl/egui-file-dialog/tree/develop/examples/custom-right-panel
+https://github.com/jannistpl/egui-file-dialog/tree/main/examples/custom-right-panel
 )
 for the full example.
 
@@ -360,3 +350,17 @@ impl eframe::App for MyApp {
 
 Feel free to contribute to the project. If you have any questions or need help,
 please open an issue.
+
+This repository uses the nightly version of rustfmt for better code formatting,
+specifically using the `imports_granularity` and `group_imports` options. Therefore, you need to
+run `cargo +nightly fmt` to automatically format the source files.
+
+### Git LFS
+
+This repository uses Git LFS (Large File Storage) to efficiently manage PNG files.
+Git LFS replaces large files with lightweight pointers in the repository, ensuring the
+repository remains fast and responsive.
+
+1. Install Git LFS: <https://git-lfs.com>
+2. Run `git lfs install` to initialize Git LFS
+3. Run `git lfs pull` to download all files tracked by Git LFS
