@@ -17,6 +17,10 @@
 
 - Fix compilation on i686-pc-windows-msvc and i686-win7-windows-msvc [#293](https://github.com/jannistpl/egui-file-dialog/pull/293) (thanks [@mq1](https://github.com/mq1)!)
 
+### 📚 Documentation
+
+- Improve `README.md` [#302](https://github.com/jannistpl/egui-file-dialog/pull/302)
+
 ## 2025-10-10 - v0.12.0 - egui update and QoL changes
 
 ### 🚨 Breaking Changes
