@@ -1,3 +1,10 @@
+use std::any::Any;
+use std::fmt::Debug;
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
+
+use egui::text::{CCursor, CCursorRange};
+
 use crate::config::{
     FileDialogConfig, FileDialogKeyBindings, FileDialogLabels, FileFilter, Filter, OpeningMode,
     PinnedFolder, QuickAccess, SaveExtension,
@@ -9,11 +16,6 @@ use crate::data::{
 };
 use crate::modals::{FileDialogModal, ModalAction, ModalState, OverwriteFileModal};
 use crate::{FileSystem, NativeFileSystem};
-use egui::text::{CCursor, CCursorRange};
-use std::any::Any;
-use std::fmt::Debug;
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
 
 /// Represents the mode the file dialog is currently in.
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
