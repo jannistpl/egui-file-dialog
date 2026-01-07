@@ -1,10 +1,12 @@
-use crate::config::{FileDialogConfig, FileFilter};
-use crate::FileSystem;
-use egui::mutex::Mutex;
 use std::path::{Path, PathBuf};
 use std::sync::{mpsc, Arc};
 use std::time::SystemTime;
 use std::{io, thread};
+
+use egui::mutex::Mutex;
+
+use crate::config::{FileDialogConfig, FileFilter};
+use crate::FileSystem;
 
 #[derive(Clone, Debug)]
 pub struct DirectoryFilter {

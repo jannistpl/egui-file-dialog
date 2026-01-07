@@ -2,11 +2,11 @@ mod labels;
 pub use labels::FileDialogLabels;
 
 mod keybindings;
-pub use keybindings::{FileDialogKeyBindings, KeyBinding};
-
 use std::fmt::Display;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+
+pub use keybindings::{FileDialogKeyBindings, KeyBinding};
 
 use crate::{FileSystem, NativeFileSystem};
 

@@ -235,5 +235,4 @@ pub use config::{
 };
 pub use data::{DirectoryEntry, Disk, Disks, Metadata, UserDirectories};
 pub use file_dialog::{DialogMode, DialogState, FileDialog, FileDialogStorage};
-
 pub use file_system::{FileSystem, NativeFileSystem};

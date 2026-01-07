@@ -1,10 +1,8 @@
-use egui_file_dialog::{Disk, Disks, FileDialog, FileSystem, Metadata};
-use std::{
-    path::{Component, Path, PathBuf},
-    sync::Arc,
-};
+use std::path::{Component, Path, PathBuf};
+use std::sync::Arc;
 
 use eframe::egui;
+use egui_file_dialog::{Disk, Disks, FileDialog, FileSystem, Metadata};
 
 struct MyApp {
     file_dialog: FileDialog,

@@ -1,4 +1,5 @@
-use std::{path::PathBuf, sync::Arc};
+use std::path::PathBuf;
+use std::sync::Arc;
 
 use eframe::egui;
 use egui_file_dialog::{DialogMode, FileDialog};
