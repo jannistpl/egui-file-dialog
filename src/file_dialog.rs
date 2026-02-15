@@ -1040,6 +1040,15 @@ impl FileDialog {
         self
     }
 
+    /// Sets whether the default filter "All files" should be displayed in the file
+    /// filter selection dropdown in the bottom panel.
+    ///
+    /// Has no effect when `FileDialog::show_top_panel` is disabled.
+    pub const fn show_all_files_filter(mut self, show_all_files_filter: bool) -> Self {
+        self.config.show_all_files_filter = show_all_files_filter;
+        self
+    }
+
     /// Sets if the sidebar with the shortcut directories such as
     /// “Home”, “Documents” etc. should be visible.
     pub const fn show_left_panel(mut self, show_left_panel: bool) -> Self {

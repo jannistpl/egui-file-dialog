@@ -225,6 +225,8 @@ pub struct FileDialogConfig {
     pub show_system_files_option: bool,
     /// If the search input in the top panel should be visible.
     pub show_search: bool,
+    /// If the default "All files" filter should be visible in the UI.
+    pub show_all_files_filter: bool,
 
     /// Set the width of the right panel, if used
     pub right_panel_width: Option<f32>,
@@ -322,6 +324,7 @@ impl FileDialogConfig {
             show_hidden_option: true,
             show_system_files_option: true,
             show_search: true,
+            show_all_files_filter: true,
 
             right_panel_width: None,
             show_left_panel: true,
