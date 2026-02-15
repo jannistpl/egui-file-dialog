@@ -1002,6 +1002,19 @@ impl FileDialog {
         self
     }
 
+    /// Sets if the "Select all" button in the hamburger menu should be visible.
+    ///
+    /// Has no effect when `FileDialog::show_top_panel` or
+    /// `FileDialog::show_menu_button` is disabled or when the file dialog is not
+    /// in `DialogMode::PickMultiple` mode.
+    pub const fn show_select_all_button(
+        mut self,
+        show_select_all_button: bool,
+    ) -> Self {
+        self.config.show_select_all_button = show_select_all_button;
+        self
+    }
+
     /// Sets whether the show hidden files and folders option inside the top panel
     /// menu should be visible.
     ///
