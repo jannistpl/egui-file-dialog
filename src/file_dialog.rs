@@ -1040,8 +1040,12 @@ impl FileDialog {
         self
     }
 
-    /// Sets whether the default filter "All files" should be displayed in the file
+    /// Sets whether the default filter "All Files" should be displayed in the file
     /// filter selection dropdown in the bottom panel.
+    ///
+    /// Make sure you specify the default selected file filter using
+    /// `FileDialog::default_file_filter` if the "All Files" filter is disabled.
+    /// Otherwise the "All Files" filter is selected by default but not visible in the UI.
     ///
     /// Has no effect when `FileDialog::show_top_panel` is disabled.
     pub const fn show_all_files_filter(mut self, show_all_files_filter: bool) -> Self {
@@ -2275,12 +2279,13 @@ impl FileDialog {
                     }
                 }
 
-                if ui
-                    .selectable_label(
-                        selected_filter.is_none(),
-                        &self.config.labels.file_filter_all_files,
-                    )
-                    .clicked()
+                if self.config.show_all_files_filter
+                    && ui
+                        .selectable_label(
+                            selected_filter.is_none(),
+                            &self.config.labels.file_filter_all_files,
+                        )
+                        .clicked()
                 {
                     select_filter = Some(None);
                 }
