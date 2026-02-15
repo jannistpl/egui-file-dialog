@@ -2,10 +2,16 @@
 
 ## Unreleased
 
+### 🚨 Breaking Changes
+
+- Add `select_all` to `FileDialogLabels` [304](https://github.com/jannistpl/egui-file-dialog/pull/304)
+- Add `show_select_all_button` to `FileDialogConfig` [304](https://github.com/jannistpl/egui-file-dialog/pull/304)
+
 ### ✨ Features
 
 - Allow to customize more icons: parent directory, back, forward, new folder, menu [#294](https://github.com/jannistpl/egui-file-dialog/pull/294) (thanks [@Jupeyy](https://github.com/Jupeyy)!)
 - Allow to customize search_icon and path_edit_icon [#296](https://github.com/jannistpl/egui-file-dialog/pull/296) (thanks [@mq1 ](https://github.com/mq1)!)
+- Add "Select All" option to hamburger menu [304](https://github.com/jannistpl/egui-file-dialog/pull/304)
 
 ### 🔧 Changes
 

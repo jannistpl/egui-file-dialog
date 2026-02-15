@@ -43,6 +43,8 @@ pub struct FileDialogLabels {
     pub reload: String,
     /// Text used for the option to open the working directory.
     pub working_directory: String,
+    /// Text used for the option to select all files in the directory.
+    pub select_all: String,
     /// Text used for the option to show or hide hidden files and folders.
     pub show_hidden: String,
     /// Text used for the option to show or hide system files.
@@ -136,6 +138,7 @@ impl Default for FileDialogLabels {
 
             reload: "⟲  Reload".to_string(),
             working_directory: "↗  Go to working directory".to_string(),
+            select_all: "🗐  Select all".to_string(),
             show_hidden: " Show hidden".to_string(),
             show_system_files: " Show system files".to_string(),
 
