@@ -1007,10 +1007,7 @@ impl FileDialog {
     /// Has no effect when `FileDialog::show_top_panel` or
     /// `FileDialog::show_menu_button` is disabled or when the file dialog is not
     /// in `DialogMode::PickMultiple` mode.
-    pub const fn show_select_all_button(
-        mut self,
-        show_select_all_button: bool,
-    ) -> Self {
+    pub const fn show_select_all_button(mut self, show_select_all_button: bool) -> Self {
         self.config.show_select_all_button = show_select_all_button;
         self
     }
