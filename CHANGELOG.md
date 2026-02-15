@@ -12,6 +12,7 @@
 - Remove unnecessary clone [#297](https://github.com/jannistpl/egui-file-dialog/pull/297)
 - Improve format of imports using rusfmt nightly [#300](https://github.com/jannistpl/egui-file-dialog/pull/300)
 - Fix new clippy lint added in recent rust updates [#301](https://github.com/jannistpl/egui-file-dialog/pull/301)
+- Update `sysinfo` from version `0.37` to version `0.38` [#303](https://github.com/jannistpl/egui-file-dialog/pull/303)
 
 ### 🐛 Bug Fixes
 
