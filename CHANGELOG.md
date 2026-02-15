@@ -28,6 +28,7 @@
 ### 📚 Documentation
 
 - Improve `README.md` [#302](https://github.com/jannistpl/egui-file-dialog/pull/302)
+- Update license year to 2026 [#307](https://github.com/jannistpl/egui-file-dialog/pull/307)
 
 ## 2025-10-10 - v0.12.0 - egui update and QoL changes
 
