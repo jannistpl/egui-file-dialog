@@ -1665,30 +1665,41 @@ impl FileDialog {
     fn ui_update_hamburger_menu(&mut self, ui: &mut egui::Ui) {
         const SEPARATOR_SPACING: f32 = 2.0;
 
-        if self.config.show_reload_button && ui.button(&self.config.labels.reload).clicked() {
+        let working_dir = self.config.file_system.current_dir();
+
+        let show_reload = self.config.show_reload_button;
+        let show_working_dir = self.config.show_working_directory_button && working_dir.is_ok();
+        let show_select_all =
+            self.config.show_select_all_button && self.mode == DialogMode::PickMultiple;
+
+        let show_hidden = self.config.show_hidden_option;
+        let show_system_files = self.config.show_system_files_option;
+
+        if show_reload && ui.button(&self.config.labels.reload).clicked() {
             self.refresh();
             ui.close();
         }
 
-        let working_dir = self.config.file_system.current_dir();
-
-        if self.config.show_working_directory_button
-            && working_dir.is_ok()
-            && ui.button(&self.config.labels.working_directory).clicked()
-        {
+        if show_working_dir && ui.button(&self.config.labels.working_directory).clicked() {
             self.load_directory(&working_dir.unwrap_or_default());
             ui.close();
         }
 
-        if (self.config.show_reload_button || self.config.show_working_directory_button)
-            && (self.config.show_hidden_option || self.config.show_system_files_option)
-        {
+        if show_select_all && ui.button(&self.config.labels.select_all).clicked() {
+            self.select_all_items();
+            ui.close();
+        }
+
+        let any_above = show_reload || show_working_dir || show_select_all;
+        let any_below = show_hidden || show_system_files;
+
+        if any_above && any_below {
             ui.add_space(SEPARATOR_SPACING);
             ui.separator();
             ui.add_space(SEPARATOR_SPACING);
         }
 
-        if self.config.show_hidden_option
+        if show_hidden
             && ui
                 .checkbox(
                     &mut self.storage.show_hidden,
@@ -1700,7 +1711,7 @@ impl FileDialog {
             ui.close();
         }
 
-        if self.config.show_system_files_option
+        if show_system_files
             && ui
                 .checkbox(
                     &mut self.storage.show_system_files,
@@ -2880,9 +2891,7 @@ impl FileDialog {
         if FileDialogKeyBindings::any_pressed(ctx, &keybindings.select_all, true)
             && self.mode == DialogMode::PickMultiple
         {
-            for item in self.directory_content.filtered_iter_mut(&self.search_value) {
-                item.selected = true;
-            }
+            self.select_all_items();
         }
 
         self.config.keybindings = keybindings;
@@ -3444,6 +3453,13 @@ impl FileDialog {
         }
 
         self.directory_content = directory_content;
+    }
+
+    /// Selects all items in the current directory.
+    fn select_all_items(&mut self) {
+        for item in self.directory_content.filtered_iter_mut(&self.search_value) {
+            item.selected = true;
+        }
     }
 
     /// Opens the text field in the top panel to text edit the current path.

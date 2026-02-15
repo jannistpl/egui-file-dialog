@@ -217,6 +217,8 @@ pub struct FileDialogConfig {
     pub show_reload_button: bool,
     /// If the working directory shortcut in the hamburger menu should be visible.
     pub show_working_directory_button: bool,
+    /// If the select all button in the hamburger menu should be visible.
+    pub show_select_all_button: bool,
     /// If the show hidden files and folders option inside the top panel menu should be visible.
     pub show_hidden_option: bool,
     /// If the show system files option inside the top panel menu should be visible.
@@ -316,6 +318,7 @@ impl FileDialogConfig {
             show_menu_button: true,
             show_reload_button: true,
             show_working_directory_button: true,
+            show_select_all_button: true,
             show_hidden_option: true,
             show_system_files_option: true,
             show_search: true,
