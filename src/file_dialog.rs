@@ -600,7 +600,7 @@ impl FileDialog {
         self.config
             .open_directory_filter
             .as_ref()
-            .map_or(true, |f| (f.0)(path))
+            .is_none_or(|f| (f.0)(path))
     }
 
     /// Sets the storage used by the file dialog.
