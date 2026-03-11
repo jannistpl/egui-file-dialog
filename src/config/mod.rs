@@ -243,6 +243,12 @@ pub struct FileDialogConfig {
     pub show_devices: bool,
     /// If the Removable Devices section in the left sidebar should be visible.
     pub show_removable_devices: bool,
+
+    /// Optional predicate called when the user activates a directory entry
+    /// (single-click submit via the Open button or double-click).
+    /// Return `true` to navigate *into* the directory (default behaviour);
+    /// return `false` to submit the directory as the picked path instead.
+    pub open_directory_filter: Option<DebugFilter>,
 }
 
 impl Default for FileDialogConfig {
@@ -332,6 +338,8 @@ impl FileDialogConfig {
             show_places: true,
             show_devices: true,
             show_removable_devices: true,
+
+            open_directory_filter: None,
 
             file_system,
         }
@@ -511,6 +519,17 @@ impl FileDialogConfig {
 
 /// Function that returns true if the specific item matches the filter.
 pub type Filter<T> = Arc<dyn Fn(&T) -> bool + Send + Sync>;
+
+/// Wrapper around `Filter<Path>` that provides a `Debug` implementation.
+/// Used for fields on `FileDialogConfig` that hold a `Filter<Path>`.
+#[derive(Clone)]
+pub struct DebugFilter(pub Filter<Path>);
+
+impl std::fmt::Debug for DebugFilter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "DebugFilter(..)")
+    }
+}
 
 /// Defines a specific file filter that the user can select from a dropdown.
 #[derive(Clone)]

@@ -486,6 +486,22 @@ impl FileDialog {
         &mut self.config
     }
 
+    /// Sets a predicate called when a directory entry is activated (double-click
+    /// or Open-button click).  Return `true` to navigate into the directory
+    /// (the default); return `false` to submit it as the picked path instead.
+    pub fn set_open_directory_filter(
+        &mut self,
+        filter: impl Fn(&std::path::Path) -> bool + Send + Sync + 'static,
+    ) {
+        self.config.open_directory_filter =
+            Some(crate::config::DebugFilter(std::sync::Arc::new(filter)));
+    }
+
+    /// Clears any previously set `open_directory_filter`.
+    pub fn clear_open_directory_filter(&mut self) {
+        self.config.open_directory_filter = None;
+    }
+
     /// Sets the storage used by the file dialog.
     /// Storage includes all data that is persistently stored between multiple
     /// file dialog instances.
@@ -2616,8 +2632,19 @@ impl FileDialog {
         // Either open the directory or submit the dialog.
         if re.double_clicked() && !ui.input(|i| i.modifiers.command) {
             if item.is_dir() {
-                self.load_directory(&item.to_path_buf());
-                return true;
+                // If a filter is configured, check whether we should navigate
+                // into the directory or treat it as the picked path instead.
+                let should_open_dir = self
+                    .config
+                    .open_directory_filter
+                    .as_ref()
+                    .map_or(true, |f| (f.0)(item.as_path()));
+
+                if should_open_dir {
+                    self.load_directory(&item.to_path_buf());
+                    return true;
+                }
+                // Fall through to submit the directory as the picked path.
             }
 
             self.select_item(item);
