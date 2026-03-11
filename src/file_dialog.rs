@@ -197,106 +197,6 @@ pub struct FileDialog {
     rename_pinned_folder_request_focus: bool,
 }
 
-/// This tests if file dialog is send and sync.
-#[cfg(test)]
-const fn test_prop<T: Send + Sync>() {}
-
-#[test]
-const fn test() {
-    test_prop::<FileDialog>();
-}
-
-#[cfg(test)]
-mod open_directory_filter_tests {
-    use super::*;
-    use std::path::Path;
-
-    #[test]
-    fn filter_is_none_by_default() {
-        let dialog = FileDialog::new();
-        assert!(dialog.config.open_directory_filter.is_none());
-    }
-
-    #[test]
-    fn set_open_directory_filter_stores_filter() {
-        let mut dialog = FileDialog::new();
-        dialog.set_open_directory_filter(|_: &Path| false);
-        assert!(dialog.config.open_directory_filter.is_some());
-    }
-
-    #[test]
-    fn clear_open_directory_filter_removes_filter() {
-        let mut dialog = FileDialog::new();
-        dialog.set_open_directory_filter(|_: &Path| false);
-        assert!(dialog.config.open_directory_filter.is_some());
-        dialog.clear_open_directory_filter();
-        assert!(dialog.config.open_directory_filter.is_none());
-    }
-
-    /// When no filter is set, the dialog should always navigate into directories
-    /// (the original default behaviour).
-    #[test]
-    fn no_filter_always_navigates() {
-        let dialog = FileDialog::new();
-        assert!(dialog.should_open_directory(Path::new("/any/dir")));
-    }
-
-    /// A filter that returns `false` (do not navigate) should prevent navigation.
-    #[test]
-    fn filter_returning_false_prevents_navigation() {
-        let mut dialog = FileDialog::new();
-        dialog.set_open_directory_filter(|_: &Path| false);
-        assert!(!dialog.should_open_directory(Path::new("/any/dir")));
-    }
-
-    /// A filter that returns `true` (navigate) should allow navigation.
-    #[test]
-    fn filter_returning_true_allows_navigation() {
-        let mut dialog = FileDialog::new();
-        dialog.set_open_directory_filter(|_: &Path| true);
-        assert!(dialog.should_open_directory(Path::new("/any/dir")));
-    }
-
-    /// After clearing a filter, navigation is allowed again for every path.
-    #[test]
-    fn cleared_filter_restores_default_navigation() {
-        let mut dialog = FileDialog::new();
-        dialog.set_open_directory_filter(|_: &Path| false);
-        assert!(!dialog.should_open_directory(Path::new("/any/dir")));
-        dialog.clear_open_directory_filter();
-        assert!(dialog.should_open_directory(Path::new("/any/dir")));
-    }
-
-    /// A path-sensitive filter: navigation is blocked only when the directory
-    /// contains a sentinel file (simulating the project-picker use-case).  We
-    /// use a real temporary directory so the `exists()` call is meaningful.
-    #[test]
-    fn filter_based_on_sentinel_file() {
-        let tmp = std::env::temp_dir();
-        let project_dir = tmp.join("egui_fd_test_project_dir");
-        let _ = std::fs::create_dir_all(&project_dir);
-        let sentinel = project_dir.join("project.json");
-        let _ = std::fs::write(&sentinel, b"{}");
-
-        let regular_dir = tmp.join("egui_fd_test_regular_dir");
-        let _ = std::fs::create_dir_all(&regular_dir);
-
-        let mut dialog = FileDialog::new();
-        // Mimic a project picker filter: navigate into dirs that are NOT projects.
-        dialog.set_open_directory_filter(|path: &Path| !path.join("project.json").exists());
-
-        // Project directories should NOT be navigated into (filter → false → submit).
-        assert!(!dialog.should_open_directory(&project_dir));
-        // Regular directories should be navigated into normally.
-        assert!(dialog.should_open_directory(&regular_dir));
-
-        // Cleanup
-        let _ = std::fs::remove_file(&sentinel);
-        let _ = std::fs::remove_dir(&project_dir);
-        let _ = std::fs::remove_dir(&regular_dir);
-    }
-}
-
 impl Default for FileDialog {
     /// Creates a new file dialog instance with default values.
     fn default() -> Self {
@@ -3779,5 +3679,105 @@ impl FileDialog {
         if self.mode == DialogMode::SaveFile {
             self.file_name_input_error = self.validate_file_name_input();
         }
+    }
+}
+
+/// This tests if file dialog is send and sync.
+#[cfg(test)]
+const fn test_prop<T: Send + Sync>() {}
+
+#[test]
+const fn test() {
+    test_prop::<FileDialog>();
+}
+
+#[cfg(test)]
+mod open_directory_filter_tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn filter_is_none_by_default() {
+        let dialog = FileDialog::new();
+        assert!(dialog.config.open_directory_filter.is_none());
+    }
+
+    #[test]
+    fn set_open_directory_filter_stores_filter() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(|_: &Path| false);
+        assert!(dialog.config.open_directory_filter.is_some());
+    }
+
+    #[test]
+    fn clear_open_directory_filter_removes_filter() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(|_: &Path| false);
+        assert!(dialog.config.open_directory_filter.is_some());
+        dialog.clear_open_directory_filter();
+        assert!(dialog.config.open_directory_filter.is_none());
+    }
+
+    /// When no filter is set, the dialog should always navigate into directories
+    /// (the original default behaviour).
+    #[test]
+    fn no_filter_always_navigates() {
+        let dialog = FileDialog::new();
+        assert!(dialog.should_open_directory(Path::new("/any/dir")));
+    }
+
+    /// A filter that returns `false` (do not navigate) should prevent navigation.
+    #[test]
+    fn filter_returning_false_prevents_navigation() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(|_: &Path| false);
+        assert!(!dialog.should_open_directory(Path::new("/any/dir")));
+    }
+
+    /// A filter that returns `true` (navigate) should allow navigation.
+    #[test]
+    fn filter_returning_true_allows_navigation() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(|_: &Path| true);
+        assert!(dialog.should_open_directory(Path::new("/any/dir")));
+    }
+
+    /// After clearing a filter, navigation is allowed again for every path.
+    #[test]
+    fn cleared_filter_restores_default_navigation() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(|_: &Path| false);
+        assert!(!dialog.should_open_directory(Path::new("/any/dir")));
+        dialog.clear_open_directory_filter();
+        assert!(dialog.should_open_directory(Path::new("/any/dir")));
+    }
+
+    /// A path-sensitive filter: navigation is blocked only when the directory
+    /// contains a sentinel file (simulating the project-picker use-case).  We
+    /// use a real temporary directory so the `exists()` call is meaningful.
+    #[test]
+    fn filter_based_on_sentinel_file() {
+        let tmp = std::env::temp_dir();
+        let project_dir = tmp.join("egui_fd_test_project_dir");
+        let _ = std::fs::create_dir_all(&project_dir);
+        let sentinel = project_dir.join("project.json");
+        let _ = std::fs::write(&sentinel, b"{}");
+
+        let regular_dir = tmp.join("egui_fd_test_regular_dir");
+        let _ = std::fs::create_dir_all(&regular_dir);
+
+        let mut dialog = FileDialog::new();
+        // Mimic a project picker filter: navigate into dirs that are NOT projects.
+        dialog.set_open_directory_filter(|path: &Path| !path.join("project.json").exists());
+
+        // Project directories should NOT be navigated into (filter → false → submit).
+        assert!(!dialog.should_open_directory(&project_dir));
+        // Regular directories should be navigated into normally.
+        assert!(dialog.should_open_directory(&regular_dir));
+
+        // Cleanup
+        let _ = std::fs::remove_file(&sentinel);
+        let _ = std::fs::remove_dir(&project_dir);
+        let _ = std::fs::remove_dir(&regular_dir);
     }
 }
