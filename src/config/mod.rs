@@ -122,11 +122,6 @@ pub struct FileDialogConfig {
     pub load_via_thread: bool,
     /// If we should truncate the filenames in the middle
     pub truncate_filenames: bool,
-    /// Optional predicate called when the user activates a directory entry
-    /// (single-click submit via the Open button or double-click).
-    /// Return `true` to navigate *into* the directory (default behaviour);
-    /// return `false` to submit the directory as the picked path instead.
-    pub open_directory_filter: Option<Filter<Path>>,
 
     /// The icon that is used to display error messages.
     pub err_icon: String,
@@ -157,6 +152,11 @@ pub struct FileDialogConfig {
     /// The icon used for the path edit input in the top panel.
     pub path_edit_icon: String,
 
+    /// Optional predicate called when the user activates a directory entry
+    /// (single-click submit via the Open button or double-click).
+    /// Return `true` to navigate *into* the directory (default behaviour);
+    /// return `false` to submit the directory as the picked path instead.
+    pub open_directory_filter: Option<Filter<Path>>,
     /// File filters presented to the user in a dropdown.
     pub file_filters: Vec<FileFilter>,
     /// Name of the file filter to be selected by default.
@@ -279,7 +279,6 @@ impl FileDialogConfig {
             load_via_thread: true,
 
             truncate_filenames: true,
-            open_directory_filter: None,
 
             err_icon: String::from("⚠"),
             warn_icon: String::from("⚠"),
@@ -296,6 +295,7 @@ impl FileDialogConfig {
             search_icon: String::from("🔍"),
             path_edit_icon: String::from("🖊"),
 
+            open_directory_filter: None,
             file_filters: Vec::new(),
             default_file_filter: None,
             save_extensions: Vec::new(),
@@ -375,7 +375,7 @@ impl FileDialogConfig {
 
         // Replace filter if a filter with the same name already exists.
         if let Some(item) = self.file_filters.iter_mut().find(|p| p.id == id) {
-            item.filter = filter.clone();
+            item.filter = filter;
             return self;
         }
 
