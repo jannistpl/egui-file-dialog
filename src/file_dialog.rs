@@ -3674,7 +3674,7 @@ impl FileDialog {
         self.config
             .open_directory_filter
             .as_ref()
-            .is_none_or(|f| (f.0)(path))
+            .is_none_or(|f| f.matches(path))
     }
 }
 

@@ -529,6 +529,11 @@ impl<T: ?Sized> Filter<T> {
     pub fn new(f: impl Fn(&T) -> bool + Send + Sync + 'static) -> Self {
         Self(Arc::new(f))
     }
+
+    /// Returns `true` if the item matches this filter.
+    pub(crate) fn matches(&self, item: &T) -> bool {
+        (self.0)(item)
+    }
 }
 
 impl<T: ?Sized> std::fmt::Debug for Filter<T> {
