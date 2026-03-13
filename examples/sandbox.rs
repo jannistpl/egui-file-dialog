@@ -1,8 +1,7 @@
-use std::path::PathBuf;
-use std::sync::Arc;
+use std::path::{Path, PathBuf};
 
 use eframe::egui;
-use egui_file_dialog::{DialogMode, FileDialog};
+use egui_file_dialog::{DialogMode, FileDialog, Filter};
 
 struct MyApp {
     file_dialog: FileDialog,
@@ -24,11 +23,11 @@ impl MyApp {
             .add_file_filter_extensions("Pictures", vec!["png", "jpg", "dds"])
             .add_file_filter(
                 "RS files",
-                Arc::new(|p| p.extension().unwrap_or_default() == "rs"),
+                Filter::new(|p: &Path| p.extension().unwrap_or_default() == "rs"),
             )
             .add_file_filter(
                 "TOML files",
-                Arc::new(|p| p.extension().unwrap_or_default() == "toml"),
+                Filter::new(|p: &Path| p.extension().unwrap_or_default() == "toml"),
             )
             .add_save_extension("Picture", "png")
             .add_save_extension("Rust Source File", "rs")

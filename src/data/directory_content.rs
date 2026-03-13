@@ -402,7 +402,7 @@ fn load_directory(
         }
 
         if let Some(file_filter) = &filter.file_filter {
-            if entry.is_file() && !(file_filter.filter)(entry.as_path()) {
+            if entry.is_file() && !(file_filter.filter.0)(entry.as_path()) {
                 continue;
             }
         }
@@ -441,7 +441,7 @@ fn load_directory(
 /// file icon filters.
 fn gen_path_icon(config: &FileDialogConfig, path: &Path, file_system: &dyn FileSystem) -> String {
     for def in &config.file_icon_filters {
-        if (def.filter)(path) {
+        if (def.filter.0)(path) {
             return def.icon.clone();
         }
     }

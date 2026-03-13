@@ -122,6 +122,11 @@ pub struct FileDialogConfig {
     pub load_via_thread: bool,
     /// If we should truncate the filenames in the middle
     pub truncate_filenames: bool,
+    /// Optional predicate called when the user activates a directory entry
+    /// (single-click submit via the Open button or double-click).
+    /// Return `true` to navigate *into* the directory (default behaviour);
+    /// return `false` to submit the directory as the picked path instead.
+    pub open_directory_filter: Option<Filter<Path>>,
 
     /// The icon that is used to display error messages.
     pub err_icon: String,
@@ -243,12 +248,6 @@ pub struct FileDialogConfig {
     pub show_devices: bool,
     /// If the Removable Devices section in the left sidebar should be visible.
     pub show_removable_devices: bool,
-
-    /// Optional predicate called when the user activates a directory entry
-    /// (single-click submit via the Open button or double-click).
-    /// Return `true` to navigate *into* the directory (default behaviour);
-    /// return `false` to submit the directory as the picked path instead.
-    pub open_directory_filter: Option<DebugFilter>,
 }
 
 impl Default for FileDialogConfig {
@@ -280,6 +279,7 @@ impl FileDialogConfig {
             load_via_thread: true,
 
             truncate_filenames: true,
+            open_directory_filter: None,
 
             err_icon: String::from("⚠"),
             warn_icon: String::from("⚠"),
@@ -339,8 +339,6 @@ impl FileDialogConfig {
             show_devices: true,
             show_removable_devices: true,
 
-            open_directory_filter: None,
-
             file_system,
         }
     }
@@ -361,16 +359,16 @@ impl FileDialogConfig {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use egui_file_dialog::FileDialogConfig;
+    /// use std::path::Path;
+    /// use egui_file_dialog::{FileDialogConfig, Filter};
     ///
     /// let config = FileDialogConfig::default()
     ///     .add_file_filter(
     ///         "PNG files",
-    ///         Arc::new(|path| path.extension().unwrap_or_default() == "png"))
+    ///         Filter::new(|path: &Path| path.extension().unwrap_or_default() == "png"))
     ///     .add_file_filter(
     ///         "JPG files",
-    ///         Arc::new(|path| path.extension().unwrap_or_default() == "jpg"));
+    ///         Filter::new(|path: &Path| path.extension().unwrap_or_default() == "jpg"));
     /// ```
     pub fn add_file_filter(mut self, name: &str, filter: Filter<Path>) -> Self {
         let id = egui::Id::new(name);
@@ -408,7 +406,7 @@ impl FileDialogConfig {
     pub fn add_file_filter_extensions(self, name: &str, extensions: Vec<&'static str>) -> Self {
         self.add_file_filter(
             name,
-            Arc::new(move |p| {
+            Filter::new(move |p: &Path| {
                 let extension = p
                     .extension()
                     .unwrap_or_default()
@@ -469,14 +467,14 @@ impl FileDialogConfig {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use egui_file_dialog::FileDialogConfig;
+    /// use std::path::Path;
+    /// use egui_file_dialog::{FileDialogConfig, Filter};
     ///
     /// let config = FileDialogConfig::default()
     ///     // .png files should use the "document with picture (U+1F5BB)" icon.
-    ///     .set_file_icon("🖻", Arc::new(|path| path.extension().unwrap_or_default() == "png"))
+    ///     .set_file_icon("🖻", Filter::new(|path: &Path| path.extension().unwrap_or_default() == "png"))
     ///     // .git directories should use the "web-github (U+E624)" icon.
-    ///     .set_file_icon("", Arc::new(|path| path.file_name().unwrap_or_default() == ".git"));
+    ///     .set_file_icon("", Filter::new(|path: &Path| path.file_name().unwrap_or_default() == ".git"));
     /// ```
     pub fn set_file_icon(mut self, icon: &str, filter: Filter<Path>) -> Self {
         self.file_icon_filters.push(IconFilter {
@@ -518,16 +516,24 @@ impl FileDialogConfig {
 }
 
 /// Function that returns true if the specific item matches the filter.
-pub type Filter<T> = Arc<dyn Fn(&T) -> bool + Send + Sync>;
+pub struct Filter<T: ?Sized>(pub(crate) Arc<dyn Fn(&T) -> bool + Send + Sync>);
 
-/// Wrapper around `Filter<Path>` that provides a `Debug` implementation.
-/// Used for fields on `FileDialogConfig` that hold a `Filter<Path>`.
-#[derive(Clone)]
-pub struct DebugFilter(pub Filter<Path>);
+impl<T: ?Sized> Clone for Filter<T> {
+    fn clone(&self) -> Self {
+        Self(Arc::clone(&self.0))
+    }
+}
 
-impl std::fmt::Debug for DebugFilter {
+impl<T: ?Sized> Filter<T> {
+    /// Creates a new filter from a closure or function.
+    pub fn new(f: impl Fn(&T) -> bool + Send + Sync + 'static) -> Self {
+        Self(Arc::new(f))
+    }
+}
+
+impl<T: ?Sized> std::fmt::Debug for Filter<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "DebugFilter(..)")
+        write!(f, "Filter(..)")
     }
 }
 
