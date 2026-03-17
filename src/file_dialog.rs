@@ -3689,8 +3689,9 @@ const fn test() {
 
 #[cfg(test)]
 mod open_directory_filter_tests {
-    use super::*;
     use std::path::Path;
+
+    use super::*;
 
     #[test]
     fn filter_is_none_by_default() {
@@ -3752,25 +3753,28 @@ mod open_directory_filter_tests {
     /// contains a sentinel file (simulating the project-picker use-case).  We
     /// use a real temporary directory so the `exists()` call is meaningful.
     #[test]
-    fn filter_based_on_sentinel_file() {
+    fn filter_based_on_sentinel_file() -> Result<(), Box<dyn std::error::Error>> {
         use tempdir::TempDir;
-        let tmp = TempDir::new("egui_fd_test").expect("create tempdir");
+        let tmp = TempDir::new("egui_fd_test")?;
         let project_dir = tmp.path().join("project");
-        std::fs::create_dir_all(&project_dir).expect("create project dir");
+        std::fs::create_dir_all(&project_dir)?;
         let sentinel = project_dir.join("project.json");
-        std::fs::write(&sentinel, b"{}").expect("write sentinel");
+        std::fs::write(&sentinel, b"{}")?;
 
         let regular_dir = tmp.path().join("regular");
-        std::fs::create_dir_all(&regular_dir).expect("create regular dir");
+        std::fs::create_dir_all(&regular_dir)?;
 
         let mut dialog = FileDialog::new();
         // Mimic a project picker filter: navigate into dirs that are NOT projects.
-        dialog.set_open_directory_filter(Filter::new(|path: &Path| !path.join("project.json").exists()));
+        dialog.set_open_directory_filter(Filter::new(|path: &Path| {
+            !path.join("project.json").exists()
+        }));
 
         // Project directories should NOT be navigated into (filter → false → submit).
         assert!(!dialog.should_open_directory(&project_dir));
         // Regular directories should be navigated into normally.
         assert!(dialog.should_open_directory(&regular_dir));
         // tempdir auto-cleans on drop
+        Ok(())
     }
 }
