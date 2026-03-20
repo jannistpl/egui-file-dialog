@@ -152,6 +152,11 @@ pub struct FileDialogConfig {
     /// The icon used for the path edit input in the top panel.
     pub path_edit_icon: String,
 
+    /// Optional predicate called when the user activates a directory entry
+    /// (single-click submit via the Open button or double-click).
+    /// Return `true` to navigate *into* the directory (default behaviour);
+    /// return `false` to submit the directory as the picked path instead.
+    pub open_directory_filter: Option<Filter<Path>>,
     /// File filters presented to the user in a dropdown.
     pub file_filters: Vec<FileFilter>,
     /// Name of the file filter to be selected by default.
@@ -290,6 +295,7 @@ impl FileDialogConfig {
             search_icon: String::from("🔍"),
             path_edit_icon: String::from("🖊"),
 
+            open_directory_filter: None,
             file_filters: Vec::new(),
             default_file_filter: None,
             save_extensions: Vec::new(),
@@ -353,23 +359,23 @@ impl FileDialogConfig {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use egui_file_dialog::FileDialogConfig;
+    /// use std::path::Path;
+    /// use egui_file_dialog::{FileDialogConfig, Filter};
     ///
     /// let config = FileDialogConfig::default()
     ///     .add_file_filter(
     ///         "PNG files",
-    ///         Arc::new(|path| path.extension().unwrap_or_default() == "png"))
+    ///         Filter::new(|path: &Path| path.extension().unwrap_or_default() == "png"))
     ///     .add_file_filter(
     ///         "JPG files",
-    ///         Arc::new(|path| path.extension().unwrap_or_default() == "jpg"));
+    ///         Filter::new(|path: &Path| path.extension().unwrap_or_default() == "jpg"));
     /// ```
     pub fn add_file_filter(mut self, name: &str, filter: Filter<Path>) -> Self {
         let id = egui::Id::new(name);
 
         // Replace filter if a filter with the same name already exists.
         if let Some(item) = self.file_filters.iter_mut().find(|p| p.id == id) {
-            item.filter = filter.clone();
+            item.filter = filter;
             return self;
         }
 
@@ -400,7 +406,7 @@ impl FileDialogConfig {
     pub fn add_file_filter_extensions(self, name: &str, extensions: Vec<&'static str>) -> Self {
         self.add_file_filter(
             name,
-            Arc::new(move |p| {
+            Filter::new(move |p: &Path| {
                 let extension = p
                     .extension()
                     .unwrap_or_default()
@@ -461,14 +467,14 @@ impl FileDialogConfig {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use egui_file_dialog::FileDialogConfig;
+    /// use std::path::Path;
+    /// use egui_file_dialog::{FileDialogConfig, Filter};
     ///
     /// let config = FileDialogConfig::default()
     ///     // .png files should use the "document with picture (U+1F5BB)" icon.
-    ///     .set_file_icon("🖻", Arc::new(|path| path.extension().unwrap_or_default() == "png"))
+    ///     .set_file_icon("🖻", Filter::new(|path: &Path| path.extension().unwrap_or_default() == "png"))
     ///     // .git directories should use the "web-github (U+E624)" icon.
-    ///     .set_file_icon("", Arc::new(|path| path.file_name().unwrap_or_default() == ".git"));
+    ///     .set_file_icon("", Filter::new(|path: &Path| path.file_name().unwrap_or_default() == ".git"));
     /// ```
     pub fn set_file_icon(mut self, icon: &str, filter: Filter<Path>) -> Self {
         self.file_icon_filters.push(IconFilter {
@@ -510,7 +516,31 @@ impl FileDialogConfig {
 }
 
 /// Function that returns true if the specific item matches the filter.
-pub type Filter<T> = Arc<dyn Fn(&T) -> bool + Send + Sync>;
+pub struct Filter<T: ?Sized>(pub(crate) Arc<dyn Fn(&T) -> bool + Send + Sync>);
+
+impl<T: ?Sized> Clone for Filter<T> {
+    fn clone(&self) -> Self {
+        Self(Arc::clone(&self.0))
+    }
+}
+
+impl<T: ?Sized> Filter<T> {
+    /// Creates a new filter from a closure or function.
+    pub fn new(f: impl Fn(&T) -> bool + Send + Sync + 'static) -> Self {
+        Self(Arc::new(f))
+    }
+
+    /// Returns `true` if the item matches this filter.
+    pub(crate) fn matches(&self, item: &T) -> bool {
+        (self.0)(item)
+    }
+}
+
+impl<T: ?Sized> std::fmt::Debug for Filter<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Filter(..)")
+    }
+}
 
 /// Defines a specific file filter that the user can select from a dropdown.
 #[derive(Clone)]

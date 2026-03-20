@@ -197,15 +197,6 @@ pub struct FileDialog {
     rename_pinned_folder_request_focus: bool,
 }
 
-/// This tests if file dialog is send and sync.
-#[cfg(test)]
-const fn test_prop<T: Send + Sync>() {}
-
-#[test]
-const fn test() {
-    test_prop::<FileDialog>();
-}
-
 impl Default for FileDialog {
     /// Creates a new file dialog instance with default values.
     fn default() -> Self {
@@ -486,6 +477,18 @@ impl FileDialog {
         &mut self.config
     }
 
+    /// Sets a predicate called when a directory entry is activated (double-click
+    /// or Open-button click).  Return `true` to navigate into the directory
+    /// (the default); return `false` to submit it as the picked path instead.
+    pub fn set_open_directory_filter(&mut self, filter: Filter<Path>) {
+        self.config.open_directory_filter = Some(filter);
+    }
+
+    /// Clears any previously set `open_directory_filter`.
+    pub fn clear_open_directory_filter(&mut self) {
+        self.config.open_directory_filter = None;
+    }
+
     /// Sets the storage used by the file dialog.
     /// Storage includes all data that is persistently stored between multiple
     /// file dialog instances.
@@ -715,16 +718,16 @@ impl FileDialog {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use egui_file_dialog::FileDialog;
+    /// use std::path::Path;
+    /// use egui_file_dialog::{FileDialog, Filter};
     ///
     /// FileDialog::new()
     ///     .add_file_filter(
     ///         "PNG files",
-    ///         Arc::new(|path| path.extension().unwrap_or_default() == "png"))
+    ///         Filter::new(|path: &Path| path.extension().unwrap_or_default() == "png"))
     ///     .add_file_filter(
     ///         "JPG files",
-    ///         Arc::new(|path| path.extension().unwrap_or_default() == "jpg"));
+    ///         Filter::new(|path: &Path| path.extension().unwrap_or_default() == "jpg"));
     /// ```
     pub fn add_file_filter(mut self, name: &str, filter: Filter<Path>) -> Self {
         self.config = self.config.add_file_filter(name, filter);
@@ -804,14 +807,14 @@ impl FileDialog {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use egui_file_dialog::FileDialog;
+    /// use std::path::Path;
+    /// use egui_file_dialog::{FileDialog, Filter};
     ///
     /// FileDialog::new()
     ///     // .png files should use the "document with picture (U+1F5BB)" icon.
-    ///     .set_file_icon("🖻", Arc::new(|path| path.extension().unwrap_or_default() == "png"))
+    ///     .set_file_icon("🖻", Filter::new(|path: &Path| path.extension().unwrap_or_default() == "png"))
     ///     // .git directories should use the "web-github (U+E624)" icon.
-    ///     .set_file_icon("", Arc::new(|path| path.file_name().unwrap_or_default() == ".git"));
+    ///     .set_file_icon("", Filter::new(|path: &Path| path.file_name().unwrap_or_default() == ".git"));
     /// ```
     pub fn set_file_icon(mut self, icon: &str, filter: Filter<std::path::Path>) -> Self {
         self.config = self.config.set_file_icon(icon, filter);
@@ -2616,8 +2619,13 @@ impl FileDialog {
         // Either open the directory or submit the dialog.
         if re.double_clicked() && !ui.input(|i| i.modifiers.command) {
             if item.is_dir() {
-                self.load_directory(&item.to_path_buf());
-                return true;
+                // If a filter is configured, check whether we should navigate
+                // into the directory or treat it as the picked path instead.
+                if self.should_open_directory(item.as_path()) {
+                    self.load_directory(&item.to_path_buf());
+                    return true;
+                }
+                // Fall through to submit the directory as the picked path.
             }
 
             self.select_item(item);
@@ -3657,5 +3665,116 @@ impl FileDialog {
         if self.mode == DialogMode::SaveFile {
             self.file_name_input_error = self.validate_file_name_input();
         }
+    }
+
+    /// Returns `true` if the given directory should be navigated into,
+    /// or `false` if it should be submitted as the picked path instead.
+    /// When no filter is set, this always returns `true` (the default behaviour).
+    fn should_open_directory(&self, path: &std::path::Path) -> bool {
+        self.config
+            .open_directory_filter
+            .as_ref()
+            .is_none_or(|f| f.matches(path))
+    }
+}
+
+/// This tests if file dialog is send and sync.
+#[cfg(test)]
+const fn test_prop<T: Send + Sync>() {}
+
+#[test]
+const fn test() {
+    test_prop::<FileDialog>();
+}
+
+#[cfg(test)]
+mod open_directory_filter_tests {
+    use std::path::Path;
+
+    use super::*;
+
+    #[test]
+    fn filter_is_none_by_default() {
+        let dialog = FileDialog::new();
+        assert!(dialog.config.open_directory_filter.is_none());
+    }
+
+    #[test]
+    fn set_open_directory_filter_stores_filter() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(Filter::new(|_: &Path| false));
+        assert!(dialog.config.open_directory_filter.is_some());
+    }
+
+    #[test]
+    fn clear_open_directory_filter_removes_filter() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(Filter::new(|_: &Path| false));
+        assert!(dialog.config.open_directory_filter.is_some());
+        dialog.clear_open_directory_filter();
+        assert!(dialog.config.open_directory_filter.is_none());
+    }
+
+    /// When no filter is set, the dialog should always navigate into directories
+    /// (the original default behaviour).
+    #[test]
+    fn no_filter_always_navigates() {
+        let dialog = FileDialog::new();
+        assert!(dialog.should_open_directory(Path::new("/any/dir")));
+    }
+
+    /// A filter that returns `false` (do not navigate) should prevent navigation.
+    #[test]
+    fn filter_returning_false_prevents_navigation() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(Filter::new(|_: &Path| false));
+        assert!(!dialog.should_open_directory(Path::new("/any/dir")));
+    }
+
+    /// A filter that returns `true` (navigate) should allow navigation.
+    #[test]
+    fn filter_returning_true_allows_navigation() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(Filter::new(|_: &Path| true));
+        assert!(dialog.should_open_directory(Path::new("/any/dir")));
+    }
+
+    /// After clearing a filter, navigation is allowed again for every path.
+    #[test]
+    fn cleared_filter_restores_default_navigation() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(Filter::new(|_: &Path| false));
+        assert!(!dialog.should_open_directory(Path::new("/any/dir")));
+        dialog.clear_open_directory_filter();
+        assert!(dialog.should_open_directory(Path::new("/any/dir")));
+    }
+
+    /// A path-sensitive filter: navigation is blocked only when the directory
+    /// contains a sentinel file (simulating the project-picker use-case).  We
+    /// use a real temporary directory so the `exists()` call is meaningful.
+    #[test]
+    fn filter_based_on_sentinel_file() -> Result<(), Box<dyn std::error::Error>> {
+        use tempdir::TempDir;
+        let tmp = TempDir::new("egui_fd_test")?;
+        let project_dir = tmp.path().join("project");
+        std::fs::create_dir_all(&project_dir)?;
+        let sentinel = project_dir.join("project.json");
+        std::fs::write(&sentinel, b"{}")?;
+
+        let regular_dir = tmp.path().join("regular");
+        std::fs::create_dir_all(&regular_dir)?;
+
+        let mut dialog = FileDialog::new();
+        // Mimic a project picker filter: navigate into dirs that are NOT projects.
+        dialog.set_open_directory_filter(Filter::new(|path: &Path| {
+            !path.join("project.json").exists()
+        }));
+
+        // Project directories should NOT be navigated into (filter → false → submit).
+        assert!(!dialog.should_open_directory(&project_dir));
+        // Regular directories should be navigated into normally.
+        assert!(dialog.should_open_directory(&regular_dir));
+        // tempdir auto-cleans on drop
+        Ok(())
     }
 }
