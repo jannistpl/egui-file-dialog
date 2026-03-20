@@ -7,7 +7,7 @@
 - Add `select_all` to `FileDialogLabels` [#304](https://github.com/jannistpl/egui-file-dialog/pull/304)
 - Add `show_select_all_button` and `show_all_files_filter` to `FileDialogConfig` [#304](https://github.com/jannistpl/egui-file-dialog/pull/304), [#306](https://github.com/jannistpl/egui-file-dialog/pull/306)
 - Replaced the Arc inside `FileDialog::add_file_filter`, `FileDialogConfig::add_file_filter`, `FileDialog::set_file_icon` and `FileDialogConfig::set_file_icon` with a custom `Filter` struct. \
- For migration replace `Arc::new(|p| ...)` with `use egui_file_dialog::Filter; Filter::new(|p: &Path| ...)` [#308](https://github.com/jannistpl/egui-file-dialog/pull/308)
+ For migration replace `Arc::new(|p| ...)` with `egui_file_dialog::Filter::new(|p: &Path| ...)` [#308](https://github.com/jannistpl/egui-file-dialog/pull/308)
 
 ### ✨ Features
 
