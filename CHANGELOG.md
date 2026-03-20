@@ -6,13 +6,16 @@
 
 - Add `select_all` to `FileDialogLabels` [#304](https://github.com/jannistpl/egui-file-dialog/pull/304)
 - Add `show_select_all_button` and `show_all_files_filter` to `FileDialogConfig` [#304](https://github.com/jannistpl/egui-file-dialog/pull/304), [#306](https://github.com/jannistpl/egui-file-dialog/pull/306)
+- Replaced the Arc inside `FileDialog::add_file_filter`, `FileDialogConfig::add_file_filter`, `FileDialog::set_file_icon` and `FileDialogConfig::set_file_icon` with a custom `Filter` struct. \
+ For migration replace `Arc::new(|p| ...)` with `use egui_file_dialog::Filter; Filter::new(|p: &Path| ...)` [#308](https://github.com/jannistpl/egui-file-dialog/pull/308)
 
 ### ✨ Features
 
 - Allow to customize more icons: parent directory, back, forward, new folder, menu [#294](https://github.com/jannistpl/egui-file-dialog/pull/294) (thanks [@Jupeyy](https://github.com/Jupeyy)!)
-- Allow to customize search_icon and path_edit_icon [#296](https://github.com/jannistpl/egui-file-dialog/pull/296) (thanks [@mq1 ](https://github.com/mq1)!)
+- Allow to customize search_icon and path_edit_icon [#296](https://github.com/jannistpl/egui-file-dialog/pull/296) (thanks [@mq1](https://github.com/mq1)!)
 - Add "Select All" option to hamburger menu [#304](https://github.com/jannistpl/egui-file-dialog/pull/304)
 - Add option `FileDialogConfig::show_all_files_filter`, which allows the default filter "All Files" to be hidden [#306](https://github.com/jannistpl/egui-file-dialog/pull/306)
+- Add `FileDialog::set_open_directory_filter` and `FileDialog::clear_open_directory_filter` to skip navigating into matching directories [#308](https://github.com/jannistpl/egui-file-dialog/pull/308) (thanks [@monoclecat](https://github.com/monoclecat)!)
 
 ### 🔧 Changes
 
