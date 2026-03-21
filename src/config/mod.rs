@@ -123,6 +123,10 @@ pub struct FileDialogConfig {
     /// If we should truncate the filenames in the middle
     pub truncate_filenames: bool,
 
+    /// Maximum number of items that can be selected at once.
+    /// `None` means no limit. Only relevant when `DialogMode::PickMultiple` is used.
+    pub max_selections: Option<usize>,
+
     /// The icon that is used to display error messages.
     pub err_icon: String,
     /// The icon that is used to display warning messages.
@@ -280,6 +284,8 @@ impl FileDialogConfig {
 
             truncate_filenames: true,
 
+            max_selections: None,
+
             err_icon: String::from("⚠"),
             warn_icon: String::from("⚠"),
             default_file_icon: String::from("🗋"),
@@ -345,6 +351,12 @@ impl FileDialogConfig {
 }
 
 impl FileDialogConfig {
+    /// Sets the maximum number of items that can be selected simultaneously.
+    pub fn max_selections(mut self, max: usize) -> Self {
+        self.max_selections = Some(max);
+        self
+    }
+
     /// Adds a new file filter the user can select from a dropdown widget.
     ///
     /// NOTE: The name must be unique. If a filter with the same name already exists,

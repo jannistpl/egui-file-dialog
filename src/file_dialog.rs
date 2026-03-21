@@ -632,6 +632,12 @@ impl FileDialog {
         self
     }
 
+    /// Sets the maximum number of items that can be selected simultaneously.
+    pub fn max_selections(mut self, max: usize) -> Self {
+        self.config.max_selections = Some(max);
+        self
+    }
+
     /// Sets the icon that is used to display errors.
     pub fn err_icon(mut self, icon: &str) -> Self {
         self.config.err_icon = icon.to_string();
@@ -2425,6 +2431,13 @@ impl FileDialog {
         // Temporarily take ownership of the directory content.
         let mut data = std::mem::take(&mut self.directory_content);
 
+        // Count how many items are currently selected (before the UI loop),
+        // so we can enforce max_selections limits during interaction.
+        let mut selected_count = data
+            .filtered_iter(&self.search_value)
+            .filter(|item| item.selected)
+            .count();
+
         // If the multi selection should be reset, excluding the currently
         // selected primary item.
         let mut reset_multi_selection = false;
@@ -2453,6 +2466,7 @@ impl FileDialog {
                             item,
                             &mut reset_multi_selection,
                             &mut batch_select_item_b,
+                            &mut selected_count,
                         ) {
                             should_return = true;
                         }
@@ -2471,6 +2485,7 @@ impl FileDialog {
                             item,
                             &mut reset_multi_selection,
                             &mut batch_select_item_b,
+                            &mut selected_count,
                         ) {
                             should_return = true;
                         }
@@ -2519,6 +2534,7 @@ impl FileDialog {
         item: &mut DirectoryEntry,
         reset_multi_selection: &mut bool,
         batch_select_item_b: &mut Option<DirectoryEntry>,
+        selected_count: &mut usize,
     ) -> bool {
         let file_name = item.file_name();
         let primary_selected = self.is_primary_selected(item);
@@ -2588,12 +2604,19 @@ impl FileDialog {
                 // deselect it and remove it from the multi selection
                 item.selected = false;
                 self.selected_item = None;
+                *selected_count = selected_count.saturating_sub(1);
+            } else if !item.selected && self.selection_limit_reached_with(*selected_count) {
+                // Selection limit reached; silently ignore.
             } else {
+                let was_selected = item.selected;
                 item.selected = !item.selected;
 
-                // If the item was selected, make it the primary selected item
                 if item.selected {
+                    *selected_count += 1;
+                    // If the item was selected, make it the primary selected item
                     self.select_item(item);
+                } else if was_selected {
+                    *selected_count = selected_count.saturating_sub(1);
                 }
             }
         }
@@ -2604,12 +2627,17 @@ impl FileDialog {
             && re.clicked()
             && ui.input(|i| i.modifiers.shift_only())
         {
-            if let Some(selected_item) = self.selected_item.clone() {
+            if self.selection_limit_reached_with(*selected_count) && !item.selected {
+                // Selection limit reached; silently ignore.
+            } else if let Some(selected_item) = self.selected_item.clone() {
                 // We perform a batch selection from the item that was
                 // primarily selected before the user clicked on this item.
                 *batch_select_item_b = Some(selected_item);
 
                 // And now make this item the primary selected item
+                if !item.selected {
+                    *selected_count += 1;
+                }
                 item.selected = true;
                 self.select_item(item);
             }
@@ -2677,12 +2705,25 @@ impl FileDialog {
                     max = pos_a;
                 }
 
+                // Count how many items are already selected so we can
+                // respect the max_selections limit.
+                let mut current_selected = directory_content
+                    .filtered_iter(&self.search_value)
+                    .filter(|item| item.selected)
+                    .count();
+
                 for item in directory_content
                     .filtered_iter_mut(&self.search_value)
                     .enumerate()
                     .filter(|(i, _)| i > &min && i < &max)
                     .map(|(_, p)| p)
                 {
+                    if self.selection_limit_reached_with(current_selected) {
+                        break;
+                    }
+                    if !item.selected {
+                        current_selected += 1;
+                    }
                     item.selected = true;
                 }
             }
@@ -3487,10 +3528,27 @@ impl FileDialog {
         self.directory_content = directory_content;
     }
 
+    /// Returns `true` if `selected_count` has reached or exceeded `max_selections`.
+    fn selection_limit_reached_with(&self, selected_count: usize) -> bool {
+        self.config.max_selections.is_some_and(|max| selected_count >= max)
+    }
+
     /// Selects all items in the current directory.
     fn select_all_items(&mut self) {
+        let mut selected_count = self.directory_content
+            .filtered_iter(&self.search_value)
+            .filter(|p| p.selected)
+            .count();
+
         for item in self.directory_content.filtered_iter_mut(&self.search_value) {
+            if item.selected {
+                continue; // already counted
+            }
+            if self.config.max_selections.is_some_and(|max| selected_count >= max) {
+                break;
+            }
             item.selected = true;
+            selected_count += 1;
         }
     }
 
