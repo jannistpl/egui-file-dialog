@@ -3530,12 +3530,15 @@ impl FileDialog {
 
     /// Returns `true` if `selected_count` has reached or exceeded `max_selections`.
     fn selection_limit_reached_with(&self, selected_count: usize) -> bool {
-        self.config.max_selections.is_some_and(|max| selected_count >= max)
+        self.config
+            .max_selections
+            .is_some_and(|max| selected_count >= max)
     }
 
     /// Selects all items in the current directory.
     fn select_all_items(&mut self) {
-        let mut selected_count = self.directory_content
+        let mut selected_count = self
+            .directory_content
             .filtered_iter(&self.search_value)
             .filter(|p| p.selected)
             .count();
@@ -3544,7 +3547,11 @@ impl FileDialog {
             if item.selected {
                 continue; // already counted
             }
-            if self.config.max_selections.is_some_and(|max| selected_count >= max) {
+            if self
+                .config
+                .max_selections
+                .is_some_and(|max| selected_count >= max)
+            {
                 break;
             }
             item.selected = true;
