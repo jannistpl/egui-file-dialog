@@ -44,15 +44,15 @@ impl MyApp {
 }
 
 impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show_inside(ui, |ui| {
             if ui.button("Picked file").clicked() {
                 self.file_dialog.pick_file();
             }
 
             ui.label(format!("Picked file: {:?}", self.picked_file));
 
-            if let Some(path) = self.file_dialog.update(ctx).picked() {
+            if let Some(path) = self.file_dialog.update(ui).picked() {
                 self.picked_file = Some(path.to_path_buf());
             }
         });

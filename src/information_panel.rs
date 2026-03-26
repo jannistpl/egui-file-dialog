@@ -259,7 +259,7 @@ impl InformationPanel {
             // show preview of selected item
             self.display_preview(ui, item);
 
-            let spacing = ui.ctx().style().spacing.item_spacing.y * SPACING_MULTIPLIER;
+            let spacing = ui.global_style().spacing.item_spacing.y * SPACING_MULTIPLIER;
             ui.separator();
 
             ui.add_space(spacing);

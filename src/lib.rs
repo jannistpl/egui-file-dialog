@@ -63,8 +63,8 @@
 //! }
 //!
 //! impl eframe::App for MyApp {
-//!     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-//!         egui::CentralPanel::default().show(ctx, |ui| {
+//!     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+//!         egui::CentralPanel::default().show_inside(ui, |ui| {
 //!             if ui.button("Pick file").clicked() {
 //!                 // Open the file dialog to pick a file.
 //!                 self.file_dialog.pick_file();
@@ -73,7 +73,7 @@
 //!             ui.label(format!("Picked file: {:?}", self.picked_file));
 //!
 //!             // Update the dialog
-//!             self.file_dialog.update(ctx);
+//!             self.file_dialog.update(ui);
 //!
 //!             // Check if the user picked a file.
 //!             if let Some(path) = self.file_dialog.take_picked() {

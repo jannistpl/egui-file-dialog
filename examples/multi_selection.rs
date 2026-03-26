@@ -18,8 +18,8 @@ impl MyApp {
 }
 
 impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show_inside(ui, |ui| {
             if ui.button("Pick multiple").clicked() {
                 self.file_dialog.pick_multiple();
             }
@@ -34,7 +34,7 @@ impl eframe::App for MyApp {
                 ui.label("None");
             }
 
-            self.file_dialog.update(ctx);
+            self.file_dialog.update(ui);
 
             if let Some(items) = self.file_dialog.take_picked_multiple() {
                 self.picked_items = Some(items);
