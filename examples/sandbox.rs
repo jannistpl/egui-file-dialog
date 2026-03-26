@@ -60,8 +60,8 @@ impl eframe::App for MyApp {
         );
     }
 
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show_inside(ui, |ui| {
             ui.heading("My egui application");
             egui::widgets::global_theme_preference_buttons(ui);
 
@@ -99,7 +99,7 @@ impl eframe::App for MyApp {
             }
             ui.label(format!("File to save: {:?}", self.saved_file));
 
-            self.file_dialog.update(ctx);
+            self.file_dialog.update(ui);
 
             if let Some(path) = self.file_dialog.take_picked() {
                 match self.file_dialog.mode() {

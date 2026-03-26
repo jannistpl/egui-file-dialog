@@ -1261,7 +1261,7 @@ impl FileDialog {
             }
 
             if self.config.show_top_panel {
-                egui::TopBottomPanel::top(self.window_id.with("top_panel"))
+                egui::Panel::top(self.window_id.with("top_panel"))
                     .resizable(false)
                     .show_inside(ui, |ui| {
                         self.ui_update_top_panel(ui);
@@ -1269,10 +1269,10 @@ impl FileDialog {
             }
 
             if self.config.show_left_panel {
-                egui::SidePanel::left(self.window_id.with("left_panel"))
+                egui::Panel::left(self.window_id.with("left_panel"))
                     .resizable(true)
-                    .default_width(150.0)
-                    .width_range(90.0..=250.0)
+                    .default_size(150.0)
+                    .size_range(90.0..=250.0)
                     .show_inside(ui, |ui| {
                         self.ui_update_left_panel(ui);
                     });
@@ -1280,19 +1280,19 @@ impl FileDialog {
 
             // Optionally, show a custom right panel (see `update_with_custom_right_panel`)
             if let Some(f) = right_panel_fn {
-                let mut right_panel = egui::SidePanel::right(self.window_id.with("right_panel"))
+                let mut right_panel = egui::Panel::right(self.window_id.with("right_panel"))
                     // Unlike the left panel, we have no control over the contents, so
                     // we don't restrict the width. It's up to the user to make the UI presentable.
                     .resizable(true);
                 if let Some(width) = self.config.right_panel_width {
-                    right_panel = right_panel.default_width(width);
+                    right_panel = right_panel.default_size(width);
                 }
                 right_panel.show_inside(ui, |ui| {
                     f(ui, self);
                 });
             }
 
-            egui::TopBottomPanel::bottom(self.window_id.with("bottom_panel"))
+            egui::Panel::bottom(self.window_id.with("bottom_panel"))
                 .resizable(false)
                 .show_inside(ui, |ui| {
                     self.ui_update_bottom_panel(ui);
@@ -1371,7 +1371,7 @@ impl FileDialog {
         // inside a window. Therefore, when rendering a modal, we render an invisible bottom panel,
         // which prevents the error.
         // This is currently a bit hacky and should be adjusted again in the future.
-        egui::TopBottomPanel::bottom(self.window_id.with("modal_bottom_panel"))
+        egui::Panel::bottom(self.window_id.with("modal_bottom_panel"))
             .resizable(false)
             .show_separator_line(false)
             .show_inside(ui, |_| {});
@@ -1490,7 +1490,7 @@ impl FileDialog {
             }
         });
 
-        ui.add_space(ui.ctx().style().spacing.item_spacing.y);
+        ui.add_space(ui.global_style().spacing.item_spacing.y);
     }
 
     /// Updates the navigation buttons like parent or previous directory
@@ -1561,7 +1561,7 @@ impl FileDialog {
         egui::Frame::default()
             .stroke(egui::Stroke::new(
                 1.0,
-                ui.ctx().style().visuals.window_stroke.color,
+                ui.global_style().visuals.window_stroke.color,
             ))
             .inner_margin(egui::Margin::from(4))
             .corner_radius(egui::CornerRadius::from(4))
@@ -1755,13 +1755,13 @@ impl FileDialog {
         egui::Frame::default()
             .stroke(egui::Stroke::new(
                 1.0,
-                ui.ctx().style().visuals.window_stroke.color,
+                ui.global_style().visuals.window_stroke.color,
             ))
             .inner_margin(egui::Margin::symmetric(4, 4))
             .corner_radius(egui::CornerRadius::from(4))
             .show(ui, |ui| {
                 ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
-                    ui.add_space(ui.ctx().style().spacing.item_spacing.y);
+                    ui.add_space(ui.global_style().spacing.item_spacing.y);
 
                     ui.label(egui::RichText::from(self.config.search_icon.as_str()).size(15.0));
 
@@ -1828,12 +1828,12 @@ impl FileDialog {
                 .auto_shrink([false, false])
                 .show(ui, |ui| {
                     // Spacing for the first section in the left sidebar
-                    let mut spacing = ui.ctx().style().spacing.item_spacing.y * 2.0;
+                    let mut spacing = ui.global_style().spacing.item_spacing.y * 2.0;
 
                     // Update paths pinned to the left sidebar by the user
                     if self.config.show_pinned_folders && self.ui_update_pinned_folders(ui, spacing)
                     {
-                        spacing = ui.ctx().style().spacing.item_spacing.y * SPACING_MULTIPLIER;
+                        spacing = ui.global_style().spacing.item_spacing.y * SPACING_MULTIPLIER;
                     }
 
                     // Update custom quick access sections
@@ -1842,20 +1842,20 @@ impl FileDialog {
                     for quick_access in &quick_accesses {
                         ui.add_space(spacing);
                         self.ui_update_quick_access(ui, quick_access);
-                        spacing = ui.ctx().style().spacing.item_spacing.y * SPACING_MULTIPLIER;
+                        spacing = ui.global_style().spacing.item_spacing.y * SPACING_MULTIPLIER;
                     }
 
                     self.config.quick_accesses = quick_accesses;
 
                     // Update native quick access sections
                     if self.config.show_places && self.ui_update_user_directories(ui, spacing) {
-                        spacing = ui.ctx().style().spacing.item_spacing.y * SPACING_MULTIPLIER;
+                        spacing = ui.global_style().spacing.item_spacing.y * SPACING_MULTIPLIER;
                     }
 
                     let disks = std::mem::take(&mut self.system_disks);
 
                     if self.config.show_devices && self.ui_update_devices(ui, spacing, &disks) {
-                        spacing = ui.ctx().style().spacing.item_spacing.y * SPACING_MULTIPLIER;
+                        spacing = ui.global_style().spacing.item_spacing.y * SPACING_MULTIPLIER;
                     }
 
                     if self.config.show_removable_devices
@@ -2710,7 +2710,7 @@ impl FileDialog {
                         ui.spacing_mut().item_spacing.x = 0.0;
 
                         ui.colored_label(
-                            ui.ctx().style().visuals.error_fg_color,
+                            ui.global_style().visuals.error_fg_color,
                             format!("{} ", self.config.err_icon),
                         );
 
