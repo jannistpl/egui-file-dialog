@@ -8,6 +8,7 @@
 - Add `show_select_all_button` and `show_all_files_filter` to `FileDialogConfig` [#304](https://github.com/jannistpl/egui-file-dialog/pull/304), [#306](https://github.com/jannistpl/egui-file-dialog/pull/306)
 - Replaced the Arc inside `FileDialog::add_file_filter`, `FileDialogConfig::add_file_filter`, `FileDialog::set_file_icon` and `FileDialogConfig::set_file_icon` with a custom `Filter` struct. \
  For migration replace `Arc::new(|p| ...)` with `egui_file_dialog::Filter::new(|p: &Path| ...)` [#308](https://github.com/jannistpl/egui-file-dialog/pull/308)
+- Add `max_selections` to `FileDialogConfig` [#312](https://github.com/jannistpl/egui-file-dialog/pull/312)
 
 ### ✨ Features
 
@@ -16,6 +17,7 @@
 - Add "Select All" option to hamburger menu [#304](https://github.com/jannistpl/egui-file-dialog/pull/304)
 - Add option `FileDialogConfig::show_all_files_filter`, which allows the default filter "All Files" to be hidden [#306](https://github.com/jannistpl/egui-file-dialog/pull/306)
 - Add `FileDialog::set_open_directory_filter` and `FileDialog::clear_open_directory_filter` to skip navigating into matching directories [#308](https://github.com/jannistpl/egui-file-dialog/pull/308) (thanks [@monoclecat](https://github.com/monoclecat)!)
+- Implement `FileDialog::max_selections` and `FileDialogConfig::max_selections` to limit how many items the user can select in `PickMultiple` mode [#312](https://github.com/jannistpl/egui-file-dialog/pull/312) (thanks [@hallyhaa](https://github.com/hallyhaa)!)
 
 ### 🔧 Changes
 
