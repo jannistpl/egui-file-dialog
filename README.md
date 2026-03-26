@@ -74,7 +74,7 @@ Cargo.toml:
 
 ```toml
 [dependencies]
-eframe = "0.33.0"
+eframe = "0.34.0"
 egui-file-dialog = "0.12.0"
 ```
 
