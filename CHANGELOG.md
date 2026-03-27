@@ -1,6 +1,6 @@
 # egui-file-dialog changelog
 
-## Unreleased
+## 2026-03-27 - v0.12.0 - egui update and QoL changes
 
 ### 🚨 Breaking Changes
 
