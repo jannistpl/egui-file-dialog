@@ -2459,7 +2459,14 @@ impl FileDialog {
                 // Only update visible items when the search value is empty,
                 // the create directory dialog is closed and we are currently not scrolling
                 // to the current item.
-                scroll_area.show_rows(ui, ui.spacing().interact_size.y, data.len(), |ui, range| {
+
+                let row_height = ui
+                    .spacing()
+                    .button_padding
+                    .y
+                    .mul_add(2.0, ui.text_style_height(&egui::TextStyle::Body));
+
+                scroll_area.show_rows(ui, row_height, data.len(), |ui, range| {
                     for item in data.iter_range_mut(range) {
                         if self.ui_update_central_panel_entry(
                             ui,
