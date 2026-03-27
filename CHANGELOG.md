@@ -30,6 +30,7 @@
 ### 🐛 Bug Fixes
 
 - Fix compilation on i686-pc-windows-msvc and i686-win7-windows-msvc [#293](https://github.com/jannistpl/egui-file-dialog/pull/293) (thanks [@mq1](https://github.com/mq1)!)
+- Fix incorrect row height of items inside the central panel, causing red boxes when scrolling in debug mode in egui version 0.34 [#317](https://github.com/jannistpl/egui-file-dialog/pull/317)
 
 ### 📚 Documentation
 
