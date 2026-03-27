@@ -2460,8 +2460,11 @@ impl FileDialog {
                 // the create directory dialog is closed and we are currently not scrolling
                 // to the current item.
 
-                let row_height = ui.text_style_height(&egui::TextStyle::Body)
-                    + ui.spacing().button_padding.y * 2.0;
+                let row_height = ui
+                    .spacing()
+                    .button_padding
+                    .y
+                    .mul_add(2.0, ui.text_style_height(&egui::TextStyle::Body));
 
                 scroll_area.show_rows(ui, row_height, data.len(), |ui, range| {
                     for item in data.iter_range_mut(range) {
