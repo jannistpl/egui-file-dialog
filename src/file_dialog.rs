@@ -1480,6 +1480,7 @@ impl FileDialog {
 
             let hamburger_menu_contains_items = self.config.show_reload_button
                 || self.config.show_working_directory_button
+                || self.config.show_select_all_button
                 || self.config.show_hidden_option
                 || self.config.show_system_files_option;
 
