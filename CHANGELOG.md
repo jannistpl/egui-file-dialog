@@ -10,6 +10,11 @@
 
 - Add option `FileDialog::retain_selected_entry` and `FileDialogConfig::retain_selected_entry` to retain the selected entry when reopening the dialog [#320](https://github.com/jannistpl/egui-file-dialog/pull/320), [#321](https://github.com/jannistpl/egui-file-dialog/pull/321) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
 
+### 🖥 UI
+
+- Use the same spacing between action buttons (Cancel & Submit/Save) and the filter selection [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
+- Fix incorrect size of the file name text input in `DialogMode::SaveFile` mode [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
+
 ### 🐛 Bug Fixes
 
 - Publicly export private configuration types [#319](https://github.com/jannistpl/egui-file-dialog/pull/319) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
