@@ -19,6 +19,10 @@
 
 - Publicly export private configuration types [#319](https://github.com/jannistpl/egui-file-dialog/pull/319) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
 
+### 📚 Documentation
+
+- Adapt readme to latest changes [#324](https://github.com/jannistpl/egui-file-dialog/pull/324)
+
 ## 2026-03-27 - v0.13.0 - egui update and QoL changes
 
 ### 🚨 Breaking Changes
