@@ -1453,6 +1453,7 @@ impl FileDialog {
     /// the current path display, the reload button and the search field.
     fn ui_update_top_panel(&mut self, ui: &mut egui::Ui) {
         const BUTTON_SIZE: egui::Vec2 = egui::Vec2::new(25.0, 25.0);
+        const FRAME_INNE_MARGIN: i8 = 4;
 
         ui.horizontal(|ui| {
             self.ui_update_nav_buttons(ui, BUTTON_SIZE);
@@ -1474,31 +1475,23 @@ impl FileDialog {
             }
 
             if self.config.show_current_path {
-                self.ui_update_current_path(ui, path_display_width);
+                self.ui_update_current_path(ui, path_display_width, FRAME_INNE_MARGIN);
             }
 
-            // Hamburger menu containing different options
-            if self.config.show_menu_button
-                && (self.config.show_reload_button
-                    || self.config.show_working_directory_button
-                    || self.config.show_hidden_option
-                    || self.config.show_system_files_option)
-            {
-                ui.allocate_ui_with_layout(
-                    BUTTON_SIZE,
-                    egui::Layout::centered_and_justified(egui::Direction::LeftToRight),
-                    |ui| {
-                        let menu_icon = std::mem::take(&mut self.config.menu_icon);
-                        ui.menu_button(&menu_icon, |ui| {
-                            self.ui_update_hamburger_menu(ui);
-                        });
-                        self.config.menu_icon = menu_icon;
-                    },
-                );
+            let hamburger_menu_contains_items = self.config.show_reload_button
+                || self.config.show_working_directory_button
+                || self.config.show_hidden_option
+                || self.config.show_system_files_option;
+
+            let hamburger_menu_visible =
+                self.config.show_menu_button && hamburger_menu_contains_items;
+
+            if hamburger_menu_visible {
+                self.ui_update_hamburger_menu(ui, BUTTON_SIZE);
             }
 
             if self.config.show_search {
-                self.ui_update_search(ui);
+                self.ui_update_search(ui, FRAME_INNE_MARGIN);
             }
         });
 
@@ -1569,13 +1562,13 @@ impl FileDialog {
     /// Updates the view to display the current path.
     /// This could be the view for displaying the current path and the individual sections,
     /// as well as the view for text editing of the current path.
-    fn ui_update_current_path(&mut self, ui: &mut egui::Ui, width: f32) {
+    fn ui_update_current_path(&mut self, ui: &mut egui::Ui, width: f32, frame_inner_margin: i8) {
         egui::Frame::default()
             .stroke(egui::Stroke::new(
                 1.0,
                 ui.global_style().visuals.window_stroke.color,
             ))
-            .inner_margin(egui::Margin::from(4))
+            .inner_margin(egui::Margin::same(frame_inner_margin))
             .corner_radius(egui::CornerRadius::from(4))
             .show(ui, |ui| {
                 const EDIT_BUTTON_SIZE: egui::Vec2 = egui::Vec2::new(22.0, 20.0);
@@ -1700,7 +1693,22 @@ impl FileDialog {
     }
 
     /// Updates the hamburger menu containing different options.
-    fn ui_update_hamburger_menu(&mut self, ui: &mut egui::Ui) {
+    fn ui_update_hamburger_menu(&mut self, ui: &mut egui::Ui, button_size: egui::Vec2) {
+        ui.allocate_ui_with_layout(
+            button_size,
+            egui::Layout::centered_and_justified(egui::Direction::LeftToRight),
+            |ui| {
+                let menu_icon = std::mem::take(&mut self.config.menu_icon);
+                ui.menu_button(&menu_icon, |ui| {
+                    self.ui_update_hamburger_menu_content(ui);
+                });
+                self.config.menu_icon = menu_icon;
+            },
+        );
+    }
+
+    /// Updates the contents of the hamburger menu when it is open.
+    fn ui_update_hamburger_menu_content(&mut self, ui: &mut egui::Ui) {
         const SEPARATOR_SPACING: f32 = 2.0;
 
         let working_dir = self.config.file_system.current_dir();
@@ -1763,13 +1771,13 @@ impl FileDialog {
     }
 
     /// Updates the search input
-    fn ui_update_search(&mut self, ui: &mut egui::Ui) {
+    fn ui_update_search(&mut self, ui: &mut egui::Ui, frame_inner_margin: i8) {
         egui::Frame::default()
             .stroke(egui::Stroke::new(
                 1.0,
                 ui.global_style().visuals.window_stroke.color,
             ))
-            .inner_margin(egui::Margin::symmetric(4, 4))
+            .inner_margin(egui::Margin::same(frame_inner_margin))
             .corner_radius(egui::CornerRadius::from(4))
             .show(ui, |ui| {
                 ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
