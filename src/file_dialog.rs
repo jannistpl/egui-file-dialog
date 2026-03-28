@@ -1456,16 +1456,15 @@ impl FileDialog {
     /// Updates the top panel of the dialog. Including the navigation buttons,
     /// the current path display, the reload button and the search field.
     fn ui_update_top_panel(&mut self, ui: &mut egui::Ui) {
-        const STROKE_INNER_MARGIN: i8 = 4;
-        // const STROKE_INNER_MARGIN: i8 = 10;
+        const STROKE_INNER_MARGIN: i8 = 5;
 
         let text_height = ui.text_style_height(&egui::TextStyle::Body);
         let button_height = text_height + ui.spacing().button_padding.y * 2.0;
         let square_button_size = egui::Vec2::new(button_height, button_height);
-        let max_content_height = button_height + STROKE_INNER_MARGIN as f32 * 2.0;
+        let content_height = button_height + STROKE_INNER_MARGIN as f32 * 2.0;
 
         ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
-            self.ui_update_nav_buttons(ui, square_button_size, max_content_height);
+            self.ui_update_nav_buttons(ui, square_button_size, content_height);
 
             let mut path_display_width = ui.available_width();
 
@@ -1482,6 +1481,19 @@ impl FileDialog {
             if self.config.show_current_path {
                 self.ui_update_current_path(ui, path_display_width, STROKE_INNER_MARGIN, button_height);
             }
+
+            let hamburger_menu_contains_items = self.config.show_reload_button
+                || self.config.show_working_directory_button
+                || self.config.show_select_all_button
+                || self.config.show_hidden_option
+                || self.config.show_system_files_option;
+
+            let hamburger_menu_visible =
+                self.config.show_menu_button && hamburger_menu_contains_items;
+
+            if hamburger_menu_visible {
+                self.ui_update_hamburger_menu(ui, square_button_size, content_height);
+            }
         });
     }
 
@@ -1489,11 +1501,11 @@ impl FileDialog {
         &mut self,
         ui: &mut egui::Ui,
         button_size: egui::Vec2,
-        max_content_height: f32
+        content_height: f32
     ) {
         ui.with_layout(egui::Layout::top_down(egui::Align::Min), |ui|{
             // Add some space so the buttons are in the center of the top panel.
-            ui.add_space((max_content_height - button_size.y) / 2.0);
+            ui.add_space((content_height - button_size.y) / 2.0);
 
             ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
                 self.ui_update_nav_buttons_content(ui, button_size);
@@ -1694,6 +1706,93 @@ impl FileDialog {
              self.path_edit_visible = false;
          }
      }
+
+    /// Updates the hamburger menu containing different options.
+    fn ui_update_hamburger_menu(&mut self, ui: &mut egui::Ui, button_size: egui::Vec2, content_height: f32) {
+        use egui::containers::menu::{SubMenuButton, MenuButton, is_in_menu};
+
+        ui.with_layout(egui::Layout::top_down(egui::Align::Min), |ui|{
+            // Add some space so the button is placed in the center of the top panel.
+            ui.add_space((content_height - button_size.y) / 2.0);
+
+            // TODO: min_size is not correct, we should set the exact size of the button.
+            //   The build-in menu buttons seem to be a bit limit regarding custom sizes.
+            let btn = egui::Button::new(&self.config.menu_icon).min_size(button_size);
+
+            if is_in_menu(ui) {
+                SubMenuButton::new(&self.config.menu_icon).ui(ui, |ui| {
+                    self.ui_update_hamburger_menu_content(ui);
+                });
+            } else {
+                MenuButton::from_button(btn).ui(ui, |ui| {
+                    self.ui_update_hamburger_menu_content(ui);
+                });
+            };
+        });
+    }
+
+    /// Updates the contents of the hamburger menu when it is open.
+    fn ui_update_hamburger_menu_content(&mut self, ui: &mut egui::Ui) {
+        const SEPARATOR_SPACING: f32 = 2.0;
+
+        let working_dir = self.config.file_system.current_dir();
+
+        let show_reload = self.config.show_reload_button;
+        let show_working_dir = self.config.show_working_directory_button && working_dir.is_ok();
+        let show_select_all =
+            self.config.show_select_all_button && self.mode == DialogMode::PickMultiple;
+
+        let show_hidden = self.config.show_hidden_option;
+        let show_system_files = self.config.show_system_files_option;
+
+        if show_reload && ui.button(&self.config.labels.reload).clicked() {
+            self.refresh();
+            ui.close();
+        }
+
+        if show_working_dir && ui.button(&self.config.labels.working_directory).clicked() {
+            self.load_directory(&working_dir.unwrap_or_default());
+            ui.close();
+        }
+
+        if show_select_all && ui.button(&self.config.labels.select_all).clicked() {
+            self.select_all_items();
+            ui.close();
+        }
+
+        let any_above = show_reload || show_working_dir || show_select_all;
+        let any_below = show_hidden || show_system_files;
+
+        if any_above && any_below {
+            ui.add_space(SEPARATOR_SPACING);
+            ui.separator();
+            ui.add_space(SEPARATOR_SPACING);
+        }
+
+        if show_hidden
+            && ui
+                .checkbox(
+                    &mut self.storage.show_hidden,
+                    &self.config.labels.show_hidden,
+                )
+                .clicked()
+        {
+            self.refresh();
+            ui.close();
+        }
+
+        if show_system_files
+            && ui
+                .checkbox(
+                    &mut self.storage.show_system_files,
+                    &self.config.labels.show_system_files,
+                )
+                .clicked()
+        {
+            self.refresh();
+            ui.close();
+        }
+    }
 
     /// Focuses and types into the search input, if text input without
     /// shortcut modifiers is detected, and no other inputs are focused.

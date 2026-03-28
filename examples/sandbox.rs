@@ -40,6 +40,10 @@ impl MyApp {
                 eframe::get_value(storage, "file_dialog_storage").unwrap_or_default();
         }
 
+        cc.egui_ctx.global_style_mut(|s| {
+            s.spacing.button_padding = egui::Vec2::new(5.0, 5.0);
+        });
+
         Self {
             file_dialog,
 
