@@ -2130,7 +2130,8 @@ impl FileDialog {
         self.ui_update_action_buttons(ui, button_size);
     }
 
-    /// Updates the selection preview like "Selected directory: X"
+    /// Updates the selection preview like "Selected directory: X" as well as the
+    /// filter selection next to it.
     fn ui_update_selection_preview(&mut self, ui: &mut egui::Ui, button_size: egui::Vec2) {
         const SELECTION_PREVIEW_MIN_WIDTH: f32 = 50.0;
         let item_spacing = ui.style().spacing.item_spacing;
@@ -2139,7 +2140,7 @@ impl FileDialog {
             && (self.mode == DialogMode::PickFile || self.mode == DialogMode::PickMultiple))
             || (!self.config.save_extensions.is_empty() && self.mode == DialogMode::SaveFile);
 
-        let filter_selection_width = button_size.x.mul_add(2.0, item_spacing.x);
+        let filter_selection_width = button_size.x.mul_add(2.0, item_spacing.y);
         let mut filter_selection_separate_line = false;
 
         ui.horizontal(|ui| {
@@ -2181,7 +2182,7 @@ impl FileDialog {
                     let mut output = egui::TextEdit::singleline(&mut self.file_name_input)
                         .cursor_at_end(false)
                         .margin(egui::Margin::symmetric(4, 3))
-                        .desired_width(scroll_bar_width - item_spacing.x)
+                        .desired_width(scroll_bar_width)
                         .show(ui);
 
                     if self.file_name_input_request_focus {
@@ -2354,6 +2355,8 @@ impl FileDialog {
                 }
                 DialogMode::SaveFile => self.config.labels.save_button.as_str(),
             };
+
+            ui.spacing_mut().item_spacing.x = ui.spacing_mut().item_spacing.y;
 
             if self.ui_button_sized(
                 ui,
