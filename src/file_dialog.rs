@@ -1494,6 +1494,10 @@ impl FileDialog {
             if hamburger_menu_visible {
                 self.ui_update_hamburger_menu(ui, square_button_size, content_height);
             }
+
+            if self.config.show_search {
+                self.ui_update_search(ui, STROKE_INNER_MARGIN, button_height);
+            }
         });
     }
 
@@ -1791,6 +1795,68 @@ impl FileDialog {
         {
             self.refresh();
             ui.close();
+        }
+    }
+
+    /// Updates the search input
+    fn ui_update_search(&mut self, ui: &mut egui::Ui, frame_inner_margin: i8, button_height: f32) {
+        let stroke = egui::Stroke::new(1.0, ui.style().visuals.window_stroke.color);
+
+        let margin = egui::Margin {
+            top: frame_inner_margin - 1,
+            bottom: frame_inner_margin - 1,
+            left: (frame_inner_margin as f32 * 1.5).floor() as i8,
+            right: frame_inner_margin,
+        };
+
+        egui::Frame::default()
+            .stroke(stroke)
+            .inner_margin(margin)
+            .corner_radius(egui::CornerRadius::from(4))
+            .show(ui, |ui| {
+                ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+                    self.ui_update_search_content(ui, button_height);
+                });
+            });
+    }
+
+    fn ui_update_search_content(&mut self, ui: &mut egui::Ui, button_height: f32) {
+        ui.with_layout(egui::Layout::top_down(egui::Align::Min), |ui| {
+            // Add some space so the search icon is in the center
+            let text_height = ui.text_style_height(&egui::TextStyle::Body);
+            if text_height <= button_height {
+                ui.add_space((button_height - text_height) / 2.0);
+            }
+
+            ui.label(&self.config.search_icon);
+        });
+
+        // Calculate the required margin to fill the entire height with the text edit
+        let empty_space = button_height - ui.text_style_height(&egui::TextStyle::Body);
+        let padding_top_bottom = empty_space / 2.0;
+        let margin = egui::Margin::symmetric(4, padding_top_bottom.floor() as i8);
+
+        let frame = egui::Frame::dark_canvas(ui.style()).inner_margin(margin).stroke(egui::Stroke::NONE);
+
+        let text_edit = egui::TextEdit::singleline(&mut self.search_value)
+            .desired_width(ui.available_width())
+            .frame(frame);
+
+        let re = text_edit.show(ui).response;
+
+        self.edit_search_on_text_input(ui);
+
+        if re.changed() || self.init_search {
+            self.selected_item = None;
+            self.select_first_visible_item();
+        }
+
+        if self.init_search {
+            re.request_focus();
+            Self::set_cursor_to_end(&re, &self.search_value);
+            self.directory_content.reset_multi_selection();
+
+            self.init_search = false;
         }
     }
 
