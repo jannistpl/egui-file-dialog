@@ -3261,8 +3261,12 @@ impl FileDialog {
         let user_data = std::mem::take(&mut self.user_data);
         let storage = self.storage.clone();
         let config = self.config.clone();
+        let selected = self.selected_item.clone();
 
         *self = Self::with_config(config);
+        if self.config.retain_selected_entry {
+            self.selected_item = selected;
+        }
         self.storage = storage;
         self.user_data = user_data;
     }
