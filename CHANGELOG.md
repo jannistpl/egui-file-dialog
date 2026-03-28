@@ -1,5 +1,19 @@
 # egui-file-dialog changelog
 
+## Unreleased
+
+### 🚨 Breaking Changes
+
+- Add `retain_selected_entry` to `FileDialogConfig` [#320](https://github.com/jannistpl/egui-file-dialog/pull/320)
+
+### ✨ Features
+
+- Add option `FileDialog::retain_selected_entry` and `FileDialogConfig::retain_selected_entry` to retain the selected entry when reopening the dialog [#320](https://github.com/jannistpl/egui-file-dialog/pull/320), [#321](https://github.com/jannistpl/egui-file-dialog/pull/321) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
+
+### 🐛 Bug Fixes
+
+- Publicly export private configuration types [#319](https://github.com/jannistpl/egui-file-dialog/pull/319) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
+
 ## 2026-03-27 - v0.13.0 - egui update and QoL changes
 
 ### 🚨 Breaking Changes
