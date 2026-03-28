@@ -122,6 +122,8 @@ pub struct FileDialogConfig {
     pub load_via_thread: bool,
     /// If we should truncate the filenames in the middle
     pub truncate_filenames: bool,
+    /// Whether to keep the last selected entry when opening the file dialog
+    pub retain_selected_entry: bool,
 
     /// Maximum number of items that can be selected at once.
     /// `None` means no limit. Only relevant when `DialogMode::PickMultiple` is used.
@@ -283,6 +285,7 @@ impl FileDialogConfig {
             load_via_thread: true,
 
             truncate_filenames: true,
+            retain_selected_entry: false,
 
             max_selections: None,
 
