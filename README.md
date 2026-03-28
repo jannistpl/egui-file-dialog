@@ -178,10 +178,10 @@ options, it is a good idea to use `FileDialogConfig` and `FileDialog::with_confi
 [docs.rs](https://docs.rs/egui-file-dialog/latest/egui_file_dialog/struct.FileDialogConfig.html)).
 
 ```rust
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use egui_file_dialog::FileDialog;
+use egui_file_dialog::{FileDialog, Filter};
 
 FileDialog::new()
     .initial_directory(PathBuf::from("/path/to/app"))
