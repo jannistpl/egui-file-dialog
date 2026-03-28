@@ -632,6 +632,12 @@ impl FileDialog {
         self
     }
 
+    /// Whether to keep the last selected entry when opening the file dialog.
+    pub const fn retain_selected_entry(mut self, retain_selected_entry: bool) -> Self {
+        self.config.retain_selected_entry = retain_selected_entry;
+        self
+    }
+
     /// Sets the maximum number of items that can be selected simultaneously.
     pub fn max_selections(mut self, max: usize) -> Self {
         self.config.max_selections = Some(max);

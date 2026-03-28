@@ -120,11 +120,10 @@ pub struct FileDialogConfig {
     /// This prevents the application from blocking when loading large directories
     /// or from slow hard drives.
     pub load_via_thread: bool,
-    /// If we should truncate the filenames in the middle
+    /// If we should truncate the filenames in the middle.
     pub truncate_filenames: bool,
-    /// Whether to keep the last selected entry when opening the file dialog
+    /// Whether to keep the last selected entry when opening the file dialog.
     pub retain_selected_entry: bool,
-
     /// Maximum number of items that can be selected at once.
     /// `None` means no limit. Only relevant when `DialogMode::PickMultiple` is used.
     pub max_selections: Option<usize>,
@@ -418,6 +417,7 @@ impl FileDialogConfig {
     /// FileDialogConfig::default()
     ///     .add_file_filter_extensions("Pictures", vec!["png", "jpg", "dds"])
     ///     .add_file_filter_extensions("Rust files", vec!["rs", "toml", "lock"]);
+    /// ```
     pub fn add_file_filter_extensions(self, name: &str, extensions: Vec<&'static str>) -> Self {
         self.add_file_filter(
             name,
