@@ -1273,8 +1273,12 @@ impl FileDialog {
             }
 
             if self.config.show_top_panel {
+                let mut margin = ctx.global_style().spacing.window_margin;
+                margin.top = 0;
+
                 egui::Panel::top(self.window_id.with("top_panel"))
                     .resizable(false)
+                    .frame(egui::Frame::new().inner_margin(margin))
                     .show_inside(ui, |ui| {
                         self.ui_update_top_panel(ui);
                     });
@@ -1452,55 +1456,56 @@ impl FileDialog {
     /// Updates the top panel of the dialog. Including the navigation buttons,
     /// the current path display, the reload button and the search field.
     fn ui_update_top_panel(&mut self, ui: &mut egui::Ui) {
-        const BUTTON_SIZE: egui::Vec2 = egui::Vec2::new(25.0, 25.0);
-        const FRAME_INNE_MARGIN: i8 = 4;
+        const STROKE_INNER_MARGIN: i8 = 4;
+        // const STROKE_INNER_MARGIN: i8 = 10;
 
-        ui.horizontal(|ui| {
-            self.ui_update_nav_buttons(ui, BUTTON_SIZE);
+        let text_height = ui.text_style_height(&egui::TextStyle::Body);
+        let button_height = text_height + ui.spacing().button_padding.y * 2.0;
+        let square_button_size = egui::Vec2::new(button_height, button_height);
+        let max_content_height = button_height + STROKE_INNER_MARGIN as f32 * 2.0;
+
+        ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+            self.ui_update_nav_buttons(ui, square_button_size, max_content_height);
 
             let mut path_display_width = ui.available_width();
 
-            // Leave some area for the menu button and search input
+            // Leave some space for the menu button
             if self.config.show_reload_button {
-                path_display_width -= ui
-                    .style()
-                    .spacing
-                    .item_spacing
-                    .x
-                    .mul_add(2.5, BUTTON_SIZE.x);
+                path_display_width -= square_button_size.x + ui.spacing().item_spacing.x * 2.0;
             }
 
+            // Leave some space for the search input
             if self.config.show_search {
                 path_display_width -= 140.0;
             }
 
             if self.config.show_current_path {
-                self.ui_update_current_path(ui, path_display_width, FRAME_INNE_MARGIN);
-            }
-
-            let hamburger_menu_contains_items = self.config.show_reload_button
-                || self.config.show_working_directory_button
-                || self.config.show_select_all_button
-                || self.config.show_hidden_option
-                || self.config.show_system_files_option;
-
-            let hamburger_menu_visible =
-                self.config.show_menu_button && hamburger_menu_contains_items;
-
-            if hamburger_menu_visible {
-                self.ui_update_hamburger_menu(ui, BUTTON_SIZE);
-            }
-
-            if self.config.show_search {
-                self.ui_update_search(ui, FRAME_INNE_MARGIN);
+                self.ui_update_current_path(ui, path_display_width, STROKE_INNER_MARGIN, button_height);
             }
         });
-
-        ui.add_space(ui.global_style().spacing.item_spacing.y);
     }
 
-    /// Updates the navigation buttons like parent or previous directory
-    fn ui_update_nav_buttons(&mut self, ui: &mut egui::Ui, button_size: egui::Vec2) {
+    fn ui_update_nav_buttons(
+        &mut self,
+        ui: &mut egui::Ui,
+        button_size: egui::Vec2,
+        max_content_height: f32
+    ) {
+        ui.with_layout(egui::Layout::top_down(egui::Align::Min), |ui|{
+            // Add some space so the buttons are in the center of the top panel.
+            ui.add_space((max_content_height - button_size.y) / 2.0);
+
+            ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+                self.ui_update_nav_buttons_content(ui, button_size);
+            });
+        });
+    }
+
+    fn ui_update_nav_buttons_content(
+        &mut self,
+        ui: &mut egui::Ui,
+        button_size: egui::Vec2,
+    ) {
         if self.config.show_parent_button {
             if let Some(x) = self.current_directory() {
                 if self.ui_button_sized(
@@ -1563,251 +1568,132 @@ impl FileDialog {
     /// Updates the view to display the current path.
     /// This could be the view for displaying the current path and the individual sections,
     /// as well as the view for text editing of the current path.
-    fn ui_update_current_path(&mut self, ui: &mut egui::Ui, width: f32, frame_inner_margin: i8) {
+    fn ui_update_current_path(&mut self, ui: &mut egui::Ui, width: f32, frame_inner_margin: i8, button_height: f32) {
+        let stroke = egui::Stroke::new(1.0, ui.style().visuals.window_stroke.color);
+
         egui::Frame::default()
-            .stroke(egui::Stroke::new(
-                1.0,
-                ui.global_style().visuals.window_stroke.color,
-            ))
-            .inner_margin(egui::Margin::same(frame_inner_margin))
+            .stroke(stroke)
+            .inner_margin(egui::Margin::same(frame_inner_margin - 1))
             .corner_radius(egui::CornerRadius::from(4))
             .show(ui, |ui| {
-                const EDIT_BUTTON_SIZE: egui::Vec2 = egui::Vec2::new(22.0, 20.0);
-
                 if self.path_edit_visible {
-                    self.ui_update_path_edit(ui, width, EDIT_BUTTON_SIZE);
+                    self.ui_update_path_edit(ui, width, button_height);
                 } else {
-                    self.ui_update_path_display(ui, width, EDIT_BUTTON_SIZE);
+                    self.ui_update_path_display(ui, width, button_height);
                 }
             });
     }
 
     /// Updates the view when the currently open path with the individual sections is displayed.
-    fn ui_update_path_display(
-        &mut self,
-        ui: &mut egui::Ui,
-        width: f32,
-        edit_button_size: egui::Vec2,
-    ) {
-        ui.style_mut().always_scroll_the_only_direction = true;
-        ui.style_mut().spacing.scroll.bar_width = 8.0;
+     fn ui_update_path_display(
+         &mut self,
+         ui: &mut egui::Ui,
+         mut width: f32,
+         button_height: f32,
+     ) {
+         ui.style_mut().always_scroll_the_only_direction = true;
+         ui.style_mut().spacing.scroll.bar_width = 8.0;
 
-        let max_width = if self.config.show_path_edit_button {
-            ui.style()
-                .spacing
-                .item_spacing
-                .x
-                .mul_add(-2.0, width - edit_button_size.x)
-        } else {
-            width
-        };
+         let edit_button_size = egui::Vec2::new(button_height, button_height);
 
-        egui::ScrollArea::horizontal()
-            .auto_shrink([false, false])
-            .stick_to_right(true)
-            .max_width(max_width)
-            .show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    ui.style_mut().spacing.item_spacing.x /= 2.5;
-                    ui.style_mut().spacing.button_padding = egui::Vec2::new(5.0, 3.0);
+         // Leave some space for the edit button
+         if self.config.show_path_edit_button {
+             width -= edit_button_size.x + ui.spacing().item_spacing.x * 2.0;
+         }
 
-                    let mut path = PathBuf::new();
+         egui::ScrollArea::horizontal()
+             .auto_shrink([false, true])
+             .stick_to_right(true)
+             .max_width(width)
+             .content_margin(egui::Margin::ZERO)
+             .show(ui, |ui| {
+                 ui.horizontal(|ui| {
+                     ui.style_mut().spacing.item_spacing.x /= 2.5;
 
-                    if let Some(data) = self.current_directory().map(Path::to_path_buf) {
-                        for (i, segment) in data.iter().enumerate() {
-                            path.push(segment);
+                     let mut path = PathBuf::new();
 
-                            let mut segment_str = segment.to_str().unwrap_or_default().to_string();
+                     if let Some(data) = self.current_directory().map(Path::to_path_buf) {
+                         for (i, segment) in data.iter().enumerate() {
+                             path.push(segment);
 
-                            if self.is_pinned(&path) {
-                                segment_str =
-                                    format!("{} {}", &self.config.pinned_icon, segment_str);
-                            }
+                             let mut segment_str = segment.to_str().unwrap_or_default().to_string();
 
-                            if i != 0 {
-                                ui.label(self.config.directory_separator.as_str());
-                            }
+                             if self.is_pinned(&path) {
+                                 segment_str =
+                                     format!("{} {}", &self.config.pinned_icon, segment_str);
+                             }
 
-                            let re = ui.button(segment_str);
+                             if i != 0 {
+                                 ui.label(self.config.directory_separator.as_str());
+                             }
 
-                            if re.clicked() {
-                                self.load_directory(path.as_path());
-                                return;
-                            }
+                             let btn = egui::Button::new(segment_str);
+                             let re = ui.add_sized(egui::Vec2::new(0.0, button_height), btn);
 
-                            self.ui_update_central_panel_path_context_menu(&re, &path.clone());
-                        }
-                    }
-                });
-            });
+                             if re.clicked() {
+                                 self.load_directory(path.as_path());
+                                 return;
+                             }
 
-        if !self.config.show_path_edit_button {
-            return;
-        }
+                             self.ui_update_central_panel_path_context_menu(&re, &path.clone());
+                         }
+                     }
+                 });
+             });
 
-        if ui
-            .add_sized(
-                edit_button_size,
-                egui::Button::new(self.config.path_edit_icon.as_str())
-                    .fill(egui::Color32::TRANSPARENT),
-            )
-            .clicked()
-        {
-            self.open_path_edit();
-        }
-    }
+         if !self.config.show_path_edit_button {
+             return;
+         }
 
-    /// Updates the view when the user currently wants to text edit the current path.
-    fn ui_update_path_edit(&mut self, ui: &mut egui::Ui, width: f32, edit_button_size: egui::Vec2) {
-        let desired_width: f32 = ui
-            .style()
-            .spacing
-            .item_spacing
-            .x
-            .mul_add(-3.0, width - edit_button_size.x);
+         let button = egui::Button::new(&self.config.path_edit_icon)
+             .fill(egui::Color32::TRANSPARENT)
+             .wrap();
 
-        let response = egui::TextEdit::singleline(&mut self.path_edit_value)
-            .desired_width(desired_width)
-            .show(ui)
-            .response;
+         if ui.add_sized(edit_button_size, button).clicked() {
+             self.open_path_edit();
+         }
+     }
 
-        if self.path_edit_activate {
-            response.request_focus();
-            Self::set_cursor_to_end(&response, &self.path_edit_value);
-            self.path_edit_activate = false;
-        }
+     /// Updates the view when the user currently wants to text edit the current path.
+     fn ui_update_path_edit(&mut self, ui: &mut egui::Ui, mut width: f32, button_height: f32) {
+         let edit_button_size = egui::Vec2::new(button_height, button_height);
+         width -= edit_button_size.x + ui.spacing().item_spacing.x * 2.0;
 
-        if self.path_edit_request_focus {
-            response.request_focus();
-            self.path_edit_request_focus = false;
-        }
+         // Calculate the required margin to fill the entire height
+         let empty_space = button_height - ui.text_style_height(&egui::TextStyle::Body);
+         let padding_top_bottom = empty_space / 2.0;
+         let margin = egui::Margin::symmetric(4, padding_top_bottom.floor() as i8);
 
-        let btn_response = ui.add_sized(edit_button_size, egui::Button::new("✔"));
+         let frame = egui::Frame::dark_canvas(ui.style()).inner_margin(margin).stroke(egui::Stroke::NONE);
 
-        if btn_response.clicked() {
-            self.submit_path_edit();
-        }
+         let text_edit = egui::TextEdit::singleline(&mut self.path_edit_value)
+             .desired_width(width)
+             .frame(frame);
 
-        if !response.has_focus() && !btn_response.contains_pointer() {
-            self.path_edit_visible = false;
-        }
-    }
+         let response = text_edit.show(ui).response;
 
-    /// Updates the hamburger menu containing different options.
-    fn ui_update_hamburger_menu(&mut self, ui: &mut egui::Ui, button_size: egui::Vec2) {
-        ui.allocate_ui_with_layout(
-            button_size,
-            egui::Layout::centered_and_justified(egui::Direction::LeftToRight),
-            |ui| {
-                let menu_icon = std::mem::take(&mut self.config.menu_icon);
-                ui.menu_button(&menu_icon, |ui| {
-                    self.ui_update_hamburger_menu_content(ui);
-                });
-                self.config.menu_icon = menu_icon;
-            },
-        );
-    }
+         if self.path_edit_activate {
+             response.request_focus();
+             Self::set_cursor_to_end(&response, &self.path_edit_value);
+             self.path_edit_activate = false;
+         }
 
-    /// Updates the contents of the hamburger menu when it is open.
-    fn ui_update_hamburger_menu_content(&mut self, ui: &mut egui::Ui) {
-        const SEPARATOR_SPACING: f32 = 2.0;
+         if self.path_edit_request_focus {
+             response.request_focus();
+             self.path_edit_request_focus = false;
+         }
 
-        let working_dir = self.config.file_system.current_dir();
+         let btn = egui::Button::new("✔").wrap();
+         let btn_response = ui.add_sized(edit_button_size, btn);
 
-        let show_reload = self.config.show_reload_button;
-        let show_working_dir = self.config.show_working_directory_button && working_dir.is_ok();
-        let show_select_all =
-            self.config.show_select_all_button && self.mode == DialogMode::PickMultiple;
+         if btn_response.clicked() {
+             self.submit_path_edit();
+         }
 
-        let show_hidden = self.config.show_hidden_option;
-        let show_system_files = self.config.show_system_files_option;
-
-        if show_reload && ui.button(&self.config.labels.reload).clicked() {
-            self.refresh();
-            ui.close();
-        }
-
-        if show_working_dir && ui.button(&self.config.labels.working_directory).clicked() {
-            self.load_directory(&working_dir.unwrap_or_default());
-            ui.close();
-        }
-
-        if show_select_all && ui.button(&self.config.labels.select_all).clicked() {
-            self.select_all_items();
-            ui.close();
-        }
-
-        let any_above = show_reload || show_working_dir || show_select_all;
-        let any_below = show_hidden || show_system_files;
-
-        if any_above && any_below {
-            ui.add_space(SEPARATOR_SPACING);
-            ui.separator();
-            ui.add_space(SEPARATOR_SPACING);
-        }
-
-        if show_hidden
-            && ui
-                .checkbox(
-                    &mut self.storage.show_hidden,
-                    &self.config.labels.show_hidden,
-                )
-                .clicked()
-        {
-            self.refresh();
-            ui.close();
-        }
-
-        if show_system_files
-            && ui
-                .checkbox(
-                    &mut self.storage.show_system_files,
-                    &self.config.labels.show_system_files,
-                )
-                .clicked()
-        {
-            self.refresh();
-            ui.close();
-        }
-    }
-
-    /// Updates the search input
-    fn ui_update_search(&mut self, ui: &mut egui::Ui, frame_inner_margin: i8) {
-        egui::Frame::default()
-            .stroke(egui::Stroke::new(
-                1.0,
-                ui.global_style().visuals.window_stroke.color,
-            ))
-            .inner_margin(egui::Margin::same(frame_inner_margin))
-            .corner_radius(egui::CornerRadius::from(4))
-            .show(ui, |ui| {
-                ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
-                    ui.add_space(ui.global_style().spacing.item_spacing.y);
-
-                    ui.label(egui::RichText::from(self.config.search_icon.as_str()).size(15.0));
-
-                    let re = ui.add_sized(
-                        egui::Vec2::new(ui.available_width(), 0.0),
-                        egui::TextEdit::singleline(&mut self.search_value),
-                    );
-
-                    self.edit_search_on_text_input(ui);
-
-                    if re.changed() || self.init_search {
-                        self.selected_item = None;
-                        self.select_first_visible_item();
-                    }
-
-                    if self.init_search {
-                        re.request_focus();
-                        Self::set_cursor_to_end(&re, &self.search_value);
-                        self.directory_content.reset_multi_selection();
-
-                        self.init_search = false;
-                    }
-                });
-            });
-    }
+         if !response.has_focus() && !btn_response.contains_pointer() {
+             self.path_edit_visible = false;
+         }
+     }
 
     /// Focuses and types into the search input, if text input without
     /// shortcut modifiers is detected, and no other inputs are focused.
