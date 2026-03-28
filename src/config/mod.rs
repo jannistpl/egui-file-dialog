@@ -318,7 +318,7 @@ impl FileDialogConfig {
             fixed_pos: None,
             default_size: egui::Vec2::new(650.0, 370.0),
             max_size: None,
-            min_size: egui::Vec2::new(340.0, 170.0),
+            min_size: egui::Vec2::new(400.0, 200.0),
             anchor: None,
             resizable: true,
             movable: true,
