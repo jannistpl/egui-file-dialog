@@ -1460,9 +1460,14 @@ impl FileDialog {
         const STROKE_INNER_MARGIN: i8 = 5;
 
         let text_height = ui.text_style_height(&egui::TextStyle::Body);
-        let button_height = (text_height + ui.spacing().button_padding.y * 2.0) * 1.25;
-        let square_button_size = egui::Vec2::new(button_height, button_height).mul(1.15);
+        let mut button_height = text_height + ui.spacing().button_padding.y * 2.0;
+
+        if button_height < 22.0 {
+            button_height = 22.0;
+        }
+
         let content_height = button_height + STROKE_INNER_MARGIN as f32 * 2.0;
+        let square_button_size = egui::Vec2::new(button_height, button_height).mul(1.08);
 
         ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
             self.ui_update_nav_buttons(ui, square_button_size, content_height);
