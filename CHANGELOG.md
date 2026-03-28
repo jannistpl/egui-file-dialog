@@ -10,7 +10,7 @@
 
 - Add option `FileDialog::retain_selected_entry` and `FileDialogConfig::retain_selected_entry` to retain the selected entry when reopening the dialog [#320](https://github.com/jannistpl/egui-file-dialog/pull/320), [#321](https://github.com/jannistpl/egui-file-dialog/pull/321) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
 
-### 🖥 UI
+### 🎨 UI
 
 - Use the same spacing between action buttons (Cancel & Submit/Save) and the filter selection [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
 - Fix incorrect size of the file name text input in `DialogMode::SaveFile` mode [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
@@ -287,7 +287,7 @@
 
 ## 2024-02-29 - v0.4.0 - Customization
 
-### 🖥 UI
+### 🎨 UI
 
 - Changed default file icon from `🖹 (document with text U+1F5B9)` to `🗋 (empty document U+1F5CB)` [#74](https://github.com/jannistpl/egui-file-dialog/pull/74) \
   ![preview](media/changelog/v0.4.0/default_file_icon.png)
@@ -355,7 +355,7 @@
 
 ## 2024-02-18 - v0.3.0 - UI improvements
 
-### 🖥 UI
+### 🎨 UI
 
 - Updated bottom panel so that the dialog can also be resized in `DialogMode::SaveFile` or when selecting a file or directory with a long name [#32](https://github.com/jannistpl/egui-file-dialog/pull/32)
   - The error when saving a file is now displayed as a tooltip when hovering over the grayed out save button \
