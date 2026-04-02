@@ -11,7 +11,7 @@ use crate::modals::{FileDialogModal, ModalAction, ModalState, OverwriteFileModal
 use crate::utils::{calc_text_width, format_bytes, truncate_date, truncate_filename};
 use crate::{FileSystem, NativeFileSystem};
 use egui::text::{CCursor, CCursorRange};
-use egui::{Button, TextStyle};
+use egui::Button;
 use egui_extras::{Column, TableBuilder, TableRow};
 use std::any::Any;
 use std::cmp::PartialEq;
@@ -2590,9 +2590,10 @@ impl FileDialog {
                                 item,
                                 &mut reset_multi_selection,
                                 &mut batch_select_item_b,
-                                command_modifier,
+                                &mut selected_count,
                                 shift_modifier,
                                 shift_only_modifier,
+                                command_modifier,
                                 &mut should_return,
                             );
                         }
@@ -2659,7 +2660,7 @@ impl FileDialog {
         shift_modifier: bool,
         shift_only_modifier: bool,
         should_return: &mut bool,
-    ) -> bool {
+    ) {
         self.ui_update_central_panel_entry(row, item);
 
         let primary_selected = self.is_primary_selected(item);
@@ -2736,7 +2737,7 @@ impl FileDialog {
                 if self.should_open_directory(item.as_path()) {
                     self.load_directory(&item.to_path_buf());
                     *should_return = true;
-                    return true;
+                    return;
                 }
                 // Fall through to submit the directory as the picked path.
             }
@@ -2788,13 +2789,6 @@ impl FileDialog {
                 data.sort_directory_entries(&self.config.sort_by, &self.config.sort_order);
             }
         });
-    }
-
-    fn get_row_height(ui: &egui::Ui) -> f32 {
-        ui.style()
-            .text_styles
-            .get(&TextStyle::Body)
-            .map_or(15.0, |font_id| 1.0 + ui.fonts_mut(|f| f.row_height(font_id)))
     }
 
     fn should_render_all_items(&self) -> bool {
