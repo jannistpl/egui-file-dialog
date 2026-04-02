@@ -27,8 +27,8 @@ enum Operation {
 }
 
 impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show_inside(ui, |ui| {
             if ui.button("Pick file a").clicked() {
                 self.file_dialog.pick_file();
                 self.file_dialog.set_user_data(Operation::PickA);
@@ -42,7 +42,7 @@ impl eframe::App for MyApp {
             ui.label(format!("Pick file a: {:?}", self.picked_file_a));
             ui.label(format!("Pick file b: {:?}", self.picked_file_b));
 
-            self.file_dialog.update(ctx);
+            self.file_dialog.update(ui);
 
             if let Some(path) = self.file_dialog.picked() {
                 match self.file_dialog.user_data::<Operation>() {

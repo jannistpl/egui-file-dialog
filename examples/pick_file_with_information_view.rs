@@ -37,8 +37,8 @@ impl MyApp {
 }
 
 impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show_inside(ui, |ui| {
             if ui.button("Select file").clicked() {
                 self.file_dialog.pick_file();
             }
@@ -47,7 +47,7 @@ impl eframe::App for MyApp {
 
             if let Some(path) = self
                 .file_dialog
-                .update_with_right_panel_ui(ctx, &mut |ui, dia| {
+                .update_with_right_panel_ui(ui, &mut |ui, dia| {
                     self.information_panel.ui(ui, dia);
                 })
                 .picked()

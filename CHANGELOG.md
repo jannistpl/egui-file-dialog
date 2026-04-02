@@ -2,13 +2,63 @@
 
 ## Unreleased
 
+### 🚨 Breaking Changes
+
+- Add `retain_selected_entry` to `FileDialogConfig` [#320](https://github.com/jannistpl/egui-file-dialog/pull/320)
+
+### ✨ Features
+
+- Add option `FileDialog::retain_selected_entry` and `FileDialogConfig::retain_selected_entry` to retain the selected entry when reopening the dialog [#320](https://github.com/jannistpl/egui-file-dialog/pull/320), [#321](https://github.com/jannistpl/egui-file-dialog/pull/321) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
+
+### 🎨 UI
+
+- Use the same spacing between action buttons (Cancel & Submit/Save) and the filter selection [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
+- Fix incorrect size of the file name text input in `DialogMode::SaveFile` mode [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
+
+### 🐛 Bug Fixes
+
+- Publicly export private configuration types [#319](https://github.com/jannistpl/egui-file-dialog/pull/319) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
+
+### 📚 Documentation
+
+- Adapt readme to latest changes [#324](https://github.com/jannistpl/egui-file-dialog/pull/324)
+
+## 2026-03-27 - v0.13.0 - egui update and QoL changes
+
+### 🚨 Breaking Changes
+
+- Update `egui` from version `0.33` to version `0.34` [#314](https://github.com/jannistpl/egui-file-dialog/pull/314) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
+- Add `select_all` to `FileDialogLabels` [#304](https://github.com/jannistpl/egui-file-dialog/pull/304)
+- Add `show_select_all_button` and `show_all_files_filter` to `FileDialogConfig` [#304](https://github.com/jannistpl/egui-file-dialog/pull/304), [#306](https://github.com/jannistpl/egui-file-dialog/pull/306)
+- Replaced the Arc inside `FileDialog::add_file_filter`, `FileDialogConfig::add_file_filter`, `FileDialog::set_file_icon` and `FileDialogConfig::set_file_icon` with a custom `Filter` struct. \
+ For migration replace `Arc::new(|p| ...)` with `egui_file_dialog::Filter::new(|p: &Path| ...)` [#308](https://github.com/jannistpl/egui-file-dialog/pull/308)
+- Add `max_selections` to `FileDialogConfig` [#312](https://github.com/jannistpl/egui-file-dialog/pull/312)
+
 ### ✨ Features
 
 - Allow to customize more icons: parent directory, back, forward, new folder, menu [#294](https://github.com/jannistpl/egui-file-dialog/pull/294) (thanks [@Jupeyy](https://github.com/Jupeyy)!)
+- Allow to customize search_icon and path_edit_icon [#296](https://github.com/jannistpl/egui-file-dialog/pull/296) (thanks [@mq1](https://github.com/mq1)!)
+- Add "Select All" option to hamburger menu [#304](https://github.com/jannistpl/egui-file-dialog/pull/304)
+- Add option `FileDialogConfig::show_all_files_filter`, which allows the default filter "All Files" to be hidden [#306](https://github.com/jannistpl/egui-file-dialog/pull/306)
+- Add `FileDialog::set_open_directory_filter` and `FileDialog::clear_open_directory_filter` to skip navigating into matching directories [#308](https://github.com/jannistpl/egui-file-dialog/pull/308) (thanks [@monoclecat](https://github.com/monoclecat)!)
+- Implement `FileDialog::max_selections` and `FileDialogConfig::max_selections` to limit how many items the user can select in `PickMultiple` mode [#312](https://github.com/jannistpl/egui-file-dialog/pull/312) (thanks [@hallyhaa](https://github.com/hallyhaa)!)
+
+### 🔧 Changes
+
+- Remove unnecessary clone [#297](https://github.com/jannistpl/egui-file-dialog/pull/297)
+- Improve format of imports using rusfmt nightly [#300](https://github.com/jannistpl/egui-file-dialog/pull/300)
+- Fix new clippy lint added in recent rust updates [#301](https://github.com/jannistpl/egui-file-dialog/pull/301)
+- Update `sysinfo` from version `0.37` to version `0.38` [#303](https://github.com/jannistpl/egui-file-dialog/pull/303)
 
 ### 🐛 Bug Fixes
 
 - Fix compilation on i686-pc-windows-msvc and i686-win7-windows-msvc [#293](https://github.com/jannistpl/egui-file-dialog/pull/293) (thanks [@mq1](https://github.com/mq1)!)
+- Fix incorrect row height of items inside the central panel, causing red boxes when scrolling in debug mode in egui version 0.34 [#317](https://github.com/jannistpl/egui-file-dialog/pull/317)
+
+### 📚 Documentation
+
+- Improve `README.md` [#302](https://github.com/jannistpl/egui-file-dialog/pull/302)
+- Update license year to 2026 [#307](https://github.com/jannistpl/egui-file-dialog/pull/307)
 
 ## 2025-10-10 - v0.12.0 - egui update and QoL changes
 
@@ -241,7 +291,7 @@
 
 ## 2024-02-29 - v0.4.0 - Customization
 
-### 🖥 UI
+### 🎨 UI
 
 - Changed default file icon from `🖹 (document with text U+1F5B9)` to `🗋 (empty document U+1F5CB)` [#74](https://github.com/jannistpl/egui-file-dialog/pull/74) \
   ![preview](media/changelog/v0.4.0/default_file_icon.png)
@@ -309,7 +359,7 @@
 
 ## 2024-02-18 - v0.3.0 - UI improvements
 
-### 🖥 UI
+### 🎨 UI
 
 - Updated bottom panel so that the dialog can also be resized in `DialogMode::SaveFile` or when selecting a file or directory with a long name [#32](https://github.com/jannistpl/egui-file-dialog/pull/32)
   - The error when saving a file is now displayed as a tooltip when hovering over the grayed out save button \

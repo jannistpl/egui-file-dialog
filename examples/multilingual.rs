@@ -20,7 +20,8 @@ fn get_labels_german() -> FileDialogLabels {
         overwrite: "Überschreiben".to_string(),
 
         reload: "⟲  Neu laden".to_string(),
-        working_directory: "Arbeitsverzeichnis öffnen".to_string(),
+        working_directory: "↗  Arbeitsverzeichnis öffnen".to_string(),
+        select_all: "🗐  Alle auswählen".to_string(),
         show_hidden: " Versteckte Dateien anzeigen".to_string(),
         show_system_files: " Systemdateien anzeigen".to_string(),
 
@@ -92,8 +93,8 @@ impl MyApp {
 }
 
 impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show_inside(ui, |ui| {
             let language_before = self.language.clone();
 
             egui::ComboBox::from_label("Language")
@@ -112,7 +113,7 @@ impl eframe::App for MyApp {
             }
             ui.label(format!("Picked file: {:?}", self.picked_file));
 
-            self.file_dialog.update(ctx);
+            self.file_dialog.update(ui);
 
             if let Some(path) = self.file_dialog.take_picked() {
                 self.picked_file = Some(path);

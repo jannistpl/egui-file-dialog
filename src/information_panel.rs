@@ -1,13 +1,15 @@
 #![cfg(feature = "information_view")]
 
 use crate::utils::format_bytes;
-use crate::{DirectoryEntry, FileDialog, FileSystem, NativeFileSystem};
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
+
 use chrono::{DateTime, Local};
 use egui::ahash::{HashMap, HashMapExt};
 use egui::{Direction, Layout, Ui, Vec2};
 use indexmap::{IndexMap, IndexSet};
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
+
+use crate::{DirectoryEntry, FileDialog, FileSystem, NativeFileSystem};
 
 type SupportedPreviewFilesMap = HashMap<String, Box<dyn FnMut(&mut Ui, &InfoPanelEntry)>>;
 type SupportedPreviewImagesMap =
@@ -258,7 +260,7 @@ impl InformationPanel {
             // show preview of selected item
             self.display_preview(ui, item);
 
-            let spacing = ui.ctx().style().spacing.item_spacing.y * SPACING_MULTIPLIER;
+            let spacing = ui.global_style().spacing.item_spacing.y * SPACING_MULTIPLIER;
             ui.separator();
 
             ui.add_space(spacing);

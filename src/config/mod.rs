@@ -2,11 +2,11 @@ mod labels;
 pub use labels::FileDialogLabels;
 
 mod keybindings;
-pub use keybindings::{FileDialogKeyBindings, KeyBinding};
-
 use std::fmt::Display;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+
+pub use keybindings::{FileDialogKeyBindings, KeyBinding};
 
 use crate::file_dialog::{SortBy, SortOrder};
 use crate::{FileSystem, NativeFileSystem};
@@ -121,8 +121,13 @@ pub struct FileDialogConfig {
     /// This prevents the application from blocking when loading large directories
     /// or from slow hard drives.
     pub load_via_thread: bool,
-    /// If we should truncate the filenames in the middle
+    /// If we should truncate the filenames in the middle.
     pub truncate_filenames: bool,
+    /// Whether to keep the last selected entry when opening the file dialog.
+    pub retain_selected_entry: bool,
+    /// Maximum number of items that can be selected at once.
+    /// `None` means no limit. Only relevant when `DialogMode::PickMultiple` is used.
+    pub max_selections: Option<usize>,
 
     /// The icon that is used to display error messages.
     pub err_icon: String,
@@ -148,7 +153,16 @@ pub struct FileDialogConfig {
     pub new_folder_icon: String,
     /// The icon used for the top panel menu button.
     pub menu_icon: String,
+    /// The icon used for the search input in the top panel.
+    pub search_icon: String,
+    /// The icon used for the path edit input in the top panel.
+    pub path_edit_icon: String,
 
+    /// Optional predicate called when the user activates a directory entry
+    /// (single-click submit via the Open button or double-click).
+    /// Return `true` to navigate *into* the directory (default behaviour);
+    /// return `false` to submit the directory as the picked path instead.
+    pub open_directory_filter: Option<Filter<Path>>,
     /// File filters presented to the user in a dropdown.
     pub file_filters: Vec<FileFilter>,
     /// Name of the file filter to be selected by default.
@@ -214,12 +228,16 @@ pub struct FileDialogConfig {
     pub show_reload_button: bool,
     /// If the working directory shortcut in the hamburger menu should be visible.
     pub show_working_directory_button: bool,
+    /// If the select all button in the hamburger menu should be visible.
+    pub show_select_all_button: bool,
     /// If the show hidden files and folders option inside the top panel menu should be visible.
     pub show_hidden_option: bool,
     /// If the show system files option inside the top panel menu should be visible.
     pub show_system_files_option: bool,
     /// If the search input in the top panel should be visible.
     pub show_search: bool,
+    /// If the default "All files" filter should be visible in the UI.
+    pub show_all_files_filter: bool,
 
     /// Set the width of the right panel, if used
     pub right_panel_width: Option<f32>,
@@ -274,6 +292,9 @@ impl FileDialogConfig {
             load_via_thread: true,
 
             truncate_filenames: true,
+            retain_selected_entry: false,
+
+            max_selections: None,
 
             err_icon: String::from("⚠"),
             warn_icon: String::from("⚠"),
@@ -287,7 +308,10 @@ impl FileDialogConfig {
             forward_icon: String::from("⏵"),
             new_folder_icon: String::from("+"),
             menu_icon: String::from("☰"),
+            search_icon: String::from("🔍"),
+            path_edit_icon: String::from("🖊"),
 
+            open_directory_filter: None,
             file_filters: Vec::new(),
             default_file_filter: None,
             save_extensions: Vec::new(),
@@ -318,9 +342,11 @@ impl FileDialogConfig {
             show_menu_button: true,
             show_reload_button: true,
             show_working_directory_button: true,
+            show_select_all_button: true,
             show_hidden_option: true,
             show_system_files_option: true,
             show_search: true,
+            show_all_files_filter: true,
 
             right_panel_width: None,
             show_left_panel: true,
@@ -339,6 +365,12 @@ impl FileDialogConfig {
 }
 
 impl FileDialogConfig {
+    /// Sets the maximum number of items that can be selected simultaneously.
+    pub fn max_selections(mut self, max: usize) -> Self {
+        self.max_selections = Some(max);
+        self
+    }
+
     /// Adds a new file filter the user can select from a dropdown widget.
     ///
     /// NOTE: The name must be unique. If a filter with the same name already exists,
@@ -353,23 +385,23 @@ impl FileDialogConfig {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use egui_file_dialog::FileDialogConfig;
+    /// use std::path::Path;
+    /// use egui_file_dialog::{FileDialogConfig, Filter};
     ///
     /// let config = FileDialogConfig::default()
     ///     .add_file_filter(
     ///         "PNG files",
-    ///         Arc::new(|path| path.extension().unwrap_or_default() == "png"))
+    ///         Filter::new(|path: &Path| path.extension().unwrap_or_default() == "png"))
     ///     .add_file_filter(
     ///         "JPG files",
-    ///         Arc::new(|path| path.extension().unwrap_or_default() == "jpg"));
+    ///         Filter::new(|path: &Path| path.extension().unwrap_or_default() == "jpg"));
     /// ```
     pub fn add_file_filter(mut self, name: &str, filter: Filter<Path>) -> Self {
         let id = egui::Id::new(name);
 
         // Replace filter if a filter with the same name already exists.
         if let Some(item) = self.file_filters.iter_mut().find(|p| p.id == id) {
-            item.filter = filter.clone();
+            item.filter = filter;
             return self;
         }
 
@@ -397,10 +429,11 @@ impl FileDialogConfig {
     /// FileDialogConfig::default()
     ///     .add_file_filter_extensions("Pictures", vec!["png", "jpg", "dds"])
     ///     .add_file_filter_extensions("Rust files", vec!["rs", "toml", "lock"]);
+    /// ```
     pub fn add_file_filter_extensions(self, name: &str, extensions: Vec<&'static str>) -> Self {
         self.add_file_filter(
             name,
-            Arc::new(move |p| {
+            Filter::new(move |p: &Path| {
                 let extension = p
                     .extension()
                     .unwrap_or_default()
@@ -461,14 +494,14 @@ impl FileDialogConfig {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use egui_file_dialog::FileDialogConfig;
+    /// use std::path::Path;
+    /// use egui_file_dialog::{FileDialogConfig, Filter};
     ///
     /// let config = FileDialogConfig::default()
     ///     // .png files should use the "document with picture (U+1F5BB)" icon.
-    ///     .set_file_icon("🖻", Arc::new(|path| path.extension().unwrap_or_default() == "png"))
+    ///     .set_file_icon("🖻", Filter::new(|path: &Path| path.extension().unwrap_or_default() == "png"))
     ///     // .git directories should use the "web-github (U+E624)" icon.
-    ///     .set_file_icon("", Arc::new(|path| path.file_name().unwrap_or_default() == ".git"));
+    ///     .set_file_icon("", Filter::new(|path: &Path| path.file_name().unwrap_or_default() == ".git"));
     /// ```
     pub fn set_file_icon(mut self, icon: &str, filter: Filter<Path>) -> Self {
         self.file_icon_filters.push(IconFilter {
@@ -510,7 +543,31 @@ impl FileDialogConfig {
 }
 
 /// Function that returns true if the specific item matches the filter.
-pub type Filter<T> = Arc<dyn Fn(&T) -> bool + Send + Sync>;
+pub struct Filter<T: ?Sized>(pub(crate) Arc<dyn Fn(&T) -> bool + Send + Sync>);
+
+impl<T: ?Sized> Clone for Filter<T> {
+    fn clone(&self) -> Self {
+        Self(Arc::clone(&self.0))
+    }
+}
+
+impl<T: ?Sized> Filter<T> {
+    /// Creates a new filter from a closure or function.
+    pub fn new(f: impl Fn(&T) -> bool + Send + Sync + 'static) -> Self {
+        Self(Arc::new(f))
+    }
+
+    /// Returns `true` if the item matches this filter.
+    pub(crate) fn matches(&self, item: &T) -> bool {
+        (self.0)(item)
+    }
+}
+
+impl<T: ?Sized> std::fmt::Debug for Filter<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Filter(..)")
+    }
+}
 
 /// Defines a specific file filter that the user can select from a dropdown.
 #[derive(Clone)]

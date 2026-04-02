@@ -63,8 +63,8 @@
 //! }
 //!
 //! impl eframe::App for MyApp {
-//!     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-//!         egui::CentralPanel::default().show(ctx, |ui| {
+//!     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+//!         egui::CentralPanel::default().show_inside(ui, |ui| {
 //!             if ui.button("Pick file").clicked() {
 //!                 // Open the file dialog to pick a file.
 //!                 self.file_dialog.pick_file();
@@ -73,7 +73,7 @@
 //!             ui.label(format!("Picked file: {:?}", self.picked_file));
 //!
 //!             // Update the dialog
-//!             self.file_dialog.update(ctx);
+//!             self.file_dialog.update(ui);
 //!
 //!             // Check if the user picked a file.
 //!             if let Some(path) = self.file_dialog.take_picked() {
@@ -117,9 +117,8 @@
 //!
 //! ```rust
 //! use std::path::PathBuf;
-//! use std::sync::Arc;
 //!
-//! use egui_file_dialog::FileDialog;
+//! use egui_file_dialog::{FileDialog, Filter};
 //!
 //! FileDialog::new()
 //!     .initial_directory(PathBuf::from("/path/to/app"))
@@ -138,21 +137,21 @@
 //!     // Markdown files should use the "document with text (U+1F5B9)" icon
 //!     .set_file_icon(
 //!         "🖹",
-//!         Arc::new(|path| path.extension().unwrap_or_default() == "md"),
+//!         Filter::new(|path: &std::path::Path| path.extension().unwrap_or_default() == "md"),
 //!     )
 //!     // .gitignore files should use the "web-github (U+E624)" icon
 //!     .set_file_icon(
-//!         "",
-//!         Arc::new(|path| path.file_name().unwrap_or_default() == ".gitignore"),
+//!         "",
+//!         Filter::new(|path: &std::path::Path| path.file_name().unwrap_or_default() == ".gitignore"),
 //!     )
 //!     // Add file filters the user can select in the bottom right
 //!     .add_file_filter(
 //!         "PNG files",
-//!         Arc::new(|p| p.extension().unwrap_or_default() == "png"),
+//!         Filter::new(|p: &std::path::Path| p.extension().unwrap_or_default() == "png"),
 //!     )
 //!     .add_file_filter(
 //!         "Rust source files",
-//!         Arc::new(|p| p.extension().unwrap_or_default() == "rs"),
+//!         Filter::new(|p: &std::path::Path| p.extension().unwrap_or_default() == "rs"),
 //!     );
 //! ```
 //!
@@ -231,10 +230,9 @@ mod modals;
 mod utils;
 
 pub use config::{
-    FileDialogConfig, FileDialogKeyBindings, FileDialogLabels, IconFilter, KeyBinding, OpeningMode,
-    PinnedFolder, QuickAccess, QuickAccessPath,
+    FileDialogConfig, FileDialogKeyBindings, FileDialogLabels, FileFilter, Filter, IconFilter,
+    KeyBinding, OpeningMode, PinnedFolder, QuickAccess, QuickAccessPath, SaveExtension,
 };
 pub use data::{DirectoryEntry, Disk, Disks, Metadata, UserDirectories};
 pub use file_dialog::{DialogMode, DialogState, FileDialog, FileDialogStorage};
-
 pub use file_system::{FileSystem, NativeFileSystem};

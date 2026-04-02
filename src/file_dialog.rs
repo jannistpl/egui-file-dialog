@@ -241,15 +241,6 @@ pub struct FileDialog {
     rename_pinned_folder_request_focus: bool,
 }
 
-/// This tests if file dialog is send and sync.
-#[cfg(test)]
-const fn test_prop<T: Send + Sync>() {}
-
-#[test]
-const fn test() {
-    test_prop::<FileDialog>();
-}
-
 impl Default for FileDialog {
     /// Creates a new file dialog instance with default values.
     fn default() -> Self {
@@ -420,7 +411,7 @@ impl FileDialog {
         self.window_id = self
             .config
             .id
-            .map_or_else(|| egui::Id::new(self.get_window_title()), |id| id);
+            .unwrap_or_else(|| egui::Id::new(self.get_window_title()));
 
         self.load_directory(&self.get_initial_directory());
     }
@@ -533,6 +524,18 @@ impl FileDialog {
     /// Mutably borrow internal `config`.
     pub fn config_mut(&mut self) -> &mut FileDialogConfig {
         &mut self.config
+    }
+
+    /// Sets a predicate called when a directory entry is activated (double-click
+    /// or Open-button click).  Return `true` to navigate into the directory
+    /// (the default); return `false` to submit it as the picked path instead.
+    pub fn set_open_directory_filter(&mut self, filter: Filter<Path>) {
+        self.config.open_directory_filter = Some(filter);
+    }
+
+    /// Clears any previously set `open_directory_filter`.
+    pub fn clear_open_directory_filter(&mut self) {
+        self.config.open_directory_filter = None;
     }
 
     /// Sets the storage used by the file dialog.
@@ -678,6 +681,18 @@ impl FileDialog {
         self
     }
 
+    /// Whether to keep the last selected entry when opening the file dialog.
+    pub const fn retain_selected_entry(mut self, retain_selected_entry: bool) -> Self {
+        self.config.retain_selected_entry = retain_selected_entry;
+        self
+    }
+
+    /// Sets the maximum number of items that can be selected simultaneously.
+    pub fn max_selections(mut self, max: usize) -> Self {
+        self.config.max_selections = Some(max);
+        self
+    }
+
     /// Sets the icon that is used to display errors.
     pub fn err_icon(mut self, icon: &str) -> Self {
         self.config.err_icon = icon.to_string();
@@ -738,6 +753,18 @@ impl FileDialog {
         self
     }
 
+    /// Sets the icon used for the top panel search button.
+    pub fn search_icon(mut self, icon: &str) -> Self {
+        self.config.search_icon = icon.to_string();
+        self
+    }
+
+    /// Sets the icon used for the top panel path edit button.
+    pub fn path_edit_icon(mut self, icon: &str) -> Self {
+        self.config.path_edit_icon = icon.to_string();
+        self
+    }
+
     /// Adds a new file filter the user can select from a dropdown widget.
     ///
     /// NOTE: The name must be unique. If a filter with the same name already exists,
@@ -752,16 +779,16 @@ impl FileDialog {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use egui_file_dialog::FileDialog;
+    /// use std::path::Path;
+    /// use egui_file_dialog::{FileDialog, Filter};
     ///
     /// FileDialog::new()
     ///     .add_file_filter(
     ///         "PNG files",
-    ///         Arc::new(|path| path.extension().unwrap_or_default() == "png"))
+    ///         Filter::new(|path: &Path| path.extension().unwrap_or_default() == "png"))
     ///     .add_file_filter(
     ///         "JPG files",
-    ///         Arc::new(|path| path.extension().unwrap_or_default() == "jpg"));
+    ///         Filter::new(|path: &Path| path.extension().unwrap_or_default() == "jpg"));
     /// ```
     pub fn add_file_filter(mut self, name: &str, filter: Filter<Path>) -> Self {
         self.config = self.config.add_file_filter(name, filter);
@@ -841,14 +868,14 @@ impl FileDialog {
     /// # Examples
     ///
     /// ```
-    /// use std::sync::Arc;
-    /// use egui_file_dialog::FileDialog;
+    /// use std::path::Path;
+    /// use egui_file_dialog::{FileDialog, Filter};
     ///
     /// FileDialog::new()
     ///     // .png files should use the "document with picture (U+1F5BB)" icon.
-    ///     .set_file_icon("🖻", Arc::new(|path| path.extension().unwrap_or_default() == "png"))
+    ///     .set_file_icon("🖻", Filter::new(|path: &Path| path.extension().unwrap_or_default() == "png"))
     ///     // .git directories should use the "web-github (U+E624)" icon.
-    ///     .set_file_icon("", Arc::new(|path| path.file_name().unwrap_or_default() == ".git"));
+    ///     .set_file_icon("", Filter::new(|path: &Path| path.file_name().unwrap_or_default() == ".git"));
     /// ```
     pub fn set_file_icon(mut self, icon: &str, filter: Filter<std::path::Path>) -> Self {
         self.config = self.config.set_file_icon(icon, filter);
@@ -1039,6 +1066,16 @@ impl FileDialog {
         self
     }
 
+    /// Sets if the "Select all" button in the hamburger menu should be visible.
+    ///
+    /// Has no effect when `FileDialog::show_top_panel` or
+    /// `FileDialog::show_menu_button` is disabled or when the file dialog is not
+    /// in `DialogMode::PickMultiple` mode.
+    pub const fn show_select_all_button(mut self, show_select_all_button: bool) -> Self {
+        self.config.show_select_all_button = show_select_all_button;
+        self
+    }
+
     /// Sets whether the show hidden files and folders option inside the top panel
     /// menu should be visible.
     ///
@@ -1064,6 +1101,19 @@ impl FileDialog {
     /// Has no effect when `FileDialog::show_top_panel` is disabled.
     pub const fn show_search(mut self, show_search: bool) -> Self {
         self.config.show_search = show_search;
+        self
+    }
+
+    /// Sets whether the default filter "All Files" should be displayed in the file
+    /// filter selection dropdown in the bottom panel.
+    ///
+    /// Make sure you specify the default selected file filter using
+    /// `FileDialog::default_file_filter` if the "All Files" filter is disabled.
+    /// Otherwise the "All Files" filter is selected by default but not visible in the UI.
+    ///
+    /// Has no effect when `FileDialog::show_top_panel` is disabled.
+    pub const fn show_all_files_filter(mut self, show_all_files_filter: bool) -> Self {
+        self.config.show_all_files_filter = show_all_files_filter;
         self
     }
 
@@ -1272,7 +1322,7 @@ impl FileDialog {
             }
 
             if self.config.show_top_panel {
-                egui::TopBottomPanel::top(self.window_id.with("top_panel"))
+                egui::Panel::top(self.window_id.with("top_panel"))
                     .resizable(false)
                     .show_inside(ui, |ui| {
                         self.ui_update_top_panel(ui);
@@ -1280,10 +1330,10 @@ impl FileDialog {
             }
 
             if self.config.show_left_panel {
-                egui::SidePanel::left(self.window_id.with("left_panel"))
+                egui::Panel::left(self.window_id.with("left_panel"))
                     .resizable(true)
-                    .default_width(150.0)
-                    .width_range(90.0..=250.0)
+                    .default_size(150.0)
+                    .size_range(90.0..=250.0)
                     .show_inside(ui, |ui| {
                         self.ui_update_left_panel(ui);
                     });
@@ -1291,19 +1341,19 @@ impl FileDialog {
 
             // Optionally, show a custom right panel (see `update_with_custom_right_panel`)
             if let Some(f) = right_panel_fn {
-                let mut right_panel = egui::SidePanel::right(self.window_id.with("right_panel"))
+                let mut right_panel = egui::Panel::right(self.window_id.with("right_panel"))
                     // Unlike the left panel, we have no control over the contents, so
                     // we don't restrict the width. It's up to the user to make the UI presentable.
                     .resizable(true);
                 if let Some(width) = self.config.right_panel_width {
-                    right_panel = right_panel.default_width(width);
+                    right_panel = right_panel.default_size(width);
                 }
                 right_panel.show_inside(ui, |ui| {
                     f(ui, self);
                 });
             }
 
-            egui::TopBottomPanel::bottom(self.window_id.with("bottom_panel"))
+            egui::Panel::bottom(self.window_id.with("bottom_panel"))
                 .resizable(false)
                 .show_inside(ui, |ui| {
                     self.ui_update_bottom_panel(ui);
@@ -1382,7 +1432,7 @@ impl FileDialog {
         // inside a window. Therefore, when rendering a modal, we render an invisible bottom panel,
         // which prevents the error.
         // This is currently a bit hacky and should be adjusted again in the future.
-        egui::TopBottomPanel::bottom(self.window_id.with("modal_bottom_panel"))
+        egui::Panel::bottom(self.window_id.with("modal_bottom_panel"))
             .resizable(false)
             .show_separator_line(false)
             .show_inside(ui, |_| {});
@@ -1501,7 +1551,7 @@ impl FileDialog {
             }
         });
 
-        ui.add_space(ui.ctx().style().spacing.item_spacing.y);
+        ui.add_space(ui.global_style().spacing.item_spacing.y);
     }
 
     /// Updates the navigation buttons like parent or previous directory
@@ -1572,7 +1622,7 @@ impl FileDialog {
         egui::Frame::default()
             .stroke(egui::Stroke::new(
                 1.0,
-                ui.ctx().style().visuals.window_stroke.color,
+                ui.global_style().visuals.window_stroke.color,
             ))
             .inner_margin(egui::Margin::from(4))
             .corner_radius(egui::CornerRadius::from(4))
@@ -1653,7 +1703,8 @@ impl FileDialog {
         if ui
             .add_sized(
                 edit_button_size,
-                egui::Button::new("🖊").fill(egui::Color32::TRANSPARENT),
+                egui::Button::new(self.config.path_edit_icon.as_str())
+                    .fill(egui::Color32::TRANSPARENT),
             )
             .clicked()
         {
@@ -1701,30 +1752,41 @@ impl FileDialog {
     fn ui_update_hamburger_menu(&mut self, ui: &mut egui::Ui) {
         const SEPARATOR_SPACING: f32 = 2.0;
 
-        if self.config.show_reload_button && ui.button(&self.config.labels.reload).clicked() {
+        let working_dir = self.config.file_system.current_dir();
+
+        let show_reload = self.config.show_reload_button;
+        let show_working_dir = self.config.show_working_directory_button && working_dir.is_ok();
+        let show_select_all =
+            self.config.show_select_all_button && self.mode == DialogMode::PickMultiple;
+
+        let show_hidden = self.config.show_hidden_option;
+        let show_system_files = self.config.show_system_files_option;
+
+        if show_reload && ui.button(&self.config.labels.reload).clicked() {
             self.refresh();
             ui.close();
         }
 
-        let working_dir = self.config.file_system.current_dir();
-
-        if self.config.show_working_directory_button
-            && working_dir.is_ok()
-            && ui.button(&self.config.labels.working_directory).clicked()
-        {
+        if show_working_dir && ui.button(&self.config.labels.working_directory).clicked() {
             self.load_directory(&working_dir.unwrap_or_default());
             ui.close();
         }
 
-        if (self.config.show_reload_button || self.config.show_working_directory_button)
-            && (self.config.show_hidden_option || self.config.show_system_files_option)
-        {
+        if show_select_all && ui.button(&self.config.labels.select_all).clicked() {
+            self.select_all_items();
+            ui.close();
+        }
+
+        let any_above = show_reload || show_working_dir || show_select_all;
+        let any_below = show_hidden || show_system_files;
+
+        if any_above && any_below {
             ui.add_space(SEPARATOR_SPACING);
             ui.separator();
             ui.add_space(SEPARATOR_SPACING);
         }
 
-        if self.config.show_hidden_option
+        if show_hidden
             && ui
                 .checkbox(
                     &mut self.storage.show_hidden,
@@ -1736,7 +1798,7 @@ impl FileDialog {
             ui.close();
         }
 
-        if self.config.show_system_files_option
+        if show_system_files
             && ui
                 .checkbox(
                     &mut self.storage.show_system_files,
@@ -1754,15 +1816,15 @@ impl FileDialog {
         egui::Frame::default()
             .stroke(egui::Stroke::new(
                 1.0,
-                ui.ctx().style().visuals.window_stroke.color,
+                ui.global_style().visuals.window_stroke.color,
             ))
             .inner_margin(egui::Margin::symmetric(4, 4))
             .corner_radius(egui::CornerRadius::from(4))
             .show(ui, |ui| {
                 ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
-                    ui.add_space(ui.ctx().style().spacing.item_spacing.y);
+                    ui.add_space(ui.global_style().spacing.item_spacing.y);
 
-                    ui.label(egui::RichText::from("🔍").size(15.0));
+                    ui.label(egui::RichText::from(self.config.search_icon.as_str()).size(15.0));
 
                     let re = ui.add_sized(
                         egui::Vec2::new(ui.available_width(), 0.0),
@@ -1827,12 +1889,12 @@ impl FileDialog {
                 .auto_shrink([false, false])
                 .show(ui, |ui| {
                     // Spacing for the first section in the left sidebar
-                    let mut spacing = ui.ctx().style().spacing.item_spacing.y * 2.0;
+                    let mut spacing = ui.global_style().spacing.item_spacing.y * 2.0;
 
                     // Update paths pinned to the left sidebar by the user
                     if self.config.show_pinned_folders && self.ui_update_pinned_folders(ui, spacing)
                     {
-                        spacing = ui.ctx().style().spacing.item_spacing.y * SPACING_MULTIPLIER;
+                        spacing = ui.global_style().spacing.item_spacing.y * SPACING_MULTIPLIER;
                     }
 
                     // Update custom quick access sections
@@ -1841,20 +1903,20 @@ impl FileDialog {
                     for quick_access in &quick_accesses {
                         ui.add_space(spacing);
                         self.ui_update_quick_access(ui, quick_access);
-                        spacing = ui.ctx().style().spacing.item_spacing.y * SPACING_MULTIPLIER;
+                        spacing = ui.global_style().spacing.item_spacing.y * SPACING_MULTIPLIER;
                     }
 
                     self.config.quick_accesses = quick_accesses;
 
                     // Update native quick access sections
                     if self.config.show_places && self.ui_update_user_directories(ui, spacing) {
-                        spacing = ui.ctx().style().spacing.item_spacing.y * SPACING_MULTIPLIER;
+                        spacing = ui.global_style().spacing.item_spacing.y * SPACING_MULTIPLIER;
                     }
 
                     let disks = std::mem::take(&mut self.system_disks);
 
                     if self.config.show_devices && self.ui_update_devices(ui, spacing, &disks) {
-                        spacing = ui.ctx().style().spacing.item_spacing.y * SPACING_MULTIPLIER;
+                        spacing = ui.global_style().spacing.item_spacing.y * SPACING_MULTIPLIER;
                     }
 
                     if self.config.show_removable_devices
@@ -2117,7 +2179,8 @@ impl FileDialog {
         self.ui_update_action_buttons(ui, button_size);
     }
 
-    /// Updates the selection preview like "Selected directory: X"
+    /// Updates the selection preview like "Selected directory: X" as well as the
+    /// filter selection next to it.
     fn ui_update_selection_preview(&mut self, ui: &mut egui::Ui, button_size: egui::Vec2) {
         const SELECTION_PREVIEW_MIN_WIDTH: f32 = 50.0;
         let item_spacing = ui.style().spacing.item_spacing;
@@ -2126,7 +2189,7 @@ impl FileDialog {
             && (self.mode == DialogMode::PickFile || self.mode == DialogMode::PickMultiple))
             || (!self.config.save_extensions.is_empty() && self.mode == DialogMode::SaveFile);
 
-        let filter_selection_width = button_size.x.mul_add(2.0, item_spacing.x);
+        let filter_selection_width = button_size.x.mul_add(2.0, item_spacing.y);
         let mut filter_selection_separate_line = false;
 
         ui.horizontal(|ui| {
@@ -2168,7 +2231,7 @@ impl FileDialog {
                     let mut output = egui::TextEdit::singleline(&mut self.file_name_input)
                         .cursor_at_end(false)
                         .margin(egui::Margin::symmetric(4, 3))
-                        .desired_width(scroll_bar_width - item_spacing.x)
+                        .desired_width(scroll_bar_width)
                         .show(ui);
 
                     if self.file_name_input_request_focus {
@@ -2281,12 +2344,13 @@ impl FileDialog {
                     }
                 }
 
-                if ui
-                    .selectable_label(
-                        selected_filter.is_none(),
-                        &self.config.labels.file_filter_all_files,
-                    )
-                    .clicked()
+                if self.config.show_all_files_filter
+                    && ui
+                        .selectable_label(
+                            selected_filter.is_none(),
+                            &self.config.labels.file_filter_all_files,
+                        )
+                        .clicked()
                 {
                     select_filter = Some(None);
                 }
@@ -2340,6 +2404,8 @@ impl FileDialog {
                 }
                 DialogMode::SaveFile => self.config.labels.save_button.as_str(),
             };
+
+            ui.spacing_mut().item_spacing.x = ui.spacing_mut().item_spacing.y;
 
             if self.ui_button_sized(
                 ui,
@@ -2424,6 +2490,13 @@ impl FileDialog {
         // Temporarily take ownership of the directory content.
         let mut data = std::mem::take(&mut self.directory_content);
 
+        // Count how many items are currently selected (before the UI loop),
+        // so we can enforce max_selections limits during interaction.
+        let mut selected_count = data
+            .filtered_iter(&self.search_value)
+            .filter(|item| item.selected)
+            .count();
+
         // If the multi selection should be reset, excluding the currently
         // selected primary item.
         let mut reset_multi_selection = false;
@@ -2445,7 +2518,11 @@ impl FileDialog {
             let command_modifier = ui.input(|i| i.modifiers.command);
             let shift_only_modifier = ui.input(|i| i.modifiers.shift_only());
 
-            let row_height = Self::get_row_height(ui);
+            let row_height = ui
+                .spacing()
+                .button_padding
+                .y
+                .mul_add(2.0, ui.text_style_height(&egui::TextStyle::Body));
 
             let mut table_builder = TableBuilder::new(ui)
                 .sense(egui::Sense::click())
@@ -2535,6 +2612,7 @@ impl FileDialog {
                                     item,
                                     &mut reset_multi_selection,
                                     &mut batch_select_item_b,
+                                    &mut selected_count,
                                     command_modifier,
                                     shift_modifier,
                                     shift_only_modifier,
@@ -2576,11 +2654,12 @@ impl FileDialog {
         item: &mut DirectoryEntry,
         reset_multi_selection: &mut bool,
         batch_select_item_b: &mut Option<DirectoryEntry>,
+        selected_count: &mut usize,
         command_modifier: bool,
         shift_modifier: bool,
         shift_only_modifier: bool,
         should_return: &mut bool,
-    ) {
+    ) -> bool {
         self.ui_update_central_panel_entry(row, item);
 
         let primary_selected = self.is_primary_selected(item);
@@ -2611,12 +2690,19 @@ impl FileDialog {
                 // deselect it and remove it from the multi selection
                 item.selected = false;
                 self.selected_item = None;
+                *selected_count = selected_count.saturating_sub(1);
+            } else if !item.selected && self.selection_limit_reached_with(*selected_count) {
+                // Selection limit reached; silently ignore.
             } else {
+                let was_selected = item.selected;
                 item.selected = !item.selected;
 
-                // If the item was selected, make it the primary selected item
                 if item.selected {
+                    *selected_count += 1;
+                    // If the item was selected, make it the primary selected item
                     self.select_item(item);
+                } else if was_selected {
+                    *selected_count = selected_count.saturating_sub(1);
                 }
             }
         }
@@ -2625,12 +2711,17 @@ impl FileDialog {
         // and the current item
         if self.mode == DialogMode::PickMultiple && row.response().clicked() && shift_only_modifier
         {
-            if let Some(selected_item) = self.selected_item.clone() {
+            if self.selection_limit_reached_with(*selected_count) && !item.selected {
+                // Selection limit reached; silently ignore.
+            } else if let Some(selected_item) = self.selected_item.clone() {
                 // We perform a batch selection from the item that was
                 // primarily selected before the user clicked on this item.
                 *batch_select_item_b = Some(selected_item);
 
                 // And now make this item the primary selected item
+                if !item.selected {
+                    *selected_count += 1;
+                }
                 item.selected = true;
                 self.select_item(item);
             }
@@ -2640,9 +2731,14 @@ impl FileDialog {
         // Either open the directory or submit the dialog.
         if row.response().double_clicked() && !command_modifier {
             if item.is_dir() {
-                self.load_directory(&item.to_path_buf());
-                *should_return = true;
-                return;
+                // If a filter is configured, check whether we should navigate
+                // into the directory or treat it as the picked path instead.
+                if self.should_open_directory(item.as_path()) {
+                    self.load_directory(&item.to_path_buf());
+                    *should_return = true;
+                    return true;
+                }
+                // Fall through to submit the directory as the picked path.
             }
 
             self.select_item(item);
@@ -2828,12 +2924,25 @@ impl FileDialog {
                     max = pos_a;
                 }
 
+                // Count how many items are already selected so we can
+                // respect the max_selections limit.
+                let mut current_selected = directory_content
+                    .filtered_iter(&self.search_value)
+                    .filter(|item| item.selected)
+                    .count();
+
                 for item in directory_content
                     .filtered_iter_mut(&self.search_value)
                     .enumerate()
                     .filter(|(i, _)| i > &min && i < &max)
                     .map(|(_, p)| p)
                 {
+                    if self.selection_limit_reached_with(current_selected) {
+                        break;
+                    }
+                    if !item.selected {
+                        current_selected += 1;
+                    }
                     item.selected = true;
                 }
             }
@@ -2861,7 +2970,7 @@ impl FileDialog {
                         ui.spacing_mut().item_spacing.x = 0.0;
 
                         ui.colored_label(
-                            ui.ctx().style().visuals.error_fg_color,
+                            ui.global_style().visuals.error_fg_color,
                             format!("{} ", self.config.err_icon),
                         );
 
@@ -2993,9 +3102,7 @@ impl FileDialog {
         if FileDialogKeyBindings::any_pressed(ctx, &keybindings.select_all, true)
             && self.mode == DialogMode::PickMultiple
         {
-            for item in self.directory_content.filtered_iter_mut(&self.search_value) {
-                item.selected = true;
-            }
+            self.select_all_items();
         }
 
         self.config.keybindings = keybindings;
@@ -3285,8 +3392,12 @@ impl FileDialog {
         let user_data = std::mem::take(&mut self.user_data);
         let storage = self.storage.clone();
         let config = self.config.clone();
+        let selected = self.selected_item.clone();
 
         *self = Self::with_config(config);
+        if self.config.retain_selected_entry {
+            self.selected_item = selected;
+        }
         self.storage = storage;
         self.user_data = user_data;
     }
@@ -3559,6 +3670,37 @@ impl FileDialog {
         self.directory_content = directory_content;
     }
 
+    /// Returns `true` if `selected_count` has reached or exceeded `max_selections`.
+    fn selection_limit_reached_with(&self, selected_count: usize) -> bool {
+        self.config
+            .max_selections
+            .is_some_and(|max| selected_count >= max)
+    }
+
+    /// Selects all items in the current directory.
+    fn select_all_items(&mut self) {
+        let mut selected_count = self
+            .directory_content
+            .filtered_iter(&self.search_value)
+            .filter(|p| p.selected)
+            .count();
+
+        for item in self.directory_content.filtered_iter_mut(&self.search_value) {
+            if item.selected {
+                continue; // already counted
+            }
+            if self
+                .config
+                .max_selections
+                .is_some_and(|max| selected_count >= max)
+            {
+                break;
+            }
+            item.selected = true;
+            selected_count += 1;
+        }
+    }
+
     /// Opens the text field in the top panel to text edit the current path.
     fn open_path_edit(&mut self) {
         let path = self.current_directory().map_or_else(String::new, |path| {
@@ -3730,5 +3872,116 @@ impl FileDialog {
         if self.mode == DialogMode::SaveFile {
             self.file_name_input_error = self.validate_file_name_input();
         }
+    }
+
+    /// Returns `true` if the given directory should be navigated into,
+    /// or `false` if it should be submitted as the picked path instead.
+    /// When no filter is set, this always returns `true` (the default behaviour).
+    fn should_open_directory(&self, path: &std::path::Path) -> bool {
+        self.config
+            .open_directory_filter
+            .as_ref()
+            .is_none_or(|f| f.matches(path))
+    }
+}
+
+/// This tests if file dialog is send and sync.
+#[cfg(test)]
+const fn test_prop<T: Send + Sync>() {}
+
+#[test]
+const fn test() {
+    test_prop::<FileDialog>();
+}
+
+#[cfg(test)]
+mod open_directory_filter_tests {
+    use std::path::Path;
+
+    use super::*;
+
+    #[test]
+    fn filter_is_none_by_default() {
+        let dialog = FileDialog::new();
+        assert!(dialog.config.open_directory_filter.is_none());
+    }
+
+    #[test]
+    fn set_open_directory_filter_stores_filter() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(Filter::new(|_: &Path| false));
+        assert!(dialog.config.open_directory_filter.is_some());
+    }
+
+    #[test]
+    fn clear_open_directory_filter_removes_filter() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(Filter::new(|_: &Path| false));
+        assert!(dialog.config.open_directory_filter.is_some());
+        dialog.clear_open_directory_filter();
+        assert!(dialog.config.open_directory_filter.is_none());
+    }
+
+    /// When no filter is set, the dialog should always navigate into directories
+    /// (the original default behaviour).
+    #[test]
+    fn no_filter_always_navigates() {
+        let dialog = FileDialog::new();
+        assert!(dialog.should_open_directory(Path::new("/any/dir")));
+    }
+
+    /// A filter that returns `false` (do not navigate) should prevent navigation.
+    #[test]
+    fn filter_returning_false_prevents_navigation() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(Filter::new(|_: &Path| false));
+        assert!(!dialog.should_open_directory(Path::new("/any/dir")));
+    }
+
+    /// A filter that returns `true` (navigate) should allow navigation.
+    #[test]
+    fn filter_returning_true_allows_navigation() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(Filter::new(|_: &Path| true));
+        assert!(dialog.should_open_directory(Path::new("/any/dir")));
+    }
+
+    /// After clearing a filter, navigation is allowed again for every path.
+    #[test]
+    fn cleared_filter_restores_default_navigation() {
+        let mut dialog = FileDialog::new();
+        dialog.set_open_directory_filter(Filter::new(|_: &Path| false));
+        assert!(!dialog.should_open_directory(Path::new("/any/dir")));
+        dialog.clear_open_directory_filter();
+        assert!(dialog.should_open_directory(Path::new("/any/dir")));
+    }
+
+    /// A path-sensitive filter: navigation is blocked only when the directory
+    /// contains a sentinel file (simulating the project-picker use-case).  We
+    /// use a real temporary directory so the `exists()` call is meaningful.
+    #[test]
+    fn filter_based_on_sentinel_file() -> Result<(), Box<dyn std::error::Error>> {
+        use tempdir::TempDir;
+        let tmp = TempDir::new("egui_fd_test")?;
+        let project_dir = tmp.path().join("project");
+        std::fs::create_dir_all(&project_dir)?;
+        let sentinel = project_dir.join("project.json");
+        std::fs::write(&sentinel, b"{}")?;
+
+        let regular_dir = tmp.path().join("regular");
+        std::fs::create_dir_all(&regular_dir)?;
+
+        let mut dialog = FileDialog::new();
+        // Mimic a project picker filter: navigate into dirs that are NOT projects.
+        dialog.set_open_directory_filter(Filter::new(|path: &Path| {
+            !path.join("project.json").exists()
+        }));
+
+        // Project directories should NOT be navigated into (filter → false → submit).
+        assert!(!dialog.should_open_directory(&project_dir));
+        // Regular directories should be navigated into normally.
+        assert!(dialog.should_open_directory(&regular_dir));
+        // tempdir auto-cleans on drop
+        Ok(())
     }
 }

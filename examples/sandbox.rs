@@ -1,7 +1,7 @@
-use std::{path::PathBuf, sync::Arc};
+use std::path::{Path, PathBuf};
 
 use eframe::egui;
-use egui_file_dialog::{DialogMode, FileDialog};
+use egui_file_dialog::{DialogMode, FileDialog, Filter};
 
 struct MyApp {
     file_dialog: FileDialog,
@@ -23,11 +23,11 @@ impl MyApp {
             .add_file_filter_extensions("Pictures", vec!["png", "jpg", "dds"])
             .add_file_filter(
                 "RS files",
-                Arc::new(|p| p.extension().unwrap_or_default() == "rs"),
+                Filter::new(|p: &Path| p.extension().unwrap_or_default() == "rs"),
             )
             .add_file_filter(
                 "TOML files",
-                Arc::new(|p| p.extension().unwrap_or_default() == "toml"),
+                Filter::new(|p: &Path| p.extension().unwrap_or_default() == "toml"),
             )
             .add_save_extension("Picture", "png")
             .add_save_extension("Rust Source File", "rs")
@@ -60,8 +60,8 @@ impl eframe::App for MyApp {
         );
     }
 
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show_inside(ui, |ui| {
             ui.heading("My egui application");
             egui::widgets::global_theme_preference_buttons(ui);
 
@@ -99,7 +99,7 @@ impl eframe::App for MyApp {
             }
             ui.label(format!("File to save: {:?}", self.saved_file));
 
-            self.file_dialog.update(ctx);
+            self.file_dialog.update(ui);
 
             if let Some(path) = self.file_dialog.take_picked() {
                 match self.file_dialog.mode() {
