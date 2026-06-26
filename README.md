@@ -74,7 +74,7 @@ Cargo.toml:
 
 ```toml
 [dependencies]
-eframe = "0.34.0"
+eframe = "0.35.0"
 egui-file-dialog = "0.13.0"
 ```
 
@@ -102,8 +102,8 @@ impl MyApp {
 }
 
 impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show_inside(ui, |ui| {
             if ui.button("Pick file").clicked() {
                 // Open the file dialog to pick a file.
                 self.file_dialog.pick_file();
@@ -112,7 +112,7 @@ impl eframe::App for MyApp {
             ui.label(format!("Picked file: {:?}", self.picked_file));
 
             // Update the dialog
-            self.file_dialog.update(ctx);
+            self.file_dialog.update(ui);
 
             // Check if the user picked a file.
             if let Some(path) = self.file_dialog.take_picked() {
@@ -178,10 +178,10 @@ options, it is a good idea to use `FileDialogConfig` and `FileDialog::with_confi
 [docs.rs](https://docs.rs/egui-file-dialog/latest/egui_file_dialog/struct.FileDialogConfig.html)).
 
 ```rust
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use egui_file_dialog::FileDialog;
+use egui_file_dialog::{FileDialog, Filter};
 
 FileDialog::new()
     .initial_directory(PathBuf::from("/path/to/app"))
@@ -200,21 +200,21 @@ FileDialog::new()
     // Markdown files should use the "document with text (U+1F5B9)" icon
     .set_file_icon(
         "🖹",
-        Arc::new(|path| path.extension().unwrap_or_default() == "md"),
+        Filter::new(|p: &Path| p.extension().unwrap_or_default() == "md"),
     )
     // .gitignore files should use the "web-github (U+E624)" icon
     .set_file_icon(
         "",
-        Arc::new(|path| path.file_name().unwrap_or_default() == ".gitignore"),
+        Filter::new(|p: &Path| p.file_name().unwrap_or_default() == ".gitignore"),
     )
     // Add file filters the user can select in the bottom right
     .add_file_filter(
         "PNG files",
-        Arc::new(|p| p.extension().unwrap_or_default() == "png"),
+        Filter::new(|p: &Path| p.extension().unwrap_or_default() == "png"),
     )
     .add_file_filter(
         "Rust source files",
-        Arc::new(|p| p.extension().unwrap_or_default() == "rs"),
+        Filter::new(|p: &Path| p.extension().unwrap_or_default() == "rs"),
     );
 ```
 

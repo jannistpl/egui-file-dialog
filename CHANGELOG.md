@@ -5,6 +5,7 @@
 ### 🚨 Breaking Changes
 
 - Add `retain_selected_entry` to `FileDialogConfig` [#320](https://github.com/jannistpl/egui-file-dialog/pull/320)
+- Update `egui` from version `0.34` to version `0.35` [#327](https://github.com/jannistpl/egui-file-dialog/pull/327) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
 
 ### ✨ Features
 
@@ -15,9 +16,17 @@
 - Use the same spacing between action buttons (Cancel & Submit/Save) and the filter selection [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
 - Fix incorrect size of the file name text input in `DialogMode::SaveFile` mode [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
 
+### 🔧 Changes
+
+- Improve CI performance and decrease usage [#329](https://github.com/jannistpl/egui-file-dialog/pull/329)
+
 ### 🐛 Bug Fixes
 
 - Publicly export private configuration types [#319](https://github.com/jannistpl/egui-file-dialog/pull/319) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
+
+### 📚 Documentation
+
+- Adapt readme to latest changes [#324](https://github.com/jannistpl/egui-file-dialog/pull/324)
 
 ## 2026-03-27 - v0.13.0 - egui update and QoL changes
 
