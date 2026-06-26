@@ -1484,6 +1484,10 @@ impl FileDialog {
                 path_display_width -= 140.0;
             }
 
+            if path_display_width < 100.0 {
+                path_display_width = 100.0;
+            }
+
             if self.config.show_current_path {
                 self.ui_update_current_path(
                     ui,
