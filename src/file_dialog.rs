@@ -2116,7 +2116,7 @@ impl FileDialog {
             btn_width = label_submit_width;
         }
 
-        btn_width += ui.spacing().button_padding.x * 4.0;
+        btn_width = ui.spacing().button_padding.x.mul_add(4.0, btn_width);
 
         // The size of the action buttons "cancel" and "open"/"save"
         let button_size: egui::Vec2 = egui::Vec2::new(btn_width, BUTTON_HEIGHT);
