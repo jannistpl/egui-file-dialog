@@ -15,6 +15,10 @@
 - Use the same spacing between action buttons (Cancel & Submit/Save) and the filter selection [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
 - Fix incorrect size of the file name text input in `DialogMode::SaveFile` mode [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
 
+### 🔧 Changes
+
+- Improve CI performance and decrease usage [#329](https://github.com/jannistpl/egui-file-dialog/pull/329)
+
 ### 🐛 Bug Fixes
 
 - Publicly export private configuration types [#319](https://github.com/jannistpl/egui-file-dialog/pull/319) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
