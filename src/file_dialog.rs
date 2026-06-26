@@ -1460,13 +1460,13 @@ impl FileDialog {
         const STROKE_INNER_MARGIN: i8 = 5;
 
         let text_height = ui.text_style_height(&egui::TextStyle::Body);
-        let mut button_height = text_height + ui.spacing().button_padding.y * 2.0;
+        let mut button_height = ui.spacing().button_padding.y.mul_add(2.0, text_height);
 
         if button_height < 22.0 {
             button_height = 22.0;
         }
 
-        let content_height = button_height + STROKE_INNER_MARGIN as f32 * 2.0;
+        let content_height = f32::from(STROKE_INNER_MARGIN).mul_add(2.0, button_height);
         let square_button_size = egui::Vec2::new(button_height, button_height).mul(1.08);
 
         ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
@@ -1476,7 +1476,11 @@ impl FileDialog {
 
             // Leave some space for the menu button
             if self.config.show_reload_button {
-                path_display_width -= square_button_size.x + ui.spacing().item_spacing.x * 2.0;
+                path_display_width -= ui
+                    .spacing()
+                    .item_spacing
+                    .x
+                    .mul_add(2.0, square_button_size.x);
             }
 
             // Leave some space for the search input
@@ -1626,7 +1630,7 @@ impl FileDialog {
 
         // Leave some space for the edit button
         if self.config.show_path_edit_button {
-            width -= edit_button_size.x + ui.spacing().item_spacing.x * 2.0;
+            width -= ui.spacing().item_spacing.x.mul_add(2.0, edit_button_size.x);
         }
 
         egui::ScrollArea::horizontal()
@@ -1685,11 +1689,12 @@ impl FileDialog {
     /// Updates the view when the user currently wants to text edit the current path.
     fn ui_update_path_edit(&mut self, ui: &mut egui::Ui, mut width: f32, button_height: f32) {
         let edit_button_size = egui::Vec2::new(button_height, button_height);
-        width -= edit_button_size.x + ui.spacing().item_spacing.x * 2.0;
+        width -= ui.spacing().item_spacing.x.mul_add(2.0, edit_button_size.x);
 
         // Calculate the required margin to fill the entire height
         let empty_space = button_height - ui.text_style_height(&egui::TextStyle::Body);
         let padding_top_bottom = empty_space / 2.0;
+        #[allow(clippy::cast_possible_truncation)]
         let margin = egui::Margin::symmetric(4, padding_top_bottom.floor() as i8);
 
         let frame = egui::Frame::dark_canvas(ui.style())
@@ -1751,7 +1756,7 @@ impl FileDialog {
                     MenuButton::from_button(btn).ui(ui, |ui| {
                         self.ui_update_hamburger_menu_content(ui);
                     });
-                };
+                }
             });
         });
     }
@@ -1826,7 +1831,8 @@ impl FileDialog {
         let margin = egui::Margin {
             top: frame_inner_margin,
             bottom: frame_inner_margin,
-            left: (frame_inner_margin as f32 * 1.5).floor() as i8,
+            #[allow(clippy::cast_possible_truncation)]
+            left: (f32::from(frame_inner_margin) * 1.5).floor() as i8,
             right: frame_inner_margin,
         };
 
@@ -1855,6 +1861,7 @@ impl FileDialog {
         // Calculate the required margin to fill the entire height with the text edit
         let empty_space = button_height - ui.text_style_height(&egui::TextStyle::Body);
         let padding_top_bottom = empty_space / 2.0;
+        #[allow(clippy::cast_possible_truncation)]
         let margin = egui::Margin::symmetric(4, padding_top_bottom.floor() as i8);
 
         let frame = egui::Frame::dark_canvas(ui.style())
