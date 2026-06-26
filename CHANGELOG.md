@@ -15,6 +15,7 @@
 
 - Use the same spacing between action buttons (Cancel & Submit/Save) and the filter selection [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
 - Fix incorrect size of the file name text input in `DialogMode::SaveFile` mode [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
+- Refactor top panel to fix resizing and centering issues [#325](https://github.com/jannistpl/egui-file-dialog/pull/325)
 
 ### 🔧 Changes
 
