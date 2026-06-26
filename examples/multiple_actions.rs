@@ -28,7 +28,7 @@ enum Operation {
 
 impl eframe::App for MyApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show_inside(ui, |ui| {
+        egui::CentralPanel::default().show(ui, |ui| {
             if ui.button("Pick file a").clicked() {
                 self.file_dialog.pick_file();
                 self.file_dialog.set_user_data(Operation::PickA);

@@ -1275,7 +1275,7 @@ impl FileDialog {
             if self.config.show_top_panel {
                 egui::Panel::top(self.window_id.with("top_panel"))
                     .resizable(false)
-                    .show_inside(ui, |ui| {
+                    .show(ui, |ui| {
                         self.ui_update_top_panel(ui);
                     });
             }
@@ -1285,7 +1285,7 @@ impl FileDialog {
                     .resizable(true)
                     .default_size(150.0)
                     .size_range(90.0..=250.0)
-                    .show_inside(ui, |ui| {
+                    .show(ui, |ui| {
                         self.ui_update_left_panel(ui);
                     });
             }
@@ -1299,18 +1299,18 @@ impl FileDialog {
                 if let Some(width) = self.config.right_panel_width {
                     right_panel = right_panel.default_size(width);
                 }
-                right_panel.show_inside(ui, |ui| {
+                right_panel.show(ui, |ui| {
                     f(ui, self);
                 });
             }
 
             egui::Panel::bottom(self.window_id.with("bottom_panel"))
                 .resizable(false)
-                .show_inside(ui, |ui| {
+                .show(ui, |ui| {
                     self.ui_update_bottom_panel(ui);
                 });
 
-            egui::CentralPanel::default().show_inside(ui, |ui| {
+            egui::CentralPanel::default().show(ui, |ui| {
                 self.ui_update_central_panel(ui);
             });
         });
@@ -1386,11 +1386,11 @@ impl FileDialog {
         egui::Panel::bottom(self.window_id.with("modal_bottom_panel"))
             .resizable(false)
             .show_separator_line(false)
-            .show_inside(ui, |_| {});
+            .show(ui, |_| {});
 
         // We need to use a central panel for the modals so that the
         // window doesn't resize to the size of the modal.
-        egui::CentralPanel::default().show_inside(ui, |ui| {
+        egui::CentralPanel::default().show(ui, |ui| {
             if let Some(modal) = self.modals.last_mut() {
                 #[allow(clippy::single_match)]
                 match modal.update(&self.config, ui) {
@@ -2116,7 +2116,7 @@ impl FileDialog {
             btn_width = label_submit_width;
         }
 
-        btn_width += ui.spacing().button_padding.x * 4.0;
+        btn_width = ui.spacing().button_padding.x.mul_add(4.0, btn_width);
 
         // The size of the action buttons "cancel" and "open"/"save"
         let button_size: egui::Vec2 = egui::Vec2::new(btn_width, BUTTON_HEIGHT);
