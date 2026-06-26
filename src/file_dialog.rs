@@ -1820,8 +1820,8 @@ impl FileDialog {
         let stroke = egui::Stroke::new(1.0, ui.style().visuals.window_stroke.color);
 
         let margin = egui::Margin {
-            top: frame_inner_margin - 1,
-            bottom: frame_inner_margin - 1,
+            top: frame_inner_margin,
+            bottom: frame_inner_margin,
             left: (frame_inner_margin as f32 * 1.5).floor() as i8,
             right: frame_inner_margin,
         };
