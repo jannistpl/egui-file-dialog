@@ -19,6 +19,7 @@
 ### 🔧 Changes
 
 - Improve CI performance and decrease usage [#329](https://github.com/jannistpl/egui-file-dialog/pull/329)
+- Update `sysinfo` from version `0.38` to version `0.39` [#330](https://github.com/jannistpl/egui-file-dialog/pull/330)
 
 ### 🐛 Bug Fixes
 
