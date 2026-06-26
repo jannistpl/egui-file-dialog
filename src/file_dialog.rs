@@ -1734,19 +1734,21 @@ impl FileDialog {
             // Add some space so the button is placed in the center of the top panel.
             ui.add_space((content_height - button_size.y) / 2.0);
 
-            // TODO: min_size is not correct, we should set the exact size of the button.
-            //   The build-in menu buttons seem to be a bit limit regarding custom sizes.
-            let btn = egui::Button::new(&self.config.menu_icon).min_size(button_size);
+            ui.horizontal(|ui| {
+                // TODO: min_size is not correct, we should set the exact size of the button.
+                //   The build-in menu buttons seem to be a bit limit regarding custom sizes.
+                let btn = egui::Button::new(&self.config.menu_icon).min_size(button_size);
 
-            if is_in_menu(ui) {
-                SubMenuButton::new(&self.config.menu_icon).ui(ui, |ui| {
-                    self.ui_update_hamburger_menu_content(ui);
-                });
-            } else {
-                MenuButton::from_button(btn).ui(ui, |ui| {
-                    self.ui_update_hamburger_menu_content(ui);
-                });
-            };
+                if is_in_menu(ui) {
+                    SubMenuButton::new(&self.config.menu_icon).ui(ui, |ui| {
+                        self.ui_update_hamburger_menu_content(ui);
+                    });
+                } else {
+                    MenuButton::from_button(btn).ui(ui, |ui| {
+                        self.ui_update_hamburger_menu_content(ui);
+                    });
+                };
+            });
         });
     }
 
