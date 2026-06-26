@@ -33,6 +33,14 @@ impl MyApp {
             .add_save_extension("Rust Source File", "rs")
             .add_save_extension("Configuration File", "toml")
             .default_save_extension("Picture")
+            .set_file_icon(
+                "🖹",
+                Filter::new(|p: &Path| p.extension().unwrap_or_default() == "md"),
+            )
+            .set_file_icon(
+                "",
+                Filter::new(|p: &Path| p.file_name().unwrap_or_default() == ".gitignore"),
+            )
             .id("egui_file_dialog");
 
         if let Some(storage) = cc.storage {
