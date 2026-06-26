@@ -5,6 +5,7 @@
 ### 🚨 Breaking Changes
 
 - Add `retain_selected_entry` to `FileDialogConfig` [#320](https://github.com/jannistpl/egui-file-dialog/pull/320)
+- Update `egui` from version `0.34` to version `0.35` [#327](https://github.com/jannistpl/egui-file-dialog/pull/327) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
 
 ### ✨ Features
 
