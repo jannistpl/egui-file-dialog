@@ -1,6 +1,6 @@
 # egui-file-dialog changelog
 
-## Unreleased
+## 2026-06-28 - v0.14.1 - Bug Fix
 
 ### 🐛 Bug Fixes
 
