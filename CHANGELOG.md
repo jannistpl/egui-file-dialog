@@ -1,5 +1,11 @@
 # egui-file-dialog changelog
 
+## Unreleased
+
+### 🐛 Bug Fixes
+
+- Fix incorrect rendering order of modal background and file dialog window [#332](https://github.com/jannistpl/egui-file-dialog/pull/332)
+
 ## 2026-06-26 - v0.14.0 - egui update, UI improvements and QoL changes
 
 ### 🚨 Breaking Changes
