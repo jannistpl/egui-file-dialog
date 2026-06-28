@@ -196,6 +196,12 @@ pub struct FileDialog {
     /// If the text input of the pinned folder being renamed should request focus in
     /// the next frame.
     rename_pinned_folder_request_focus: bool,
+
+    /// Whether the rendering order of the modal background and the file dialog
+    /// should be initialized in the next frame. This causes the modal background
+    /// to be moved to the foreground first, followed by the file dialog window
+    /// in the subsequent frame.
+    init_rendering_oder: bool,
 }
 
 impl Default for FileDialog {
@@ -268,6 +274,8 @@ impl FileDialog {
 
             rename_pinned_folder: None,
             rename_pinned_folder_request_focus: false,
+
+            init_rendering_oder: true,
         }
     }
 
@@ -1262,11 +1270,6 @@ impl FileDialog {
     ) {
         let mut is_open = true;
 
-        if self.config.as_modal {
-            let re = self.ui_update_modal_background(ctx);
-            ctx.move_to_top(re.response.layer_id);
-        }
-
         let re = self.create_window(&mut is_open).show(ctx, |ui| {
             if !self.modals.is_empty() {
                 self.ui_update_modals(ui);
@@ -1321,7 +1324,21 @@ impl FileDialog {
         });
 
         if self.config.as_modal {
-            if let Some(inner_response) = re {
+            let modal_re = self.ui_update_modal_background(ctx);
+
+            // This makes sure the rendering order for the modal background and the
+            // file dialog is initialized in separate frames. If both the modal
+            // background and the file dialog were moved to the foreground in the
+            // same frame, there would be no guarantee that the file dialog would
+            // actually appear in front of the modal background, as the internal
+            // ordering is preserved. In rare cases, this could result in an
+            // unusable file dialog.
+            // To prevent this, we first move the modal background to the top and then
+            // the file dialog window in the frame afterwards.
+            if self.init_rendering_oder {
+                ctx.move_to_top(modal_re.response.layer_id);
+                self.init_rendering_oder = false;
+            } else if let Some(inner_response) = re {
                 ctx.move_to_top(inner_response.response.layer_id);
             }
         }
