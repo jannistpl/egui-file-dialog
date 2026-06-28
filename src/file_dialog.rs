@@ -201,7 +201,7 @@ pub struct FileDialog {
     /// should be initialized in the next frame. This causes the modal background
     /// to be moved to the foreground first, followed by the file dialog window
     /// in the subsequent frame.
-    init_rendering_oder: bool,
+    init_rendering_order: bool,
 }
 
 impl Default for FileDialog {
@@ -275,7 +275,7 @@ impl FileDialog {
             rename_pinned_folder: None,
             rename_pinned_folder_request_focus: false,
 
-            init_rendering_oder: true,
+            init_rendering_order: true,
         }
     }
 
@@ -1335,9 +1335,9 @@ impl FileDialog {
             // unusable file dialog.
             // To prevent this, we first move the modal background to the top and then
             // the file dialog window in the frame afterwards.
-            if self.init_rendering_oder {
+            if self.init_rendering_order {
                 ctx.move_to_top(modal_re.response.layer_id);
-                self.init_rendering_oder = false;
+                self.init_rendering_order = false;
             } else if let Some(inner_response) = re {
                 ctx.move_to_top(inner_response.response.layer_id);
             }
