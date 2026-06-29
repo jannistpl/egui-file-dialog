@@ -1,10 +1,17 @@
 # egui-file-dialog changelog
 
-## Unreleased
+## 2026-06-28 - v0.14.1 - Bug Fix
+
+### 🐛 Bug Fixes
+
+- Fix incorrect rendering order of modal background and file dialog window [#332](https://github.com/jannistpl/egui-file-dialog/pull/332)
+
+## 2026-06-26 - v0.14.0 - egui update, UI improvements and QoL changes
 
 ### 🚨 Breaking Changes
 
 - Add `retain_selected_entry` to `FileDialogConfig` [#320](https://github.com/jannistpl/egui-file-dialog/pull/320)
+- Update `egui` from version `0.34` to version `0.35` [#327](https://github.com/jannistpl/egui-file-dialog/pull/327) (thanks [@crumblingstatue](https://github.com/crumblingstatue)!)
 
 ### ✨ Features
 
@@ -14,6 +21,12 @@
 
 - Use the same spacing between action buttons (Cancel & Submit/Save) and the filter selection [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
 - Fix incorrect size of the file name text input in `DialogMode::SaveFile` mode [#323](https://github.com/jannistpl/egui-file-dialog/pull/323)
+- Refactor top panel to fix resizing and centering issues [#325](https://github.com/jannistpl/egui-file-dialog/pull/325)
+
+### 🔧 Changes
+
+- Improve CI performance and decrease usage [#329](https://github.com/jannistpl/egui-file-dialog/pull/329)
+- Update `sysinfo` from version `0.38` to version `0.39` [#330](https://github.com/jannistpl/egui-file-dialog/pull/330)
 
 ### 🐛 Bug Fixes
 

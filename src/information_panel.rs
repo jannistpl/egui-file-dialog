@@ -1,11 +1,11 @@
 #![cfg(feature = "information_view")]
 
+use std::collections::HashMap;
 use crate::utils::format_bytes;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use chrono::{DateTime, Local};
-use egui::ahash::{HashMap, HashMapExt};
 use egui::{Direction, Layout, Ui, Vec2};
 use indexmap::{IndexMap, IndexSet};
 
