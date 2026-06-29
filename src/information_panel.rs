@@ -1,7 +1,7 @@
 #![cfg(feature = "information_view")]
 
-use std::collections::HashMap;
 use crate::utils::format_bytes;
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
