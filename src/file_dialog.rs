@@ -1,11 +1,3 @@
-use std::any::Any;
-use std::fmt::Debug;
-use std::ops::Mul;
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
-
-use egui::text::{CCursor, CCursorRange};
-
 use crate::config::{
     FileDialogConfig, FileDialogKeyBindings, FileDialogLabels, FileFilter, Filter, OpeningMode,
     PinnedFolder, QuickAccess, SaveExtension,
@@ -24,6 +16,7 @@ use egui_extras::{Column, TableBuilder, TableRow};
 use std::any::Any;
 use std::cmp::PartialEq;
 use std::fmt::{Debug, Display, Formatter};
+use std::ops::Mul;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
