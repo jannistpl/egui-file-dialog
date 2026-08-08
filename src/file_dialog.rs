@@ -1669,7 +1669,7 @@ impl FileDialog {
 
                             if self.is_pinned(&path) {
                                 segment_str =
-                                    format!("{} {}", &self.config.pinned_icon, segment_str);
+                                    format!("{} {}", self.config.pinned_icon, segment_str);
                             }
 
                             if i != 0 {
@@ -2038,7 +2038,7 @@ impl FileDialog {
 
             let response = self.ui_update_left_panel_entry(
                 ui,
-                &format!("{}  {}", self.config.pinned_icon, &pinned.label),
+                &format!("{}  {}", self.config.pinned_icon, pinned.label),
                 pinned.path.as_path(),
             );
 

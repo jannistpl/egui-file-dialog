@@ -589,7 +589,7 @@ pub struct SaveExtension {
 
 impl Display for SaveExtension {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&format!("{} (.{})", &self.name, &self.file_extension))
+        f.write_str(&format!("{} (.{})", self.name, self.file_extension))
     }
 }
 
