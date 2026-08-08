@@ -1,5 +1,15 @@
 # egui-file-dialog changelog
 
+## 2026-08-08 - v0.15.0 - egui update
+
+### 🚨 Breaking Changes
+
+- Update `egui` from version `0.35` to version `0.36` [#334](https://github.com/jannistpl/egui-file-dialog/pull/334) (thanks [@virtualritz](https://github.com/virtualritz)!)
+
+### 🔧 Changes
+
+- Fix new clippy errors [#335](https://github.com/jannistpl/egui-file-dialog/pull/335)
+
 ## 2026-06-28 - v0.14.1 - Bug Fix
 
 ### 🐛 Bug Fixes
