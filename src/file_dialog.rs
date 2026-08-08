@@ -1356,22 +1356,21 @@ impl FileDialog {
         ctx.input(|i| {
             // Check if files were dropped
             if let Some(dropped_file) = i.raw.dropped_files.last() {
-                if let Some(path) = &dropped_file.path {
-                    if self.config.file_system.is_dir(path) {
-                        // If we dropped a directory, go there
-                        self.load_directory(path.as_path());
-                        repaint = true;
-                    } else if let Some(parent) = path.parent() {
-                        // Else, go to the parent directory
-                        self.load_directory(parent);
-                        self.select_item(&mut DirectoryEntry::from_path(
-                            &self.config,
-                            path,
-                            &*self.config.file_system,
-                        ));
-                        self.scroll_to_selection = true;
-                        repaint = true;
-                    }
+                let path = dropped_file.path();
+                if self.config.file_system.is_dir(path) {
+                    // If we dropped a directory, go there
+                    self.load_directory(path);
+                    repaint = true;
+                } else if let Some(parent) = path.parent() {
+                    // Else, go to the parent directory
+                    self.load_directory(parent);
+                    self.select_item(&mut DirectoryEntry::from_path(
+                        &self.config,
+                        path,
+                        &*self.config.file_system,
+                    ));
+                    self.scroll_to_selection = true;
+                    repaint = true;
                 }
             }
         });
