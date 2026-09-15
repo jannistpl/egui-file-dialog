@@ -1386,6 +1386,7 @@ impl FileDialog {
         egui::Area::new(self.window_id.with("modal_overlay"))
             .interactable(true)
             .fixed_pos(egui::Pos2::ZERO)
+            .order(egui::Order::Foreground)
             .show(ctx, |ui| {
                 let content_rect = ctx.input(egui::InputState::content_rect);
 
@@ -1435,6 +1436,7 @@ impl FileDialog {
             .resizable(self.config.resizable)
             .movable(self.config.movable)
             .title_bar(self.config.title_bar)
+            .order(egui::Order::Foreground)
             .collapsible(false);
 
         if let Some(pos) = self.config.default_pos {
