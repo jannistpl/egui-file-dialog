@@ -1,22 +1,27 @@
-use std::any::Any;
-use std::fmt::Debug;
-use std::ops::Mul;
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::{
+    any::Any,
+    fmt::Debug,
+    ops::Mul,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use egui::text::{CCursor, CCursorRange};
+use egui_modal_with_titlebar::ModalWithTitlebar;
 
-use crate::config::{
-    FileDialogConfig, FileDialogKeyBindings, FileDialogLabels, FileFilter, Filter, OpeningMode,
-    PinnedFolder, QuickAccess, SaveExtension,
+use crate::{
+    config::{
+        FileDialogConfig, FileDialogKeyBindings, FileDialogLabels, FileFilter, Filter, OpeningMode,
+        PinnedFolder, QuickAccess, SaveExtension,
+    },
+    create_directory_dialog::CreateDirectoryDialog,
+    data::{
+        DirectoryContent, DirectoryContentState, DirectoryEntry, DirectoryFilter, Disk, Disks,
+        UserDirectories,
+    },
+    modals::{FileDialogModal, ModalAction, ModalState, OverwriteFileModal},
+    FileSystem, NativeFileSystem,
 };
-use crate::create_directory_dialog::CreateDirectoryDialog;
-use crate::data::{
-    DirectoryContent, DirectoryContentState, DirectoryEntry, DirectoryFilter, Disk, Disks,
-    UserDirectories,
-};
-use crate::modals::{FileDialogModal, ModalAction, ModalState, OverwriteFileModal};
-use crate::{FileSystem, NativeFileSystem};
 
 /// Represents the mode the file dialog is currently in.
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -437,7 +442,11 @@ impl FileDialog {
         }
 
         self.update_keybindings(ctx);
-        self.update_ui(ctx, None);
+        if self.config.use_egui_modal {
+            self.update_egui_modal_ui(ctx, None);
+        } else {
+            self.update_proprietary_modal_ui(ctx, None);
+        }
 
         self
     }
@@ -473,7 +482,11 @@ impl FileDialog {
         }
 
         self.update_keybindings(ctx);
-        self.update_ui(ctx, Some(f));
+        if self.config.use_egui_modal {
+            self.update_egui_modal_ui(ctx, Some(f));
+        } else {
+            self.update_proprietary_modal_ui(ctx, Some(f));
+        }
 
         self
     }
@@ -538,12 +551,18 @@ impl FileDialog {
         self
     }
 
-    /// If the file dialog window should be displayed as a modal.
+    /// If the file dialog window should be displayed as a proprietary modal.
     ///
     /// If the window is displayed as modal, the area outside the dialog can no longer be
     /// interacted with and an overlay is displayed.
     pub const fn as_modal(mut self, as_modal: bool) -> Self {
         self.config.as_modal = as_modal;
+        self
+    }
+
+    /// If the file dialog window should be displayed as an `egui::Modal`.
+    pub const fn use_egui_modal(mut self, use_egui_modal: bool) -> Self {
+        self.config.use_egui_modal = use_egui_modal;
         self
     }
 
@@ -1263,7 +1282,50 @@ impl FileDialog {
     /// Main update method of the UI
     ///
     /// Takes an optional callback to show a custom right panel.
-    fn update_ui(
+    fn update_egui_modal_ui(
+        &mut self,
+        ctx: &egui::Context,
+        right_panel_fn: Option<&mut FileDialogUiCallback>,
+    ) {
+        let modal_response = ModalWithTitlebar::new_with_optional_title(
+            self.get_window_id(),
+            self.config
+                .title_bar
+                .then(|| self.config.title.clone().unwrap_or_default()),
+            true,
+        )
+        .backdrop_color(self.config.modal_overlay_color)
+        .area({
+            let mut area =
+                egui::Modal::default_area(self.window_id).default_size(self.config.default_size);
+            if let Some((anchor, offset)) = self.config.anchor {
+                area = area.anchor(anchor, offset);
+            }
+            area
+        })
+        .show(ctx, |ui| {
+            ui.set_width(self.config.default_size.x);
+
+            if !self.modals.is_empty() {
+                self.ui_update_egui_submodals(ui);
+            }
+
+            self.show_panels(ctx, right_panel_fn, ui);
+        });
+
+        self.any_focused_last_frame = ctx.memory(egui::Memory::focused).is_some();
+
+        self.collect_dropped_files(ctx);
+
+        if modal_response.should_close() || modal_response.inner.1 {
+            self.state = DialogState::Closed;
+        }
+    }
+
+    /// Main update method of the UI
+    ///
+    /// Takes an optional callback to show a custom right panel.
+    fn update_proprietary_modal_ui(
         &mut self,
         ctx: &egui::Context,
         right_panel_fn: Option<&mut FileDialogUiCallback>,
@@ -1272,55 +1334,11 @@ impl FileDialog {
 
         let re = self.create_window(&mut is_open).show(ctx, |ui| {
             if !self.modals.is_empty() {
-                self.ui_update_modals(ui);
+                self.ui_update_proprietary_submodals(ui);
                 return;
             }
 
-            if self.config.show_top_panel {
-                let mut margin = ctx.global_style().spacing.window_margin;
-                margin.top = 0;
-
-                egui::Panel::top(self.window_id.with("top_panel"))
-                    .resizable(false)
-                    .frame(egui::Frame::new().inner_margin(margin))
-                    .show(ui, |ui| {
-                        self.ui_update_top_panel(ui);
-                    });
-            }
-
-            if self.config.show_left_panel {
-                egui::Panel::left(self.window_id.with("left_panel"))
-                    .resizable(true)
-                    .default_size(150.0)
-                    .size_range(90.0..=250.0)
-                    .show(ui, |ui| {
-                        self.ui_update_left_panel(ui);
-                    });
-            }
-
-            // Optionally, show a custom right panel (see `update_with_custom_right_panel`)
-            if let Some(f) = right_panel_fn {
-                let mut right_panel = egui::Panel::right(self.window_id.with("right_panel"))
-                    // Unlike the left panel, we have no control over the contents, so
-                    // we don't restrict the width. It's up to the user to make the UI presentable.
-                    .resizable(true);
-                if let Some(width) = self.config.right_panel_width {
-                    right_panel = right_panel.default_size(width);
-                }
-                right_panel.show(ui, |ui| {
-                    f(ui, self);
-                });
-            }
-
-            egui::Panel::bottom(self.window_id.with("bottom_panel"))
-                .resizable(false)
-                .show(ui, |ui| {
-                    self.ui_update_bottom_panel(ui);
-                });
-
-            egui::CentralPanel::default().show(ui, |ui| {
-                self.ui_update_central_panel(ui);
-            });
+            self.show_panels(ctx, right_panel_fn, ui);
         });
 
         if self.config.as_modal {
@@ -1350,9 +1368,64 @@ impl FileDialog {
             self.cancel();
         }
 
-        let mut repaint = false;
+        self.collect_dropped_files(ctx);
+    }
 
-        // Collect dropped files:
+    fn show_panels(
+        &mut self,
+        ctx: &egui::Context,
+        right_panel_fn: Option<&mut FileDialogUiCallback>,
+        ui: &mut egui::Ui,
+    ) {
+        if self.config.show_top_panel {
+            let mut margin = ctx.global_style().spacing.window_margin;
+            margin.top = 0;
+
+            egui::Panel::top(self.window_id.with("top_panel"))
+                .resizable(false)
+                .frame(egui::Frame::new().inner_margin(margin))
+                .show(ui, |ui| {
+                    self.ui_update_top_panel(ui);
+                });
+        }
+
+        if self.config.show_left_panel {
+            egui::Panel::left(self.window_id.with("left_panel"))
+                .resizable(true)
+                .default_size(150.0)
+                .size_range(90.0..=250.0)
+                .show(ui, |ui| {
+                    self.ui_update_left_panel(ui);
+                });
+        }
+
+        // Optionally, show a custom right panel (see `update_with_custom_right_panel`)
+        if let Some(f) = right_panel_fn {
+            let mut right_panel = egui::Panel::right(self.window_id.with("right_panel"))
+                // Unlike the left panel, we have no control over the contents, so
+                // we don't restrict the width. It's up to the user to make the UI presentable.
+                .resizable(true);
+            if let Some(width) = self.config.right_panel_width {
+                right_panel = right_panel.default_size(width);
+            }
+            right_panel.show(ui, |ui| {
+                f(ui, self);
+            });
+        }
+
+        egui::Panel::bottom(self.window_id.with("bottom_panel"))
+            .resizable(false)
+            .show(ui, |ui| {
+                self.ui_update_bottom_panel(ui);
+            });
+
+        egui::CentralPanel::default().show(ui, |ui| {
+            self.ui_update_central_panel(ui);
+        });
+    }
+
+    fn collect_dropped_files(&mut self, ctx: &egui::Context) {
+        let mut repaint = false;
         ctx.input(|i| {
             // Check if files were dropped
             if let Some(dropped_file) = i.raw.dropped_files.last() {
@@ -1399,7 +1472,21 @@ impl FileDialog {
             })
     }
 
-    fn ui_update_modals(&mut self, ui: &mut egui::Ui) {
+    fn ui_update_egui_submodals(&mut self, ui: &egui::Ui) {
+        egui::Modal::new("overwrite_export_data_file".into()).show(ui.ctx(), |ui| {
+            if let Some(modal) = self.modals.last_mut() {
+                #[allow(clippy::single_match)]
+                match modal.update(&self.config, ui) {
+                    ModalState::Close(action) => {
+                        self.exec_modal_action(action);
+                        self.modals.pop();
+                    }
+                    ModalState::Pending => {}
+                }
+            }
+        });
+    }
+    fn ui_update_proprietary_submodals(&mut self, ui: &mut egui::Ui) {
         // Currently, a rendering error occurs when only a single central panel is rendered
         // inside a window. Therefore, when rendering a modal, we render an invisible bottom panel,
         // which prevents the error.

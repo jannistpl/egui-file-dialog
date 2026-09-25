@@ -14,6 +14,7 @@ exclude = ["media/", "!media/readme/", ".github/"]
 
 [dependencies]
 egui = { version = "0.36.0", default-features = false }
+egui_modal_with_titlebar = "0.10.0"
 # fetch user folders
 directories = "6.0"
 # canonicalize paths
@@ -36,10 +37,17 @@ eframe = { version = "0.36.0", default-features = false, features = [
     "wayland",
     "x11",
 ] }
-egui-file-dialog = { path = "." , features = ["information_view"] }
+egui-file-dialog = { path = ".", features = ["information_view"] }
 egui_extras = { version = "0.36", features = ["all_loaders"] }
 # required by the egui loaders
-image = { version = "0.25.5", features = ["bmp", "jpeg", "gif", "png", "tiff", "rayon"] }
+image = { version = "0.25.5", features = [
+    "bmp",
+    "jpeg",
+    "gif",
+    "png",
+    "tiff",
+    "rayon",
+] }
 tempdir = "0.3"
 
 [features]

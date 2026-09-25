@@ -93,6 +93,10 @@ pub struct FileDialogConfig {
     /// If the file dialog should be visible as a modal window.
     /// This means that the input outside the window is not registered.
     pub as_modal: bool,
+    /// if false (default), then the built-in proprietary modal technique is used,
+    /// otherwise the standard egui Modal is used. The latter allows using this library for
+    /// usecases where the dialog is started from an `egui::Modal`.
+    pub use_egui_modal: bool,
     /// Color of the overlay that is displayed under the modal to prevent user interaction.
     pub modal_overlay_color: egui::Color32,
     /// The first directory that will be opened when the dialog opens.
@@ -270,6 +274,7 @@ impl FileDialogConfig {
 
             opening_mode: OpeningMode::LastPickedDir,
             as_modal: true,
+            use_egui_modal: false,
             modal_overlay_color: egui::Color32::from_rgba_premultiplied(0, 0, 0, 120),
             initial_directory: file_system.current_dir().unwrap_or_default(),
             default_file_name: String::from("Untitled"),
