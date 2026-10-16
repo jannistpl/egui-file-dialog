@@ -35,6 +35,7 @@ eframe = { version = "0.37.0", default-features = false, features = [
     "persistence",
     "wayland",
     "x11",
+    "system_fonts",
 ] }
 egui-file-dialog = { path = "." , features = ["information_view"] }
 egui_extras = { version = "0.37", features = ["all_loaders"] }
