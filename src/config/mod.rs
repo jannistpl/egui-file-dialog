@@ -71,7 +71,7 @@ pub enum OpeningMode {
 /// };
 ///
 /// let file_dialog_a = FileDialog::with_config(config.clone())
-///     .id("file-dialog-a");
+///     .id(egui::Id::unique("file-dialog-a"));
 ///
 /// let file_dialog_b = FileDialog::with_config(config.clone());
 /// ```
@@ -385,7 +385,7 @@ impl FileDialogConfig {
     ///         Filter::new(|path: &Path| path.extension().unwrap_or_default() == "jpg"));
     /// ```
     pub fn add_file_filter(mut self, name: &str, filter: Filter<Path>) -> Self {
-        let id = egui::Id::new(name);
+        let id = egui::Id::unique(name);
 
         // Replace filter if a filter with the same name already exists.
         if let Some(item) = self.file_filters.iter_mut().find(|p| p.id == id) {
@@ -454,7 +454,7 @@ impl FileDialogConfig {
     ///     .add_save_extension("JPG files", "jpg");
     /// ```
     pub fn add_save_extension(mut self, name: &str, file_extension: &str) -> Self {
-        let id = egui::Id::new(name);
+        let id = egui::Id::unique(name);
 
         // Replace extension when an extension with the same name already exists.
         if let Some(item) = self.save_extensions.iter_mut().find(|p| p.id == id) {
