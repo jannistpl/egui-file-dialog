@@ -2663,9 +2663,9 @@ impl FileDialog {
         let pinned = self.is_pinned(item.as_path());
 
         let icons = if pinned {
-            format!("{} {} ", item.icon(), self.config.pinned_icon)
+            format!("{} {}", item.icon(), self.config.pinned_icon)
         } else {
-            format!("{} ", item.icon())
+            format!("{}", item.icon())
         };
 
         let icons_width = Self::calc_text_width(ui, &icons);
@@ -2683,7 +2683,7 @@ impl FileDialog {
         };
 
         let mut re =
-            ui.selectable_label(primary_selected || item.selected, format!("{icons}{text}"));
+            ui.selectable_label(primary_selected || item.selected, format!("{icons}  {text}"));
 
         if truncate {
             re = re.on_hover_text(file_name);
