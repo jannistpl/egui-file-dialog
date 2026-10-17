@@ -243,7 +243,7 @@ impl FileDialog {
             show_files: true,
             user_data: None,
 
-            window_id: egui::Id::new("file_dialog"),
+            window_id: egui::Id::unique("file_dialog"),
 
             user_directories: None,
             system_disks: Disks::new_empty(),
@@ -376,7 +376,7 @@ impl FileDialog {
         self.window_id = self
             .config
             .id
-            .unwrap_or_else(|| egui::Id::new(self.get_window_title()));
+            .unwrap_or_else(|| egui::Id::unique(self.get_window_title()));
 
         self.load_directory(&self.get_initial_directory());
     }

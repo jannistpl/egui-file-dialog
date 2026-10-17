@@ -13,7 +13,7 @@ struct MyApp {
 impl MyApp {
     pub fn new(_cc: &eframe::CreationContext) -> Self {
         Self {
-            file_dialog: FileDialog::new().id("egui_file_dialog"),
+            file_dialog: FileDialog::new().id(egui::Id::unique("egui_file_dialog")),
 
             picked_file_a: None,
             picked_file_b: None,
