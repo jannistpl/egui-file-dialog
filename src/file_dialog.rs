@@ -7,8 +7,8 @@ use std::sync::Arc;
 use egui::text::{CCursor, CCursorRange};
 
 use crate::config::{
-    FileDialogConfig, FileDialogKeyBindings, FileDialogLabels, FileFilter, Filter, OpeningMode,
-    PinnedFolder, QuickAccess, SaveExtension,
+    FileDialogConfig, FileDialogKeyBindings, FileDialogLabels, FileFilter, Filter, Icon,
+    OpeningMode, PinnedFolder, QuickAccess, SaveExtension,
 };
 use crate::create_directory_dialog::CreateDirectoryDialog;
 use crate::data::{
@@ -684,20 +684,20 @@ impl FileDialog {
     }
 
     /// Sets the icon used for the parent directory navigation button.
-    pub fn parent_directory_icon(mut self, icon: &str) -> Self {
-        self.config.parent_directory_icon = icon.to_string();
+    pub fn parent_directory_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.parent_directory_icon = icon.into();
         self
     }
 
     /// Sets the icon used for the back navigation button.
-    pub fn back_icon(mut self, icon: &str) -> Self {
-        self.config.back_icon = icon.to_string();
+    pub fn back_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.back_icon = icon.into();
         self
     }
 
     /// Sets the icon used for the forward navigation button.
-    pub fn forward_icon(mut self, icon: &str) -> Self {
-        self.config.forward_icon = icon.to_string();
+    pub fn forward_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.forward_icon = icon.into();
         self
     }
 
@@ -1555,32 +1555,32 @@ impl FileDialog {
     fn ui_update_nav_buttons_content(&mut self, ui: &mut egui::Ui, button_size: egui::Vec2) {
         if self.config.show_parent_button {
             if let Some(x) = self.current_directory() {
-                if self.ui_button_sized(
+                if self.ui_button_sized_icon(
                     ui,
                     x.parent().is_some(),
                     button_size,
-                    self.config.parent_directory_icon.as_str(),
+                    self.config.parent_directory_icon.clone(),
                     None,
                 ) {
                     self.load_parent_directory();
                 }
             } else {
-                let _ = self.ui_button_sized(
+                let _ = self.ui_button_sized_icon(
                     ui,
                     false,
                     button_size,
-                    self.config.parent_directory_icon.as_str(),
+                    self.config.parent_directory_icon.clone(),
                     None,
                 );
             }
         }
 
         if self.config.show_back_button
-            && self.ui_button_sized(
+            && self.ui_button_sized_icon(
                 ui,
                 self.directory_offset + 1 < self.directory_stack.len(),
                 button_size,
-                self.config.back_icon.as_str(),
+                self.config.back_icon.clone(),
                 None,
             )
         {
@@ -1588,11 +1588,11 @@ impl FileDialog {
         }
 
         if self.config.show_forward_button
-            && self.ui_button_sized(
+            && self.ui_button_sized_icon(
                 ui,
                 self.directory_offset != 0,
                 button_size,
-                self.config.forward_icon.as_str(),
+                self.config.forward_icon.clone(),
                 None,
             )
         {
@@ -1600,11 +1600,11 @@ impl FileDialog {
         }
 
         if self.config.show_new_folder_button
-            && self.ui_button_sized(
+            && self.ui_button_sized_icon(
                 ui,
                 !self.create_directory_dialog.is_open(),
                 button_size,
-                self.config.new_folder_icon.as_str(),
+                self.config.new_folder_icon.clone(),
                 None,
             )
         {
@@ -2682,8 +2682,10 @@ impl FileDialog {
             file_name.to_owned()
         };
 
-        let mut re =
-            ui.selectable_label(primary_selected || item.selected, format!("{icons}  {text}"));
+        let mut re = ui.selectable_label(
+            primary_selected || item.selected,
+            format!("{icons}  {text}"),
+        );
 
         if truncate {
             re = re.on_hover_text(file_name);
@@ -2850,6 +2852,40 @@ impl FileDialog {
                 }
             }
         }
+    }
+
+    /// Helper function to add a sized button that can be enabled or disabled
+    fn ui_button_sized_icon(
+        &self,
+        ui: &mut egui::Ui,
+        enabled: bool,
+        size: egui::Vec2,
+        icon: impl Into<Icon>,
+        err_tooltip: Option<&str>,
+    ) -> bool {
+        let mut clicked = false;
+
+        ui.add_enabled_ui(enabled, |ui| {
+            let response = icon.into().show(ui, size);
+            clicked = response.clicked();
+
+            if let Some(err) = err_tooltip {
+                response.on_disabled_hover_ui(|ui| {
+                    ui.horizontal_wrapped(|ui| {
+                        ui.spacing_mut().item_spacing.x = 0.0;
+
+                        ui.colored_label(
+                            ui.global_style().visuals.error_fg_color,
+                            format!("{} ", self.config.err_icon),
+                        );
+
+                        ui.label(err);
+                    });
+                });
+            }
+        });
+
+        clicked
     }
 
     /// Helper function to add a sized button that can be enabled or disabled

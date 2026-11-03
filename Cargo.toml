@@ -14,6 +14,8 @@ exclude = ["media/", "!media/readme/", ".github/"]
 
 [dependencies]
 egui = { version = "0.37.0", default-features = false }
+egui_extras = { version = "0.37.0", default-features = false, features = [ "svg" ]}
+
 # fetch user folders
 directories = "6.0"
 # canonicalize paths

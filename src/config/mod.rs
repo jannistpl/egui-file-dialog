@@ -1,4 +1,5 @@
 mod labels;
+use egui::include_image;
 pub use labels::FileDialogLabels;
 
 mod keybindings;
@@ -44,6 +45,73 @@ pub enum OpeningMode {
     LastVisitedDir,
     /// The last directory from which the user picked an item should be opened.
     LastPickedDir,
+}
+
+/// An icon used in the user interface of the file dialog.
+#[derive(Debug, Clone)]
+pub enum Icon {
+    /// An egui image.
+    Image(egui::ImageSource<'static>),
+
+    /// A Unicode character or string.
+    Unicode(String),
+}
+
+impl From<String> for Icon {
+    fn from(value: String) -> Self {
+        Self::Unicode(value)
+    }
+}
+
+impl From<&str> for Icon {
+    fn from(value: &str) -> Self {
+        Self::Unicode(value.to_owned())
+    }
+}
+
+impl Icon {
+    pub(crate) fn show(&self, ui: &mut egui::Ui, size: egui::Vec2) -> egui::Response {
+        let button = match self {
+            Self::Image(source) => {
+                let tint = if ui.style().visuals.dark_mode {
+                    egui::Color32::WHITE
+                } else {
+                    egui::Color32::BLACK
+                };
+
+                let image = egui::Image::new(source.clone()).max_size(size).tint(tint);
+
+                egui::Button::image(image)
+            }
+            Self::Unicode(text) => egui::Button::new(text),
+        };
+
+        ui.add_sized(size, button)
+    }
+
+    pub(crate) fn show_with_text(
+        &self,
+        ui: &mut egui::Ui,
+        text: impl Into<String>,
+        size: egui::Vec2,
+    ) -> egui::Response {
+        let button = match self {
+            Self::Image(source) => {
+                let tint = if ui.style().visuals.dark_mode {
+                    egui::Color32::WHITE
+                } else {
+                    egui::Color32::BLACK
+                };
+
+                let image = egui::Image::new(source.clone()).max_size(size).tint(tint);
+
+                egui::Button::image_and_text(image, text.into())
+            }
+            Self::Unicode(icon) => egui::Button::new(format!("{icon}  {}", text.into())),
+        };
+
+        ui.add_sized(size, button)
+    }
 }
 
 /// Contains configuration values of a file dialog.
@@ -143,11 +211,11 @@ pub struct FileDialogConfig {
     /// The icon used to display removable devices in the left panel.
     pub removable_device_icon: String,
     /// The icon used for the parent directory navigation button.
-    pub parent_directory_icon: String,
+    pub parent_directory_icon: Icon,
     /// The icon used for the back navigation button.
-    pub back_icon: String,
+    pub back_icon: Icon,
     /// The icon used for the forward navigation button.
-    pub forward_icon: String,
+    pub forward_icon: Icon,
     /// The icon used for the create new folder button.
     pub new_folder_icon: String,
     /// The icon used for the top panel menu button.
@@ -295,9 +363,9 @@ impl FileDialogConfig {
             pinned_icon: String::from("📌"),
             device_icon: String::from("🖴"),
             removable_device_icon: String::from("💾"),
-            parent_directory_icon: String::from("⏶"),
-            back_icon: String::from("⏴"),
-            forward_icon: String::from("⏵"),
+            parent_directory_icon: Icon::Image(include_image!("../../assets/arrow_top.svg")),
+            back_icon: Icon::Image(include_image!("../../assets/arrow_left.svg")),
+            forward_icon: Icon::Image(include_image!("../../assets/arrow_right.svg")),
             new_folder_icon: String::from("+"),
             menu_icon: String::from("☰"),
             search_icon: String::from("🔍"),

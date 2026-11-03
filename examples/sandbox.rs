@@ -14,6 +14,8 @@ struct MyApp {
 
 impl MyApp {
     pub fn new(cc: &eframe::CreationContext) -> Self {
+        egui_extras::install_image_loaders(&cc.egui_ctx);
+
         let mut file_dialog = FileDialog::new()
             .add_quick_access("Project", |s| {
                 s.add_path("☆  Examples", "examples");
