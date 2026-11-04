@@ -664,8 +664,8 @@ impl FileDialog {
     }
 
     /// Sets the icon that is used to display errors.
-    pub fn err_icon(mut self, icon: &str) -> Self {
-        self.config.err_icon = icon.to_string();
+    pub fn err_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.err_icon = icon.into();
         self
     }
 
@@ -2982,13 +2982,7 @@ impl FileDialog {
             if let Some(err) = err_tooltip {
                 response.on_disabled_hover_ui(|ui| {
                     ui.horizontal_wrapped(|ui| {
-                        ui.spacing_mut().item_spacing.x = 0.0;
-
-                        ui.colored_label(
-                            ui.global_style().visuals.error_fg_color,
-                            format!("{} ", self.config.err_icon),
-                        );
-
+                        self.config.err_icon.show(ui);
                         ui.label(err);
                     });
                 });
@@ -2998,7 +2992,7 @@ impl FileDialog {
         clicked
     }
 
-    /// Helper function to add a sized button that can be enabled or disabled
+    /// Helper function to add a sized button that can be enabled or disabled.
     fn ui_button_sized(
         &self,
         ui: &mut egui::Ui,
@@ -3016,13 +3010,7 @@ impl FileDialog {
             if let Some(err) = err_tooltip {
                 response.on_disabled_hover_ui(|ui| {
                     ui.horizontal_wrapped(|ui| {
-                        ui.spacing_mut().item_spacing.x = 0.0;
-
-                        ui.colored_label(
-                            ui.global_style().visuals.error_fg_color,
-                            format!("{} ", self.config.err_icon),
-                        );
-
+                        self.config.err_icon.show(ui);
                         ui.label(err);
                     });
                 });
