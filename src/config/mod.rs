@@ -47,9 +47,23 @@ pub enum OpeningMode {
     LastPickedDir,
 }
 
-/// An icon used in the user interface of the file dialog.
+/// The tint of an image.
 #[derive(Debug, Clone)]
-pub enum Icon {
+pub enum IconTint {
+    /// The image is not being tinted.
+    None,
+
+    /// The image is tinted black or white based on the theme.
+    /// Dark theme = white, light theme = black.
+    BlackWhite,
+
+    /// Use a custom tint.
+    Custom(egui::Color32),
+}
+
+/// The source of the icon.
+#[derive(Debug, Clone)]
+pub enum IconSource {
     /// An egui image.
     Image(egui::ImageSource<'static>),
 
@@ -57,64 +71,97 @@ pub enum Icon {
     Unicode(String),
 }
 
+/// An icon used in the user interface of the file dialog.
+#[derive(Debug, Clone)]
+pub struct Icon {
+    source: IconSource,
+    tint: IconTint,
+}
+
 impl From<String> for Icon {
     fn from(value: String) -> Self {
-        Self::Unicode(value)
+        Self {
+            source: IconSource::Unicode(value),
+            tint: IconTint::None,
+        }
     }
 }
 
 impl From<&str> for Icon {
     fn from(value: &str) -> Self {
-        Self::Unicode(value.to_owned())
+        Self {
+            source: IconSource::Unicode(value.to_owned()),
+            tint: IconTint::None,
+        }
     }
 }
 
+/// Public methods
+impl Icon {
+    pub fn image(source: egui::ImageSource<'static>) -> Self {
+        Self {
+            source: IconSource::Image(source),
+            tint: IconTint::None,
+        }
+    }
+
+    pub fn unicode(text: impl Into<String>) -> Self {
+        Self {
+            source: IconSource::Unicode(text.into()),
+            tint: IconTint::None,
+        }
+    }
+
+    pub fn tint(mut self, tint: IconTint) -> Self {
+        self.tint = tint;
+        self
+    }
+}
+
+/// Crate only methods
 impl Icon {
     pub(crate) fn show_as_button(&self, ui: &mut egui::Ui, size: egui::Vec2) -> egui::Response {
-        ui.spacing_mut().button_padding = egui::Vec2::new(0.0, 0.0);
-        let button = match self {
-            Self::Image(source) => {
-                let img = build_image(ui, source.clone());
+        let button = match &self.source {
+            IconSource::Image(source) => {
+                ui.spacing_mut().button_padding = egui::Vec2::new(0.0, 0.0);
+
+                let mut img = egui::Image::new(source.clone())
+                    .fit_to_fraction(egui::vec2(1.0, 1.0))
+                    .maintain_aspect_ratio(true);
+
+                if let Some(tint) = self.get_color(ui) {
+                    img = img.tint(tint);
+                }
+
                 egui::Button::image(img)
             }
-            Self::Unicode(text) => egui::Button::new(text),
-        };
+            IconSource::Unicode(text) => {
+                let mut text = egui::RichText::new(text);
 
-        ui.add_sized(size, button)
-    }
+                if let Some(color) = self.get_color(ui) {
+                    text = text.color(color);
+                }
 
-    pub(crate) fn show_as_button_with_text(
-        &self,
-        ui: &mut egui::Ui,
-        text: impl Into<String>,
-        size: egui::Vec2,
-    ) -> egui::Response {
-        let button = match self {
-            Self::Image(source) => {
-                let img = build_image(ui, source.clone());
-                egui::Button::image_and_text(img, text.into())
+                egui::Button::new(text)
             }
-            Self::Unicode(icon) => egui::Button::new(format!("{icon}  {}", text.into())),
         };
 
         ui.add_sized(size, button)
     }
-}
 
-fn calc_image_color(ui: &egui::Ui) -> egui::Color32 {
-    if ui.style().visuals.dark_mode {
-        egui::Color32::WHITE
-    } else {
-        egui::Color32::BLACK
+    fn get_color(&self, ui: &egui::Ui) -> Option<egui::Color32> {
+        match self.tint {
+            IconTint::None => None,
+            IconTint::BlackWhite => {
+                if ui.style().visuals.dark_mode {
+                    Some(egui::Color32::WHITE)
+                } else {
+                    Some(egui::Color32::BLACK)
+                }
+            }
+            IconTint::Custom(tint) => Some(tint),
+        }
     }
-}
-
-// TODO: Make color customizable
-fn build_image(ui: &egui::Ui, img: egui::ImageSource<'static>) -> egui::Image<'static> {
-    egui::Image::new(img)
-        .tint(calc_image_color(ui))
-        .fit_to_fraction(egui::vec2(1.0, 1.0))
-        .maintain_aspect_ratio(true)
 }
 
 /// Contains configuration values of a file dialog.
@@ -366,10 +413,14 @@ impl FileDialogConfig {
             pinned_icon: String::from("📌"),
             device_icon: String::from("🖴"),
             removable_device_icon: String::from("💾"),
-            parent_directory_icon: Icon::Image(include_image!("../../assets/arrow_top.svg")),
-            back_icon: Icon::Image(include_image!("../../assets/arrow_left.svg")),
-            forward_icon: Icon::Image(include_image!("../../assets/arrow_right.svg")),
-            new_folder_icon: Icon::Image(include_image!("../../assets/new_folder.svg")),
+            parent_directory_icon: Icon::image(include_image!("../../assets/arrow_top.svg"))
+                .tint(IconTint::BlackWhite),
+            back_icon: Icon::image(include_image!("../../assets/arrow_left.svg"))
+                .tint(IconTint::BlackWhite),
+            forward_icon: Icon::image(include_image!("../../assets/arrow_right.svg"))
+                .tint(IconTint::BlackWhite),
+            new_folder_icon: Icon::image(include_image!("../../assets/new_folder.svg"))
+                .tint(IconTint::BlackWhite),
             menu_icon: String::from("☰"),
             search_icon: String::from("🔍"),
             path_edit_icon: String::from("🖊"),
