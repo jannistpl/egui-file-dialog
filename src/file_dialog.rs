@@ -16,7 +16,7 @@ use crate::data::{
     UserDirectories,
 };
 use crate::modals::{FileDialogModal, ModalAction, ModalState, OverwriteFileModal};
-use crate::{FileSystem, NativeFileSystem};
+use crate::{utils, FileSystem, NativeFileSystem};
 
 // TODO: Remove when no longer used
 #[deprecated(note = "TODO: Implement this before merging the branch!")]
@@ -1790,7 +1790,7 @@ impl FileDialog {
 
         if self.path_edit_activate {
             response.request_focus();
-            Self::set_cursor_to_end(&response, &self.path_edit_value);
+            utils::set_cursor_to_end(&response, &self.path_edit_value);
             self.path_edit_activate = false;
         }
 
@@ -1989,7 +1989,7 @@ impl FileDialog {
 
         if self.init_search {
             re.request_focus();
-            Self::set_cursor_to_end(&re, &self.search_value);
+            utils::set_cursor_to_end(&re, &self.search_value);
             self.directory_content.reset_multi_selection();
 
             self.init_search = false;
@@ -2306,12 +2306,12 @@ impl FileDialog {
         // Calculate the width of the action buttons
         let label_submit_width = match self.mode {
             DialogMode::PickDirectory | DialogMode::PickFile | DialogMode::PickMultiple => {
-                Self::calc_text_width(ui, &self.config.labels.open_button)
+                utils::calc_text_width(ui, &self.config.labels.open_button)
             }
-            DialogMode::SaveFile => Self::calc_text_width(ui, &self.config.labels.save_button),
+            DialogMode::SaveFile => utils::calc_text_width(ui, &self.config.labels.save_button),
         };
 
-        let mut btn_width = Self::calc_text_width(ui, &self.config.labels.cancel_button);
+        let mut btn_width = utils::calc_text_width(ui, &self.config.labels.cancel_button);
 
         if label_submit_width > btn_width {
             btn_width = label_submit_width;
@@ -2774,13 +2774,13 @@ impl FileDialog {
         // };
         let icons = format!("{}", item.icon());
 
-        let icons_width = Self::calc_text_width(ui, &icons);
+        let icons_width = utils::calc_text_width(ui, &icons);
 
         // Calc available width for the file name and include a small margin
         let available_width = ui.available_width() - icons_width - 15.0;
 
         let truncate = self.config.truncate_filenames
-            && available_width < Self::calc_text_width(ui, file_name);
+            && available_width < utils::calc_text_width(ui, file_name);
 
         let text = if truncate {
             Self::truncate_filename(ui, item, available_width)
@@ -3055,39 +3055,6 @@ impl FileDialog {
         });
     }
 
-    /// Sets the cursor position to the end of a text input field.
-    ///
-    /// # Arguments
-    ///
-    /// * `re` - response of the text input widget
-    /// * `data` - buffer holding the text of the input widget
-    fn set_cursor_to_end(re: &egui::Response, data: &str) {
-        // Set the cursor to the end of the filter input string
-        if let Some(mut state) = egui::TextEdit::load_state(&re.ctx, re.id) {
-            state
-                .cursor
-                .set_char_range(Some(CCursorRange::one(CCursor::new(data.len()))));
-            state.store(&re.ctx, re.id);
-        }
-    }
-
-    /// Calculates the width of a single char.
-    fn calc_char_width(ui: &egui::Ui, char: char) -> f32 {
-        ui.fonts_mut(|f| f.glyph_width(&egui::TextStyle::Body.resolve(ui.style()), char))
-    }
-
-    /// Calculates the width of the specified text using the current font configuration.
-    /// Does not take new lines or text breaks into account!
-    fn calc_text_width(ui: &egui::Ui, text: &str) -> f32 {
-        let mut width = 0.0;
-
-        for char in text.chars() {
-            width += Self::calc_char_width(ui, char);
-        }
-
-        width
-    }
-
     fn truncate_filename(ui: &egui::Ui, item: &DirectoryEntry, max_length: f32) -> String {
         const TRUNCATE_STR: &str = "...";
 
@@ -3107,8 +3074,8 @@ impl FileDialog {
             String::new()
         };
 
-        let extension_width = Self::calc_text_width(ui, &extension);
-        let reserved = extension_width + Self::calc_text_width(ui, TRUNCATE_STR);
+        let extension_width = utils::calc_text_width(ui, &extension);
+        let reserved = extension_width + utils::calc_text_width(ui, TRUNCATE_STR);
 
         if max_length <= reserved {
             return format!("{TRUNCATE_STR}{extension}");
@@ -3119,7 +3086,7 @@ impl FileDialog {
         let mut back = String::new();
 
         for (i, char) in file_stem.chars().enumerate() {
-            let w = Self::calc_char_width(ui, char);
+            let w = utils::calc_char_width(ui, char);
 
             if width + w > max_length {
                 break;
@@ -3135,7 +3102,7 @@ impl FileDialog {
             }
 
             if let Some(char) = file_stem.chars().nth(back_index) {
-                let w = Self::calc_char_width(ui, char);
+                let w = utils::calc_char_width(ui, char);
 
                 if width + w > max_length {
                     break;
