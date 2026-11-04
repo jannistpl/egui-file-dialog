@@ -70,18 +70,12 @@ impl From<&str> for Icon {
 }
 
 impl Icon {
-    pub(crate) fn show(&self, ui: &mut egui::Ui, size: egui::Vec2) -> egui::Response {
+    pub(crate) fn show_as_button(&self, ui: &mut egui::Ui, size: egui::Vec2) -> egui::Response {
         ui.spacing_mut().button_padding = egui::Vec2::new(0.0, 0.0);
         let button = match self {
             Self::Image(source) => {
-                let tint = calc_image_color(ui);
-
-                let image = egui::Image::new(source.clone())
-                    .tint(tint)
-                    .fit_to_fraction(egui::vec2(1.0, 1.0))
-                    .maintain_aspect_ratio(true);
-
-                egui::Button::image(image)
+                let img = build_image(ui, source.clone());
+                egui::Button::image(img)
             }
             Self::Unicode(text) => egui::Button::new(text),
         };
@@ -89,7 +83,7 @@ impl Icon {
         ui.add_sized(size, button)
     }
 
-    pub(crate) fn show_with_text(
+    pub(crate) fn show_as_button_with_text(
         &self,
         ui: &mut egui::Ui,
         text: impl Into<String>,
@@ -97,14 +91,8 @@ impl Icon {
     ) -> egui::Response {
         let button = match self {
             Self::Image(source) => {
-                let tint = calc_image_color(ui);
-
-                let image = egui::Image::new(source.clone())
-                    .tint(tint)
-                    .fit_to_fraction(egui::vec2(1.0, 1.0))
-                    .maintain_aspect_ratio(true);
-
-                egui::Button::image_and_text(image, text.into())
+                let img = build_image(ui, source.clone());
+                egui::Button::image_and_text(img, text.into())
             }
             Self::Unicode(icon) => egui::Button::new(format!("{icon}  {}", text.into())),
         };
@@ -119,6 +107,14 @@ fn calc_image_color(ui: &egui::Ui) -> egui::Color32 {
     } else {
         egui::Color32::BLACK
     }
+}
+
+// TODO: Make color customizable
+fn build_image(ui: &egui::Ui, img: egui::ImageSource<'static>) -> egui::Image<'static> {
+    egui::Image::new(img)
+        .tint(calc_image_color(ui))
+        .fit_to_fraction(egui::vec2(1.0, 1.0))
+        .maintain_aspect_ratio(true)
 }
 
 /// Contains configuration values of a file dialog.
