@@ -141,6 +141,36 @@ impl Icon {
         }
     }
 
+    pub(crate) fn into_button_with_text<'a>(
+        &'a self,
+        ui: &egui::Ui,
+        text: &'a str,
+    ) -> egui::Button<'a> {
+        match &self.source {
+            IconSource::Image(source) => {
+                let img = self
+                    .build_image(ui, source.clone())
+                    .maintain_aspect_ratio(true);
+
+                egui::Button::image_and_text(img, text)
+            }
+            IconSource::Unicode(icon) => {
+                let mut text = egui::RichText::new(format!("{icon}  {text}"));
+
+                if let Some(color) = self.get_color(ui) {
+                    text = text.color(color);
+                }
+
+                egui::Button::new(text)
+            }
+        }
+    }
+
+    pub(crate) fn show_as_button_with_text(&self, ui: &mut egui::Ui, text: &str) -> egui::Response {
+        let button = self.into_button_with_text(ui, text);
+        ui.add(button)
+    }
+
     pub(crate) fn show_as_button_sized(
         &self,
         ui: &mut egui::Ui,
@@ -292,6 +322,12 @@ pub struct FileDialogConfig {
     pub new_folder_icon: Icon,
     /// The icon used for the top panel menu button.
     pub menu_icon: Icon,
+    /// The icon used for the reload button inside the menu.
+    pub reload_icon: Icon,
+    /// The icon used for the working dir button inside the menu.
+    pub working_dir_icon: Icon,
+    /// The icon used for the select all button inside the menu.
+    pub select_all_icon: Icon,
     /// The icon used for the search input in the top panel.
     pub search_icon: String,
     /// The icon used for the path edit input in the top panel.
@@ -446,6 +482,12 @@ impl FileDialogConfig {
             new_folder_icon: Icon::image(include_image!("../../assets/new_folder.svg"))
                 .tint(IconTint::BlackWhite),
             menu_icon: Icon::image(include_image!("../../assets/menu.svg"))
+                .tint(IconTint::BlackWhite),
+            reload_icon: Icon::image(include_image!("../../assets/reload.svg"))
+                .tint(IconTint::BlackWhite),
+            working_dir_icon: Icon::image(include_image!("../../assets/working_dir.svg"))
+                .tint(IconTint::BlackWhite),
+            select_all_icon: Icon::image(include_image!("../../assets/select_all.svg"))
                 .tint(IconTint::BlackWhite),
             search_icon: String::from("🔍"),
             path_edit_icon: Icon::image(include_image!("../../assets/edit.svg"))

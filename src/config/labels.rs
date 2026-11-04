@@ -136,9 +136,9 @@ impl Default for FileDialogLabels {
             cancel: "Cancel".to_string(),
             overwrite: "Overwrite".to_string(),
 
-            reload: "⟲  Reload".to_string(),
-            working_directory: "↗  Go to working directory".to_string(),
-            select_all: "🗐  Select all".to_string(),
+            reload: "Reload".to_string(),
+            working_directory: "Go to working directory".to_string(),
+            select_all: "Select all".to_string(),
             show_hidden: " Show hidden".to_string(),
             show_system_files: " Show system files".to_string(),
 

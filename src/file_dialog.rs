@@ -1800,19 +1800,40 @@ impl FileDialog {
         let show_hidden = self.config.show_hidden_option;
         let show_system_files = self.config.show_system_files_option;
 
-        if show_reload && ui.button(&self.config.labels.reload).clicked() {
-            self.refresh();
-            ui.close();
+        if show_reload {
+            let re = self
+                .config
+                .reload_icon
+                .show_as_button_with_text(ui, &self.config.labels.reload);
+
+            if re.clicked() {
+                self.refresh();
+                ui.close();
+            }
         }
 
-        if show_working_dir && ui.button(&self.config.labels.working_directory).clicked() {
-            self.load_directory(&working_dir.unwrap_or_default());
-            ui.close();
+        if show_working_dir {
+            let re = self
+                .config
+                .working_dir_icon
+                .show_as_button_with_text(ui, &self.config.labels.working_directory);
+
+            if re.clicked() {
+                self.load_directory(&working_dir.unwrap_or_default());
+                ui.close();
+            }
         }
 
-        if show_select_all && ui.button(&self.config.labels.select_all).clicked() {
-            self.select_all_items();
-            ui.close();
+        if show_select_all {
+            let re = self
+                .config
+                .select_all_icon
+                .show_as_button_with_text(ui, &self.config.labels.select_all);
+
+            if re.clicked() {
+                self.select_all_items();
+                ui.close();
+            }
         }
 
         let any_above = show_reload || show_working_dir || show_select_all;
