@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use egui::include_image;
-pub use icons::{Icon, IconTint};
+pub use icons::{Icon, IconColor};
 pub use keybindings::{FileDialogKeyBindings, KeyBinding};
 pub use labels::FileDialogLabels;
 
@@ -299,35 +299,35 @@ impl FileDialogConfig {
             max_selections: None,
 
             check_icon: Icon::image(include_image!("../../assets/check.svg"))
-                .tint(IconTint::BlackWhite),
+                .tint(IconColor::BlackWhite),
             err_icon: String::from("⚠"),
             warn_icon: String::from("⚠"),
             default_file_icon: String::from("🗋"),
             default_folder_icon: String::from("🗀"),
             pinned_icon: Icon::image(include_image!("../../assets/pin.svg"))
-                .tint(IconTint::BlackWhite),
+                .tint(IconColor::BlackWhite),
             device_icon: String::from("🖴"),
             removable_device_icon: String::from("💾"),
             parent_directory_icon: Icon::image(include_image!("../../assets/arrow_top.svg"))
-                .tint(IconTint::BlackWhite),
+                .tint(IconColor::BlackWhite),
             back_icon: Icon::image(include_image!("../../assets/arrow_left.svg"))
-                .tint(IconTint::BlackWhite),
+                .tint(IconColor::BlackWhite),
             forward_icon: Icon::image(include_image!("../../assets/arrow_right.svg"))
-                .tint(IconTint::BlackWhite),
+                .tint(IconColor::BlackWhite),
             new_folder_icon: Icon::image(include_image!("../../assets/new_folder.svg"))
-                .tint(IconTint::BlackWhite),
+                .tint(IconColor::BlackWhite),
             menu_icon: Icon::image(include_image!("../../assets/menu.svg"))
-                .tint(IconTint::BlackWhite),
+                .tint(IconColor::BlackWhite),
             reload_icon: Icon::image(include_image!("../../assets/reload.svg"))
-                .tint(IconTint::BlackWhite),
+                .tint(IconColor::BlackWhite),
             working_dir_icon: Icon::image(include_image!("../../assets/working_dir.svg"))
-                .tint(IconTint::BlackWhite),
+                .tint(IconColor::BlackWhite),
             select_all_icon: Icon::image(include_image!("../../assets/select_all.svg"))
-                .tint(IconTint::BlackWhite),
+                .tint(IconColor::BlackWhite),
             search_icon: Icon::image(include_image!("../../assets/search.svg"))
-                .tint(IconTint::BlackWhite),
+                .tint(IconColor::BlackWhite),
             path_edit_icon: Icon::image(include_image!("../../assets/edit.svg"))
-                .tint(IconTint::BlackWhite),
+                .tint(IconColor::BlackWhite),
 
             open_directory_filter: None,
             file_filters: Vec::new(),

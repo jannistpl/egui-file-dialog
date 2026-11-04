@@ -230,7 +230,7 @@ mod modals;
 
 pub use config::{
     FileDialogConfig, FileDialogKeyBindings, FileDialogLabels, FileFilter, Filter, Icon,
-    IconFilter, IconTint, KeyBinding, OpeningMode, PinnedFolder, QuickAccess, QuickAccessPath,
+    IconFilter, IconColor, KeyBinding, OpeningMode, PinnedFolder, QuickAccess, QuickAccessPath,
     SaveExtension,
 };
 pub use data::{DirectoryEntry, Disk, Disks, Metadata, UserDirectories};

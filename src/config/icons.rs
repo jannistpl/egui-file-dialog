@@ -1,14 +1,16 @@
-/// The tint of an icon.
+/// The color of an icon.
+/// This determines the exact color for Unicode icons,
+/// while image-based icons are tinted with the specified color.
 #[derive(Debug, Clone)]
-pub enum IconTint {
-    /// The icon is not being tinted.
+pub enum IconColor {
+    /// The icon is not being colored.
     None,
 
-    /// The icon is tinted black or white based on the theme.
+    /// The icon is colored black or white based on the theme.
     /// Dark theme = white, light theme = black.
     BlackWhite,
 
-    /// Use a custom tint.
+    /// Use a custom color.
     Custom(egui::Color32),
 }
 
@@ -26,14 +28,14 @@ pub enum IconSource {
 #[derive(Debug, Clone)]
 pub struct Icon {
     source: IconSource,
-    tint: IconTint,
+    color: IconColor,
 }
 
 impl From<String> for Icon {
     fn from(value: String) -> Self {
         Self {
             source: IconSource::Unicode(value),
-            tint: IconTint::None,
+            color: IconColor::None,
         }
     }
 }
@@ -42,7 +44,7 @@ impl From<&str> for Icon {
     fn from(value: &str) -> Self {
         Self {
             source: IconSource::Unicode(value.to_owned()),
-            tint: IconTint::None,
+            color: IconColor::None,
         }
     }
 }
@@ -52,19 +54,19 @@ impl Icon {
     pub fn image(source: egui::ImageSource<'static>) -> Self {
         Self {
             source: IconSource::Image(source),
-            tint: IconTint::None,
+            color: IconColor::None,
         }
     }
 
     pub fn unicode(text: impl Into<String>) -> Self {
         Self {
             source: IconSource::Unicode(text.into()),
-            tint: IconTint::None,
+            color: IconColor::None,
         }
     }
 
-    pub fn tint(mut self, tint: IconTint) -> Self {
-        self.tint = tint;
+    pub fn tint(mut self, tint: IconColor) -> Self {
+        self.color = tint;
         self
     }
 }
@@ -147,16 +149,16 @@ impl Icon {
     }
 
     fn get_color(&self, ui: &egui::Ui) -> Option<egui::Color32> {
-        match self.tint {
-            IconTint::None => None,
-            IconTint::BlackWhite => {
+        match self.color {
+            IconColor::None => None,
+            IconColor::BlackWhite => {
                 if ui.style().visuals.dark_mode {
                     Some(egui::Color32::WHITE)
                 } else {
                     Some(egui::Color32::BLACK)
                 }
             }
-            IconTint::Custom(tint) => Some(tint),
+            IconColor::Custom(tint) => Some(tint),
         }
     }
 
