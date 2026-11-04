@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::fmt::Debug;
-use std::ops::Mul;
+use std::ops::{Mul, Sub};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -708,8 +708,8 @@ impl FileDialog {
     }
 
     /// Sets the icon used for the top panel menu button.
-    pub fn menu_icon(mut self, icon: &str) -> Self {
-        self.config.menu_icon = icon.to_string();
+    pub fn menu_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.menu_icon = icon.into();
         self
     }
 
@@ -1762,10 +1762,11 @@ impl FileDialog {
             ui.horizontal(|ui| {
                 // TODO: min_size is not correct, we should set the exact size of the button.
                 //   The build-in menu buttons seem to be a bit limit regarding custom sizes.
-                let btn = egui::Button::new(&self.config.menu_icon).min_size(button_size);
+                let icon = self.config.menu_icon.clone();
+                let btn = icon.into_button(ui).min_size(button_size);
 
                 if is_in_menu(ui) {
-                    SubMenuButton::new(&self.config.menu_icon).ui(ui, |ui| {
+                    SubMenuButton::from_button(btn).ui(ui, |ui| {
                         self.ui_update_hamburger_menu_content(ui);
                     });
                 } else {

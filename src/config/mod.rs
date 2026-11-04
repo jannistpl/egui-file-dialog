@@ -47,7 +47,7 @@ pub enum OpeningMode {
     LastPickedDir,
 }
 
-/// The tint of a icon.
+/// The tint of an icon.
 #[derive(Debug, Clone)]
 pub enum IconTint {
     /// The icon is not being tinted.
@@ -293,7 +293,7 @@ pub struct FileDialogConfig {
     /// The icon used for the create new folder button.
     pub new_folder_icon: Icon,
     /// The icon used for the top panel menu button.
-    pub menu_icon: String,
+    pub menu_icon: Icon,
     /// The icon used for the search input in the top panel.
     pub search_icon: String,
     /// The icon used for the path edit input in the top panel.
@@ -445,7 +445,8 @@ impl FileDialogConfig {
                 .tint(IconTint::BlackWhite),
             new_folder_icon: Icon::image(include_image!("../../assets/new_folder.svg"))
                 .tint(IconTint::BlackWhite),
-            menu_icon: String::from("☰"),
+            menu_icon: Icon::image(include_image!("../../assets/menu.svg"))
+                .tint(IconTint::BlackWhite),
             search_icon: String::from("🔍"),
             path_edit_icon: String::from("🖊"),
 
