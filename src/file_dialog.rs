@@ -670,8 +670,8 @@ impl FileDialog {
     }
 
     /// Sets the icon that is used to display warnings.
-    pub fn warn_icon(mut self, icon: &str) -> Self {
-        self.config.warn_icon = icon.to_string();
+    pub fn warn_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.warn_icon = icon.into();
         self
     }
 

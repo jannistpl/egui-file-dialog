@@ -44,13 +44,9 @@ impl FileDialogModal for OverwriteFileModal {
         const BUTTON_SIZE: egui::Vec2 = egui::Vec2::new(90.0, 20.0);
 
         ui.vertical_centered(|ui| {
-            let warn_icon = egui::RichText::new(&config.warn_icon)
-                .color(ui.visuals().warn_fg_color)
-                .heading();
-
             ui.add_space(SECTION_SPACING);
 
-            ui.label(warn_icon);
+            config.warn_icon.show(ui);
 
             ui.add_space(SECTION_SPACING);
 

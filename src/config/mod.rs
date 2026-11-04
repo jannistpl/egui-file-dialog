@@ -158,7 +158,7 @@ pub struct FileDialogConfig {
     /// The icon that is used to display error messages.
     pub err_icon: Icon,
     /// The icon that is used to display warning messages.
-    pub warn_icon: String,
+    pub warn_icon: Icon,
     /// The icon used for the open button.
     pub open_icon: Icon,
     /// The icon used for the save button.
@@ -320,7 +320,8 @@ impl FileDialogConfig {
                 .color(IconColor::BlackWhite),
             err_icon: Icon::image(include_image!("../../assets/warning.svg"))
                 .color(IconColor::Custom(egui::Color32::RED)),
-            warn_icon: String::from("⚠"),
+            warn_icon: Icon::image(include_image!("../../assets/warning.svg"))
+                .color(IconColor::Custom(egui::Color32::YELLOW)),
             open_icon: Icon::image(include_image!("../../assets/open.svg")),
             save_icon: Icon::image(include_image!("../../assets/save.svg")),
             cancel_icon: Icon::image(include_image!("../../assets/cancel.svg")),
