@@ -653,9 +653,21 @@ impl FileDialog {
         self
     }
 
+    /// Sets the icon used for checkmarks.
+    pub fn check_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.check_icon = icon.into();
+        self
+    }
+
     /// Sets the icon that is used to display errors.
     pub fn err_icon(mut self, icon: &str) -> Self {
         self.config.err_icon = icon.to_string();
+        self
+    }
+
+    /// Sets the icon that is used to display warnings.
+    pub fn warn_icon(mut self, icon: &str) -> Self {
+        self.config.warn_icon = icon.to_string();
         self
     }
 
@@ -710,6 +722,24 @@ impl FileDialog {
     /// Sets the icon used for the top panel menu button.
     pub fn menu_icon(mut self, icon: impl Into<Icon>) -> Self {
         self.config.menu_icon = icon.into();
+        self
+    }
+
+    /// Sets the icon used for the reload button in inside the menu.
+    pub fn reload_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.reload_icon = icon.into();
+        self
+    }
+
+    /// Sets the icon used for the working directory button in inside the menu.
+    pub fn working_dir_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.working_dir_icon = icon.into();
+        self
+    }
+
+    /// Sets the icon used for the select all button in inside the menu.
+    pub fn select_all_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.select_all_icon = icon.into();
         self
     }
 
