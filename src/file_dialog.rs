@@ -754,8 +754,8 @@ impl FileDialog {
     }
 
     /// Sets the icon used for the top panel search button.
-    pub fn search_icon(mut self, icon: &str) -> Self {
-        self.config.search_icon = icon.to_string();
+    pub fn search_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.search_icon = icon.into();
         self
     }
 
@@ -1943,7 +1943,7 @@ impl FileDialog {
                 ui.add_space((button_height - text_height) / 2.0);
             }
 
-            ui.label(&self.config.search_icon);
+            self.config.search_icon.show(ui);
         });
 
         // Calculate the required margin to fill the entire height with the text edit

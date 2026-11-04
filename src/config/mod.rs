@@ -163,7 +163,7 @@ pub struct FileDialogConfig {
     /// The icon used for the select all button inside the menu.
     pub select_all_icon: Icon,
     /// The icon used for the search input in the top panel.
-    pub search_icon: String,
+    pub search_icon: Icon,
     /// The icon used for the path edit input in the top panel.
     pub path_edit_icon: Icon,
 
@@ -324,7 +324,8 @@ impl FileDialogConfig {
                 .tint(IconTint::BlackWhite),
             select_all_icon: Icon::image(include_image!("../../assets/select_all.svg"))
                 .tint(IconTint::BlackWhite),
-            search_icon: String::from("🔍"),
+            search_icon: Icon::image(include_image!("../../assets/search.svg"))
+                .tint(IconTint::BlackWhite),
             path_edit_icon: Icon::image(include_image!("../../assets/edit.svg"))
                 .tint(IconTint::BlackWhite),
 

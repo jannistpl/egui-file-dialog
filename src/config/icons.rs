@@ -71,6 +71,22 @@ impl Icon {
 
 /// Crate only methods
 impl Icon {
+    pub(crate) fn show(&self, ui: &mut egui::Ui) -> egui::Response {
+        match &self.source {
+            IconSource::Image(source) => {
+                let img = self.build_image(ui, source.clone());
+                ui.add(img)
+            }
+            IconSource::Unicode(text) => {
+                if let Some(color) = self.get_color(ui) {
+                    ui.colored_label(color, text)
+                } else {
+                    ui.label(text)
+                }
+            }
+        }
+    }
+
     pub(crate) fn into_button<'a>(&'a self, ui: &egui::Ui) -> egui::Button<'a> {
         match &self.source {
             IconSource::Image(source) => {
