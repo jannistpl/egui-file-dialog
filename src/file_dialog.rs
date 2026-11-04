@@ -18,6 +18,10 @@ use crate::data::{
 use crate::modals::{FileDialogModal, ModalAction, ModalState, OverwriteFileModal};
 use crate::{FileSystem, NativeFileSystem};
 
+// TODO: Remove when no longer used
+#[deprecated(note = "TODO: Implement this before merging the branch!")]
+fn merge_reminder() {}
+
 /// Represents the mode the file dialog is currently in.
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum DialogMode {
@@ -680,6 +684,12 @@ impl FileDialog {
     /// Sets the default icon that is used to display folders.
     pub fn default_folder_icon(mut self, icon: &str) -> Self {
         self.config.default_folder_icon = icon.to_string();
+        self
+    }
+
+    /// Sets the icon used to display pinned paths.
+    pub fn pinned_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.pinned_icon = icon.into();
         self
     }
 
@@ -1694,18 +1704,18 @@ impl FileDialog {
                         for (i, segment) in data.iter().enumerate() {
                             path.push(segment);
 
-                            let mut segment_str = segment.to_str().unwrap_or_default().to_string();
-
-                            if self.is_pinned(&path) {
-                                segment_str =
-                                    format!("{} {}", self.config.pinned_icon, segment_str);
-                            }
+                            let segment_str = segment.to_str().unwrap_or_default().to_string();
 
                             if i != 0 {
                                 ui.label(self.config.directory_separator.as_str());
                             }
 
-                            let btn = egui::Button::new(segment_str);
+                            let btn = if self.is_pinned(&path) {
+                                self.config.pinned_icon.into_button_with_text(ui, segment_str)
+                            } else {
+                                egui::Button::new(segment_str)
+                            };
+
                             let re = ui.add_sized(egui::Vec2::new(0.0, button_height), btn);
 
                             if re.clicked() {
@@ -2095,13 +2105,16 @@ impl FileDialog {
                 continue;
             }
 
-            let response = self.ui_update_left_panel_entry(
-                ui,
-                &format!("{}  {}", self.config.pinned_icon, pinned.label),
-                pinned.path.as_path(),
-            );
+            merge_reminder();
 
-            self.ui_update_pinned_folder_context_menu(&response, pinned);
+            // TODO: Implement icons
+            // let response = self.ui_update_left_panel_entry(
+            //     ui,
+            //     &format!("{}  {}", self.config.pinned_icon, pinned.label),
+            //     pinned.path.as_path(),
+            // );
+
+            // self.ui_update_pinned_folder_context_menu(&response, pinned);
         }
 
         visible
@@ -2722,11 +2735,15 @@ impl FileDialog {
         let primary_selected = self.is_primary_selected(item);
         let pinned = self.is_pinned(item.as_path());
 
-        let icons = if pinned {
-            format!("{} {}", item.icon(), self.config.pinned_icon)
-        } else {
-            format!("{}", item.icon())
-        };
+        merge_reminder();
+
+        // TODO: Implement pinned icon
+        // let icons = if pinned {
+        //     format!("{} {}", item.icon(), self.config.pinned_icon)
+        // } else {
+        //     format!("{}", item.icon())
+        // };
+        let icons = format!("{}", item.icon());
 
         let icons_width = Self::calc_text_width(ui, &icons);
 

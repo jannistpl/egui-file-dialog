@@ -123,15 +123,13 @@ impl Icon {
     pub(crate) fn into_button<'a>(&'a self, ui: &egui::Ui) -> egui::Button<'a> {
         match &self.source {
             IconSource::Image(source) => {
-                let img = self
-                    .build_image(ui, source.clone())
-                    .maintain_aspect_ratio(true);
-
+                let img = self.build_image(ui, source.clone());
                 egui::Button::image(img)
             }
             IconSource::Unicode(text) => {
                 let mut text = egui::RichText::new(text);
 
+                // TODO: Only color the icon, not the text
                 if let Some(color) = self.get_color(ui) {
                     text = text.color(color);
                 }
@@ -144,19 +142,19 @@ impl Icon {
     pub(crate) fn into_button_with_text<'a>(
         &'a self,
         ui: &egui::Ui,
-        text: &'a str,
+        text: impl AsRef<str>,
     ) -> egui::Button<'a> {
+        let text = text.as_ref();
+
         match &self.source {
             IconSource::Image(source) => {
-                let img = self
-                    .build_image(ui, source.clone())
-                    .maintain_aspect_ratio(true);
-
+                let img = self.build_image(ui, source.clone());
                 egui::Button::image_and_text(img, text)
             }
             IconSource::Unicode(icon) => {
                 let mut text = egui::RichText::new(format!("{icon}  {text}"));
 
+                // TODO: Only color the icon, not the text
                 if let Some(color) = self.get_color(ui) {
                     text = text.color(color);
                 }
@@ -181,10 +179,6 @@ impl Icon {
         ui.add_sized(size, button)
     }
 
-    fn is_image(&self) -> bool {
-        matches!(self.source, IconSource::Image(_))
-    }
-
     fn get_color(&self, ui: &egui::Ui) -> Option<egui::Color32> {
         match self.tint {
             IconTint::None => None,
@@ -204,7 +198,12 @@ impl Icon {
         ui: &egui::Ui,
         source: egui::ImageSource<'static>,
     ) -> egui::Image<'static> {
-        let mut img = egui::Image::new(source).maintain_aspect_ratio(true);
+        let height = ui.text_style_height(&egui::TextStyle::Body);
+        let size = egui::Vec2::new(height, height);
+
+        let mut img = egui::Image::new(source)
+            .maintain_aspect_ratio(true)
+            .fit_to_exact_size(size);
 
         if let Some(tint) = self.get_color(ui) {
             img = img.tint(tint);
@@ -307,7 +306,7 @@ pub struct FileDialogConfig {
     /// The default icon used to display folders.
     pub default_folder_icon: String,
     /// The icon used to display pinned paths in the left panel.
-    pub pinned_icon: String,
+    pub pinned_icon: Icon,
     /// The icon used to display devices in the left panel.
     pub device_icon: String,
     /// The icon used to display removable devices in the left panel.
@@ -470,7 +469,8 @@ impl FileDialogConfig {
             warn_icon: String::from("⚠"),
             default_file_icon: String::from("🗋"),
             default_folder_icon: String::from("🗀"),
-            pinned_icon: String::from("📌"),
+            pinned_icon: Icon::image(include_image!("../../assets/pin.svg"))
+                .tint(IconTint::BlackWhite),
             device_icon: String::from("🖴"),
             removable_device_icon: String::from("💾"),
             parent_directory_icon: Icon::image(include_image!("../../assets/arrow_top.svg"))
