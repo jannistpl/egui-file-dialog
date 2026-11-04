@@ -47,13 +47,13 @@ pub enum OpeningMode {
     LastPickedDir,
 }
 
-/// The tint of an image.
+/// The tint of a icon.
 #[derive(Debug, Clone)]
 pub enum IconTint {
-    /// The image is not being tinted.
+    /// The icon is not being tinted.
     None,
 
-    /// The image is tinted black or white based on the theme.
+    /// The icon is tinted black or white based on the theme.
     /// Dark theme = white, light theme = black.
     BlackWhite,
 
@@ -120,18 +120,14 @@ impl Icon {
 
 /// Crate only methods
 impl Icon {
-    pub(crate) fn show_as_button(&self, ui: &mut egui::Ui, size: egui::Vec2) -> egui::Response {
+    pub(crate) fn show_as_button_sized(&self, ui: &mut egui::Ui, size: egui::Vec2) -> egui::Response {
         let button = match &self.source {
             IconSource::Image(source) => {
                 ui.spacing_mut().button_padding = egui::Vec2::new(0.0, 0.0);
 
-                let mut img = egui::Image::new(source.clone())
-                    .fit_to_fraction(egui::vec2(1.0, 1.0))
+                let img = self
+                    .build_image(ui, source.clone())
                     .maintain_aspect_ratio(true);
-
-                if let Some(tint) = self.get_color(ui) {
-                    img = img.tint(tint);
-                }
 
                 egui::Button::image(img)
             }
@@ -161,6 +157,20 @@ impl Icon {
             }
             IconTint::Custom(tint) => Some(tint),
         }
+    }
+
+    fn build_image(
+        &self,
+        ui: &egui::Ui,
+        source: egui::ImageSource<'static>,
+    ) -> egui::Image<'static> {
+        let mut img = egui::Image::new(source).maintain_aspect_ratio(true);
+
+        if let Some(tint) = self.get_color(ui) {
+            img = img.tint(tint);
+        }
+
+        img
     }
 }
 

@@ -2866,7 +2866,7 @@ impl FileDialog {
         let mut clicked = false;
 
         ui.add_enabled_ui(enabled, |ui| {
-            let response = icon.into().show_as_button(ui, size);
+            let response = icon.into().show_as_button_sized(ui, size);
             clicked = response.clicked();
 
             if let Some(err) = err_tooltip {
