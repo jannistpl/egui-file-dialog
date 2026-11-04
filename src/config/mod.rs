@@ -71,15 +71,15 @@ impl From<&str> for Icon {
 
 impl Icon {
     pub(crate) fn show(&self, ui: &mut egui::Ui, size: egui::Vec2) -> egui::Response {
+        ui.spacing_mut().button_padding = egui::Vec2::new(0.0, 0.0);
         let button = match self {
             Self::Image(source) => {
-                let tint = if ui.style().visuals.dark_mode {
-                    egui::Color32::WHITE
-                } else {
-                    egui::Color32::BLACK
-                };
+                let tint = calc_image_color(ui);
 
-                let image = egui::Image::new(source.clone()).max_size(size).tint(tint);
+                let image = egui::Image::new(source.clone())
+                    .tint(tint)
+                    .fit_to_fraction(egui::vec2(1.0, 1.0))
+                    .maintain_aspect_ratio(true);
 
                 egui::Button::image(image)
             }
@@ -97,13 +97,12 @@ impl Icon {
     ) -> egui::Response {
         let button = match self {
             Self::Image(source) => {
-                let tint = if ui.style().visuals.dark_mode {
-                    egui::Color32::WHITE
-                } else {
-                    egui::Color32::BLACK
-                };
+                let tint = calc_image_color(ui);
 
-                let image = egui::Image::new(source.clone()).max_size(size).tint(tint);
+                let image = egui::Image::new(source.clone())
+                    .tint(tint)
+                    .fit_to_fraction(egui::vec2(1.0, 1.0))
+                    .maintain_aspect_ratio(true);
 
                 egui::Button::image_and_text(image, text.into())
             }
@@ -111,6 +110,14 @@ impl Icon {
         };
 
         ui.add_sized(size, button)
+    }
+}
+
+fn calc_image_color(ui: &egui::Ui) -> egui::Color32 {
+    if ui.style().visuals.dark_mode {
+        egui::Color32::WHITE
+    } else {
+        egui::Color32::BLACK
     }
 }
 
@@ -217,7 +224,7 @@ pub struct FileDialogConfig {
     /// The icon used for the forward navigation button.
     pub forward_icon: Icon,
     /// The icon used for the create new folder button.
-    pub new_folder_icon: String,
+    pub new_folder_icon: Icon,
     /// The icon used for the top panel menu button.
     pub menu_icon: String,
     /// The icon used for the search input in the top panel.
@@ -366,7 +373,7 @@ impl FileDialogConfig {
             parent_directory_icon: Icon::Image(include_image!("../../assets/arrow_top.svg")),
             back_icon: Icon::Image(include_image!("../../assets/arrow_left.svg")),
             forward_icon: Icon::Image(include_image!("../../assets/arrow_right.svg")),
-            new_folder_icon: String::from("+"),
+            new_folder_icon: Icon::Image(include_image!("../../assets/new_folder.svg")),
             menu_icon: String::from("☰"),
             search_icon: String::from("🔍"),
             path_edit_icon: String::from("🖊"),

@@ -702,8 +702,8 @@ impl FileDialog {
     }
 
     /// Sets the icon used for the create new folder button.
-    pub fn new_folder_icon(mut self, icon: &str) -> Self {
-        self.config.new_folder_icon = icon.to_string();
+    pub fn new_folder_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.new_folder_icon = icon.into();
         self
     }
 
