@@ -1711,7 +1711,9 @@ impl FileDialog {
                             }
 
                             let btn = if self.is_pinned(&path) {
-                                self.config.pinned_icon.into_button_with_text(ui, segment_str)
+                                self.config
+                                    .pinned_icon
+                                    .into_button_with_text(ui, segment_str)
                             } else {
                                 egui::Button::new(segment_str)
                             };
