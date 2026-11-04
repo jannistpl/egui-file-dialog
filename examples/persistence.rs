@@ -10,6 +10,8 @@ struct MyApp {
 
 impl MyApp {
     pub fn new(cc: &eframe::CreationContext) -> Self {
+        egui_extras::install_image_loaders(&cc.egui_ctx);
+
         let mut file_dialog = FileDialog::default();
 
         // Load the persistent data of the file dialog.

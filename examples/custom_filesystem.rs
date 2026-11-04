@@ -10,7 +10,9 @@ struct MyApp {
 }
 
 impl MyApp {
-    pub fn new(_cc: &eframe::CreationContext) -> Self {
+    pub fn new(cc: &eframe::CreationContext) -> Self {
+        egui_extras::install_image_loaders(&cc.egui_ctx);
+
         let root = vec![
             ("im_a_file.txt".to_string(), Node::File),
             (

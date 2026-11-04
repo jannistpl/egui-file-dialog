@@ -9,7 +9,9 @@ struct MyApp {
 }
 
 impl MyApp {
-    pub fn new(_cc: &eframe::CreationContext) -> Self {
+    pub fn new(cc: &eframe::CreationContext) -> Self {
+        egui_extras::install_image_loaders(&cc.egui_ctx);
+
         Self {
             file_dialog: FileDialog::new(),
             picked_items: None,
