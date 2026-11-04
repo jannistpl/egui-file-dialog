@@ -136,6 +136,12 @@ pub struct FileDialogConfig {
     pub err_icon: String,
     /// The icon that is used to display warning messages.
     pub warn_icon: String,
+    /// The icon used for the open button.
+    pub open_icon: Icon,
+    /// The icon used for the save button.
+    pub save_icon: Icon,
+    /// The icon used for the cancel button.
+    pub cancel_icon: Icon,
     /// The default icon used to display files.
     pub default_file_icon: String,
     /// The default icon used to display folders.
@@ -302,6 +308,9 @@ impl FileDialogConfig {
                 .tint(IconColor::BlackWhite),
             err_icon: String::from("⚠"),
             warn_icon: String::from("⚠"),
+            open_icon: Icon::image(include_image!("../../assets/open.svg")),
+            save_icon: Icon::image(include_image!("../../assets/save.svg")),
+            cancel_icon: Icon::image(include_image!("../../assets/cancel.svg")),
             default_file_icon: String::from("🗋"),
             default_folder_icon: String::from("🗀"),
             pinned_icon: Icon::image(include_image!("../../assets/pin.svg"))

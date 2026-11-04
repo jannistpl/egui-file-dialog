@@ -229,9 +229,8 @@ pub mod information_panel;
 mod modals;
 
 pub use config::{
-    FileDialogConfig, FileDialogKeyBindings, FileDialogLabels, FileFilter, Filter, Icon,
-    IconFilter, IconColor, KeyBinding, OpeningMode, PinnedFolder, QuickAccess, QuickAccessPath,
-    SaveExtension,
+    FileDialogConfig, FileDialogKeyBindings, FileDialogLabels, FileFilter, Filter, Icon, IconColor,
+    IconFilter, KeyBinding, OpeningMode, PinnedFolder, QuickAccess, QuickAccessPath, SaveExtension,
 };
 pub use data::{DirectoryEntry, Disk, Disks, Metadata, UserDirectories};
 pub use file_dialog::{DialogMode, DialogState, FileDialog, FileDialogStorage};

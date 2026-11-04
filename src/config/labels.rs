@@ -166,9 +166,9 @@ impl Default for FileDialogLabels {
             file_filter_all_files: "All Files".to_string(),
             save_extension_any: "Any".to_string(),
 
-            open_button: "🗀  Open".to_string(),
-            save_button: "📥  Save".to_string(),
-            cancel_button: "🚫 Cancel".to_string(),
+            open_button: "Open".to_string(),
+            save_button: "Save".to_string(),
+            cancel_button: "Cancel".to_string(),
 
             overwrite_file_modal_text: "already exists. Do you want to overwrite it?".to_string(),
 

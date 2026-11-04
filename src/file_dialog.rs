@@ -675,6 +675,24 @@ impl FileDialog {
         self
     }
 
+    /// Sets the icon that is used for the open button.
+    pub fn open_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.open_icon = icon.into();
+        self
+    }
+
+    /// Sets the icon that is used for the save icon.
+    pub fn save_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.save_icon = icon.into();
+        self
+    }
+
+    /// Sets the icon that is used for the cancel icon.
+    pub fn cancel_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.cancel_icon = icon.into();
+        self
+    }
+
     /// Sets the default icon that is used to display files.
     pub fn default_file_icon(mut self, icon: &str) -> Self {
         self.config.default_file_icon = icon.to_string();
@@ -2281,7 +2299,8 @@ impl FileDialog {
 
     /// Updates the bottom panel showing the selected item and main action buttons.
     fn ui_update_bottom_panel(&mut self, ui: &mut egui::Ui) {
-        const BUTTON_HEIGHT: f32 = 20.0;
+        const BUTTON_HEIGHT: f32 = 22.5;
+
         ui.add_space(5.0);
 
         // Calculate the width of the action buttons
@@ -2293,11 +2312,16 @@ impl FileDialog {
         };
 
         let mut btn_width = Self::calc_text_width(ui, &self.config.labels.cancel_button);
+
         if label_submit_width > btn_width {
             btn_width = label_submit_width;
         }
 
         btn_width = ui.spacing().button_padding.x.mul_add(4.0, btn_width);
+
+        // Add width of the icon
+        btn_width +=
+            ui.text_style_height(&egui::TextStyle::Button) + ui.spacing().button_padding.x * 2.0;
 
         // The size of the action buttons "cancel" and "open"/"save"
         let button_size: egui::Vec2 = egui::Vec2::new(btn_width, BUTTON_HEIGHT);
@@ -2530,11 +2554,15 @@ impl FileDialog {
     /// Updates the action buttons like save, open and cancel
     fn ui_update_action_buttons(&mut self, ui: &mut egui::Ui, button_size: egui::Vec2) {
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Min), |ui| {
-            let label = match &self.mode {
-                DialogMode::PickDirectory | DialogMode::PickFile | DialogMode::PickMultiple => {
-                    self.config.labels.open_button.as_str()
-                }
-                DialogMode::SaveFile => self.config.labels.save_button.as_str(),
+            let btn = match &self.mode {
+                DialogMode::PickDirectory | DialogMode::PickFile | DialogMode::PickMultiple => self
+                    .config
+                    .open_icon
+                    .into_button_with_text(ui, &self.config.labels.open_button),
+                DialogMode::SaveFile => self
+                    .config
+                    .save_icon
+                    .into_button_with_text(ui, &self.config.labels.save_button),
             };
 
             ui.spacing_mut().item_spacing.x = ui.spacing_mut().item_spacing.y;
@@ -2543,19 +2571,18 @@ impl FileDialog {
                 ui,
                 self.is_selection_valid(),
                 button_size,
-                label,
+                btn,
                 self.file_name_input_error.as_deref(),
             ) {
                 self.submit();
             }
 
-            if ui
-                .add_sized(
-                    button_size,
-                    egui::Button::new(self.config.labels.cancel_button.as_str()),
-                )
-                .clicked()
-            {
+            let btn = self
+                .config
+                .cancel_icon
+                .into_button_with_text(ui, &self.config.labels.cancel_button);
+
+            if ui.add_sized(button_size, btn).clicked() {
                 self.cancel();
             }
         });
@@ -2973,13 +3000,13 @@ impl FileDialog {
         ui: &mut egui::Ui,
         enabled: bool,
         size: egui::Vec2,
-        label: &str,
+        btn: egui::Button,
         err_tooltip: Option<&str>,
     ) -> bool {
         let mut clicked = false;
 
         ui.add_enabled_ui(enabled, |ui| {
-            let response = ui.add_sized(size, egui::Button::new(label));
+            let response = ui.add_sized(size, btn);
             clicked = response.clicked();
 
             if let Some(err) = err_tooltip {
