@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::fmt::Debug;
-use std::ops::{Mul, Sub};
+use std::ops::Mul;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -720,8 +720,8 @@ impl FileDialog {
     }
 
     /// Sets the icon used for the top panel path edit button.
-    pub fn path_edit_icon(mut self, icon: &str) -> Self {
-        self.config.path_edit_icon = icon.to_string();
+    pub fn path_edit_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.path_edit_icon = icon.into();
         self
     }
 
@@ -1693,11 +1693,16 @@ impl FileDialog {
             return;
         }
 
-        let button = egui::Button::new(&self.config.path_edit_icon)
+        ui.spacing_mut().button_padding = egui::Vec2::ZERO;
+
+        let btn = self
+            .config
+            .path_edit_icon
+            .into_button(ui)
             .fill(egui::Color32::TRANSPARENT)
             .wrap();
 
-        if ui.add_sized(edit_button_size, button).clicked() {
+        if ui.add_sized(edit_button_size, btn).clicked() {
             self.open_path_edit();
         }
     }
@@ -1734,7 +1739,10 @@ impl FileDialog {
             self.path_edit_request_focus = false;
         }
 
-        let btn = egui::Button::new("✔").wrap();
+        ui.spacing_mut().button_padding = egui::Vec2::ZERO;
+
+        let btn = self.config.check_icon.into_button(ui).wrap();
+
         let btn_response = ui.add_sized(edit_button_size, btn);
 
         if btn_response.clicked() {

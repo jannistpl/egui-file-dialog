@@ -146,12 +146,8 @@ impl Icon {
         ui: &mut egui::Ui,
         size: egui::Vec2,
     ) -> egui::Response {
+        ui.spacing_mut().button_padding = egui::Vec2::ZERO;
         let button = self.into_button(ui);
-
-        if self.is_image() {
-            ui.spacing_mut().button_padding = egui::Vec2::new(0.0, 0.0);
-        }
-
         ui.add_sized(size, button)
     }
 
@@ -270,6 +266,8 @@ pub struct FileDialogConfig {
     /// `None` means no limit. Only relevant when `DialogMode::PickMultiple` is used.
     pub max_selections: Option<usize>,
 
+    /// The icon used for a checkmark.
+    pub check_icon: Icon,
     /// The icon that is used to display error messages.
     pub err_icon: String,
     /// The icon that is used to display warning messages.
@@ -297,7 +295,7 @@ pub struct FileDialogConfig {
     /// The icon used for the search input in the top panel.
     pub search_icon: String,
     /// The icon used for the path edit input in the top panel.
-    pub path_edit_icon: String,
+    pub path_edit_icon: Icon,
 
     /// Optional predicate called when the user activates a directory entry
     /// (single-click submit via the Open button or double-click).
@@ -430,6 +428,8 @@ impl FileDialogConfig {
 
             max_selections: None,
 
+            check_icon: Icon::image(include_image!("../../assets/check.svg"))
+                .tint(IconTint::BlackWhite),
             err_icon: String::from("⚠"),
             warn_icon: String::from("⚠"),
             default_file_icon: String::from("🗋"),
@@ -448,7 +448,8 @@ impl FileDialogConfig {
             menu_icon: Icon::image(include_image!("../../assets/menu.svg"))
                 .tint(IconTint::BlackWhite),
             search_icon: String::from("🔍"),
-            path_edit_icon: String::from("🖊"),
+            path_edit_icon: Icon::image(include_image!("../../assets/edit.svg"))
+                .tint(IconTint::BlackWhite),
 
             open_directory_filter: None,
             file_filters: Vec::new(),
