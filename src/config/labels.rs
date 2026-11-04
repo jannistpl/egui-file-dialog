@@ -128,10 +128,10 @@ impl Default for FileDialogLabels {
     /// Creates a new object with the default english labels.
     fn default() -> Self {
         Self {
-            title_select_directory: "📁 Select Folder".to_string(),
-            title_select_file: "📂 Open File".to_string(),
-            title_select_multiple: "🗐 Select Multiple".to_string(),
-            title_save_file: "📥 Save File".to_string(),
+            title_select_directory: "Select Folder".to_string(),
+            title_select_file: "Open File".to_string(),
+            title_select_multiple: "Select Multiple".to_string(),
+            title_save_file: "Save File".to_string(),
 
             cancel: "Cancel".to_string(),
             overwrite: "Overwrite".to_string(),
