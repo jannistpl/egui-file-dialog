@@ -120,11 +120,9 @@ impl Icon {
 
 /// Crate only methods
 impl Icon {
-    pub(crate) fn show_as_button_sized(&self, ui: &mut egui::Ui, size: egui::Vec2) -> egui::Response {
-        let button = match &self.source {
+    pub(crate) fn into_button<'a>(&'a self, ui: &egui::Ui) -> egui::Button<'a> {
+        match &self.source {
             IconSource::Image(source) => {
-                ui.spacing_mut().button_padding = egui::Vec2::new(0.0, 0.0);
-
                 let img = self
                     .build_image(ui, source.clone())
                     .maintain_aspect_ratio(true);
@@ -140,9 +138,25 @@ impl Icon {
 
                 egui::Button::new(text)
             }
-        };
+        }
+    }
+
+    pub(crate) fn show_as_button_sized(
+        &self,
+        ui: &mut egui::Ui,
+        size: egui::Vec2,
+    ) -> egui::Response {
+        let button = self.into_button(ui);
+
+        if self.is_image() {
+            ui.spacing_mut().button_padding = egui::Vec2::new(0.0, 0.0);
+        }
 
         ui.add_sized(size, button)
+    }
+
+    fn is_image(&self) -> bool {
+        matches!(self.source, IconSource::Image(_))
     }
 
     fn get_color(&self, ui: &egui::Ui) -> Option<egui::Color32> {
