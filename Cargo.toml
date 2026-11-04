@@ -14,7 +14,6 @@ exclude = ["media/", "!media/readme/", ".github/"]
 
 [dependencies]
 egui = { version = "0.37.0", default-features = false }
-egui_extras = { version = "0.37.0", default-features = false, features = [ "svg" ]}
 
 # fetch user folders
 directories = "6.0"
@@ -40,7 +39,7 @@ eframe = { version = "0.37.0", default-features = false, features = [
     "system_fonts",
 ] }
 egui-file-dialog = { path = "." , features = ["information_view"] }
-egui_extras = { version = "0.37", features = ["all_loaders"] }
+egui_extras = { version = "0.37", features = ["all_loaders", "svg"] }
 # required by the egui loaders
 image = { version = "0.25.5", features = ["bmp", "jpeg", "gif", "png", "tiff", "rayon"] }
 tempdir = "0.3"
