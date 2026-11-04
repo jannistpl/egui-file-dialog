@@ -51,6 +51,7 @@ impl From<&str> for Icon {
 
 /// Public methods
 impl Icon {
+    /// Creates an icon from an image source.
     pub fn image(source: egui::ImageSource<'static>) -> Self {
         Self {
             source: IconSource::Image(source),
@@ -58,6 +59,7 @@ impl Icon {
         }
     }
 
+    /// Creates an icon from an unicode string.
     pub fn unicode(text: impl Into<String>) -> Self {
         Self {
             source: IconSource::Unicode(text.into()),
@@ -65,8 +67,9 @@ impl Icon {
         }
     }
 
-    pub fn tint(mut self, tint: IconColor) -> Self {
-        self.color = tint;
+    /// Sets the color of the icon.
+    pub fn color(mut self, color: IconColor) -> Self {
+        self.color = color;
         self
     }
 }

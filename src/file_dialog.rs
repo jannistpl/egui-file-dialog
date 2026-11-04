@@ -706,8 +706,14 @@ impl FileDialog {
     }
 
     /// Sets the icon used to display pinned paths.
-    pub fn pinned_icon(mut self, icon: impl Into<Icon>) -> Self {
-        self.config.pinned_icon = icon.into();
+    pub fn pin_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.pin_icon = icon.into();
+        self
+    }
+
+    /// Sets the icon used to unpin entries from the left panel.
+    pub fn unpin_icon(mut self, icon: impl Into<Icon>) -> Self {
+        self.config.unpin_icon = icon.into();
         self
     }
 
@@ -1729,9 +1735,7 @@ impl FileDialog {
                             }
 
                             let btn = if self.is_pinned(&path) {
-                                self.config
-                                    .pinned_icon
-                                    .into_button_with_text(ui, segment_str)
+                                self.config.pin_icon.into_button_with_text(ui, segment_str)
                             } else {
                                 egui::Button::new(segment_str)
                             };
@@ -3044,13 +3048,25 @@ impl FileDialog {
             let pinned = self.is_pinned(path);
 
             if pinned {
-                if ui.button(&self.config.labels.unpin_folder).clicked() {
+                let re = self
+                    .config
+                    .unpin_icon
+                    .show_as_button_with_text(ui, &self.config.labels.unpin_folder);
+
+                if re.clicked() {
                     self.unpin_path(path);
                     ui.close();
                 }
-            } else if ui.button(&self.config.labels.pin_folder).clicked() {
-                self.pin_path(path.to_path_buf());
-                ui.close();
+            } else {
+                let re = self
+                    .config
+                    .pin_icon
+                    .show_as_button_with_text(ui, &self.config.labels.pin_folder);
+
+                if re.clicked() {
+                    self.pin_path(path.to_path_buf());
+                    ui.close();
+                }
             }
         });
     }

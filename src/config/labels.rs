@@ -155,9 +155,9 @@ impl Default for FileDialogLabels {
             pictures_dir: "🖼  Pictures".to_string(),
             videos_dir: "🎞  Videos".to_string(),
 
-            pin_folder: "📌 Pin".to_string(),
-            unpin_folder: "✖ Unpin".to_string(),
-            rename_pinned_folder: "✏ Rename".to_string(),
+            pin_folder: "Pin".to_string(),
+            unpin_folder: "Unpin".to_string(),
+            rename_pinned_folder: "Rename".to_string(),
 
             selected_directory: "Selected directory:".to_string(),
             selected_file: "Selected file:".to_string(),

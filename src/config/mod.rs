@@ -147,7 +147,9 @@ pub struct FileDialogConfig {
     /// The default icon used to display folders.
     pub default_folder_icon: String,
     /// The icon used to display pinned paths in the left panel.
-    pub pinned_icon: Icon,
+    pub pin_icon: Icon,
+    /// The icon used to display the button to unpin an entry from the left panel.
+    pub unpin_icon: Icon,
     /// The icon used to display devices in the left panel.
     pub device_icon: String,
     /// The icon used to display removable devices in the left panel.
@@ -305,7 +307,7 @@ impl FileDialogConfig {
             max_selections: None,
 
             check_icon: Icon::image(include_image!("../../assets/check.svg"))
-                .tint(IconColor::BlackWhite),
+                .color(IconColor::BlackWhite),
             err_icon: String::from("⚠"),
             warn_icon: String::from("⚠"),
             open_icon: Icon::image(include_image!("../../assets/open.svg")),
@@ -313,30 +315,32 @@ impl FileDialogConfig {
             cancel_icon: Icon::image(include_image!("../../assets/cancel.svg")),
             default_file_icon: String::from("🗋"),
             default_folder_icon: String::from("🗀"),
-            pinned_icon: Icon::image(include_image!("../../assets/pin.svg"))
-                .tint(IconColor::BlackWhite),
+            pin_icon: Icon::image(include_image!("../../assets/pin.svg"))
+                .color(IconColor::BlackWhite),
+            unpin_icon: Icon::image(include_image!("../../assets/unpin.svg"))
+                .color(IconColor::BlackWhite),
             device_icon: String::from("🖴"),
             removable_device_icon: String::from("💾"),
             parent_directory_icon: Icon::image(include_image!("../../assets/arrow_top.svg"))
-                .tint(IconColor::BlackWhite),
+                .color(IconColor::BlackWhite),
             back_icon: Icon::image(include_image!("../../assets/arrow_left.svg"))
-                .tint(IconColor::BlackWhite),
+                .color(IconColor::BlackWhite),
             forward_icon: Icon::image(include_image!("../../assets/arrow_right.svg"))
-                .tint(IconColor::BlackWhite),
+                .color(IconColor::BlackWhite),
             new_folder_icon: Icon::image(include_image!("../../assets/new_folder.svg"))
-                .tint(IconColor::BlackWhite),
+                .color(IconColor::BlackWhite),
             menu_icon: Icon::image(include_image!("../../assets/menu.svg"))
-                .tint(IconColor::BlackWhite),
+                .color(IconColor::BlackWhite),
             reload_icon: Icon::image(include_image!("../../assets/reload.svg"))
-                .tint(IconColor::BlackWhite),
+                .color(IconColor::BlackWhite),
             working_dir_icon: Icon::image(include_image!("../../assets/working_dir.svg"))
-                .tint(IconColor::BlackWhite),
+                .color(IconColor::BlackWhite),
             select_all_icon: Icon::image(include_image!("../../assets/select_all.svg"))
-                .tint(IconColor::BlackWhite),
+                .color(IconColor::BlackWhite),
             search_icon: Icon::image(include_image!("../../assets/search.svg"))
-                .tint(IconColor::BlackWhite),
+                .color(IconColor::BlackWhite),
             path_edit_icon: Icon::image(include_image!("../../assets/edit.svg"))
-                .tint(IconColor::BlackWhite),
+                .color(IconColor::BlackWhite),
 
             open_directory_filter: None,
             file_filters: Vec::new(),
