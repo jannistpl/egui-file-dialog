@@ -130,6 +130,29 @@ pub struct FileDialogConfig {
     /// `None` means no limit. Only relevant when `DialogMode::PickMultiple` is used.
     pub max_selections: Option<usize>,
 
+    /// Optional predicate called when the user activates a directory entry
+    /// (single-click submit via the Open button or double-click).
+    /// Return `true` to navigate *into* the directory (default behaviour);
+    /// return `false` to submit the directory as the picked path instead.
+    pub open_directory_filter: Option<Filter<Path>>,
+    /// File filters presented to the user in a dropdown.
+    pub file_filters: Vec<FileFilter>,
+    /// Name of the file filter to be selected by default.
+    pub default_file_filter: Option<String>,
+    /// File extensions presented to the user in a dropdown when saving a file.
+    pub save_extensions: Vec<SaveExtension>,
+    /// Name of the file extension selected by default.
+    pub default_save_extension: Option<String>,
+    /// Sets custom icons for different files or folders.
+    /// Use `FileDialogConfig::set_file_icon` to add a new icon to this list.
+    pub file_icon_filters: Vec<IconFilter>,
+
+    /// Custom sections added to the left sidebar for quick access.
+    /// Use `FileDialogConfig::add_quick_access` to add a new section to this list.
+    pub quick_accesses: Vec<QuickAccess>,
+
+    // ------------------------------------------------------------------------
+    // Icons:
     /// The icon used for a checkmark.
     pub check_icon: Icon,
     /// The icon that is used to display error messages.
@@ -174,27 +197,6 @@ pub struct FileDialogConfig {
     pub search_icon: Icon,
     /// The icon used for the path edit input in the top panel.
     pub path_edit_icon: Icon,
-
-    /// Optional predicate called when the user activates a directory entry
-    /// (single-click submit via the Open button or double-click).
-    /// Return `true` to navigate *into* the directory (default behaviour);
-    /// return `false` to submit the directory as the picked path instead.
-    pub open_directory_filter: Option<Filter<Path>>,
-    /// File filters presented to the user in a dropdown.
-    pub file_filters: Vec<FileFilter>,
-    /// Name of the file filter to be selected by default.
-    pub default_file_filter: Option<String>,
-    /// File extensions presented to the user in a dropdown when saving a file.
-    pub save_extensions: Vec<SaveExtension>,
-    /// Name of the file extension selected by default.
-    pub default_save_extension: Option<String>,
-    /// Sets custom icons for different files or folders.
-    /// Use `FileDialogConfig::set_file_icon` to add a new icon to this list.
-    pub file_icon_filters: Vec<IconFilter>,
-
-    /// Custom sections added to the left sidebar for quick access.
-    /// Use `FileDialogConfig::add_quick_access` to add a new section to this list.
-    pub quick_accesses: Vec<QuickAccess>,
 
     // ------------------------------------------------------------------------
     // Window options:
@@ -303,8 +305,16 @@ impl FileDialogConfig {
 
             truncate_filenames: true,
             retain_selected_entry: false,
-
             max_selections: None,
+
+            open_directory_filter: None,
+            file_filters: Vec::new(),
+            default_file_filter: None,
+            save_extensions: Vec::new(),
+            default_save_extension: None,
+            file_icon_filters: Vec::new(),
+
+            quick_accesses: Vec::new(),
 
             check_icon: Icon::image(include_image!("../../assets/check.svg"))
                 .color(IconColor::BlackWhite),
@@ -342,15 +352,6 @@ impl FileDialogConfig {
                 .color(IconColor::BlackWhite),
             path_edit_icon: Icon::image(include_image!("../../assets/edit.svg"))
                 .color(IconColor::BlackWhite),
-
-            open_directory_filter: None,
-            file_filters: Vec::new(),
-            default_file_filter: None,
-            save_extensions: Vec::new(),
-            default_save_extension: None,
-            file_icon_filters: Vec::new(),
-
-            quick_accesses: Vec::new(),
 
             title: None,
             id: None,
