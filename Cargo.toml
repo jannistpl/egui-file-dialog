@@ -45,8 +45,9 @@ tempdir = "0.3"
 
 [features]
 default = ["serde", "default_fonts"]
+
 serde = ["dep:serde"]
-default_fonts = ["egui/default_fonts"]
+default_fonts = ["egui/monochrome_emoji_fonts"]
 information_view = ["dep:chrono", "image-meta", "indexmap"]
 
 [lints.rust]
