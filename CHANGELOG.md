@@ -4,7 +4,8 @@
 
 ### 🚨 Breaking Changes
 
-- Change feature `default_fonts` to only bundle `monochrome_emoji_fonts` [#341](https://github.com/jannistpl/egui-file-dialog/pull/341)
+- Update `egui` from version `0.36` to version `0.37` [#338](https://github.com/jannistpl/egui-file-dialog/pull/338) (thanks [@mukilan](https://github.com/mukilan)!)
+- Change `default_fonts` feature to only use `monochrome_emoji_fonts` [#341](https://github.com/jannistpl/egui-file-dialog/pull/341)
 
 ### 🔧 Changes
 
