@@ -1,6 +1,12 @@
 # egui-file-dialog changelog
 
-### Unreleased
+## Unreleased
+
+### 🚨 Breaking Changes
+
+- Change feature `default_fonts` to only bundle `monochrome_emoji_fonts` [#341](https://github.com/jannistpl/egui-file-dialog/pull/341)
+
+### 🔧 Changes
 
 - Update `sysinfo` from version `0.39` to version `0.40` [#340](https://github.com/jannistpl/egui-file-dialog/pull/340)
 
