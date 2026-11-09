@@ -34,16 +34,15 @@ The latest changes included in the next release can be found in the
 [CHANGELOG.md](https://github.com/jannistpl/egui-file-dialog/blob/main/CHANGELOG.md)
 file.
 
-**NOTE**: v0.37.0 of `egui-file-dialog` does not ship with any default font icons
-and will instead rely on fonts available at runtime on the system. Thus, the icons in the
-file dialogs might appear broken or differently styled across platforms. This is because
-`egui` versions starting from 0.37 require the consuming application to opt-in to including
-the default font icons with the application. It is recommended that applications using
-`egui-file-dialog` enable the 'monochrome_emoji_fonts' feature for `egui` crate to preserve
-the look and feel of `egui-file-dialog` prior to v0.37. Note that enabling `monochrome_emoji_fonts`
-will increase the binary size by at least 1MB. This is a workaround until we can bundle custom
-SVG font icons.
+**NOTE**: Version `v0.16.0` of `egui-file-dialog` bundles `monochrome_emoji_fonts` by default to
+preserve the look and feel of the file dialog in versions prior to egui `0.37`.
 
+This behavior can be disabled by deactivating the `default_fonts` feature of `egui-file-dialog`.
+However, doing so requires the application to provide suitable fonts for the file dialog.
+
+This is intended as a temporary workaround until the file dialog supports bundled custom SVG icons.
+Work on this feature is already underway and will also introduce additional icon customization
+options in one of the upcoming releases.
 
 ## Features
 
