@@ -153,8 +153,12 @@ fn gen_display_name(name: &str, mount_point: &str) -> String {
 
 #[cfg(windows)]
 fn load_disks(canonicalize_paths: bool) -> Vec<Disk> {
-    #![allow(unused_mut)]
-    let mut disks: Vec<Disk> = sysinfo::Disks::new_with_refreshed_list()
+    let Ok(disks) = sysinfo::Disks::new_with_refreshed_list() else {
+        return Vec::new();
+    };
+
+    #[allow(unused_mut)]
+    let mut disks: Vec<Disk> = disks
         .iter()
         .map(|d| Disk::from_sysinfo_disk(d, canonicalize_paths))
         .collect();
@@ -193,8 +197,12 @@ extern "C" {
 
 #[cfg(all(not(windows), not(target_os = "macos")))]
 fn load_disks(canonicalize_paths: bool) -> Vec<Disk> {
-    sysinfo::Disks::new_with_refreshed_list()
-        .iter()
+    let Ok(disks) = sysinfo::Disks::new_with_refreshed_list() else {
+        return Vec::new();
+    };
+
+    disks
+        .into_iter()
         .map(|d| Disk::from_sysinfo_disk(d, canonicalize_paths))
         .collect()
 }
@@ -205,8 +213,12 @@ fn load_disks(canonicalize_paths: bool) -> Vec<Disk> {
     let mut result = Vec::new();
     let mut seen_mount_points = std::collections::HashSet::new();
 
+    let Ok(disks) = sysinfo::Disks::new_with_refreshed_list() else {
+        return Vec::new();
+    };
+
     // Collect disks from sysinfo
-    for disk in &sysinfo::Disks::new_with_refreshed_list() {
+    for disk in &disks {
         let mount_point = disk.mount_point();
         if mount_point != Path::new("/")
             && seen_mount_points.insert(mount_point.to_path_buf())
