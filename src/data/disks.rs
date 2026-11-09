@@ -193,8 +193,12 @@ extern "C" {
 
 #[cfg(all(not(windows), not(target_os = "macos")))]
 fn load_disks(canonicalize_paths: bool) -> Vec<Disk> {
-    sysinfo::Disks::new_with_refreshed_list()
-        .iter()
+    let Ok(disks) = sysinfo::Disks::new_with_refreshed_list() else {
+        return Vec::new();
+    };
+
+    disks
+        .into_iter()
         .map(|d| Disk::from_sysinfo_disk(d, canonicalize_paths))
         .collect()
 }
