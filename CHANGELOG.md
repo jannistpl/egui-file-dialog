@@ -1,5 +1,9 @@
 # egui-file-dialog changelog
 
+### Unreleased
+
+- Update `sysinfo` from version `0.39` to version `0.40` [#340](https://github.com/jannistpl/egui-file-dialog/pull/340)
+
 ## 2026-08-08 - v0.15.0 - egui update
 
 ### 🚨 Breaking Changes
