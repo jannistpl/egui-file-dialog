@@ -11,17 +11,17 @@ enum Language {
 
 fn get_labels_german() -> FileDialogLabels {
     FileDialogLabels {
-        title_select_directory: "📁 Ordner Öffnen".to_string(),
-        title_select_file: "📂 Datei Öffnen".to_string(),
-        title_select_multiple: "🗐 Mehrere Öffnen".to_string(),
-        title_save_file: "📥 Datei Speichern".to_string(),
+        title_select_directory: "Ordner Öffnen".to_string(),
+        title_select_file: "Datei Öffnen".to_string(),
+        title_select_multiple: "Mehrere Öffnen".to_string(),
+        title_save_file: "Datei Speichern".to_string(),
 
         cancel: "Abbrechen".to_string(),
         overwrite: "Überschreiben".to_string(),
 
-        reload: "⟲  Neu laden".to_string(),
-        working_directory: "↗  Arbeitsverzeichnis öffnen".to_string(),
-        select_all: "🗐  Alle auswählen".to_string(),
+        reload: "Neu laden".to_string(),
+        working_directory: "Arbeitsverzeichnis öffnen".to_string(),
+        select_all: "Alle auswählen".to_string(),
         show_hidden: " Versteckte Dateien anzeigen".to_string(),
         show_system_files: " Systemdateien anzeigen".to_string(),
 
@@ -30,17 +30,17 @@ fn get_labels_german() -> FileDialogLabels {
         heading_devices: "Medien".to_string(),
         heading_removable_devices: "Wechselmedien".to_string(),
 
-        home_dir: "🏠  Zuhause".to_string(),
-        desktop_dir: "🖵  Desktop".to_string(),
-        documents_dir: "🗐  Dokumente".to_string(),
-        downloads_dir: "📥  Downloads".to_string(),
-        audio_dir: "🎵  Audio".to_string(),
-        pictures_dir: "🖼  Fotos".to_string(),
-        videos_dir: "🎞  Videos".to_string(),
+        home_dir: "Zuhause".to_string(),
+        desktop_dir: "Desktop".to_string(),
+        documents_dir: "Dokumente".to_string(),
+        downloads_dir: "Downloads".to_string(),
+        audio_dir: "Audio".to_string(),
+        pictures_dir: "Fotos".to_string(),
+        videos_dir: "Videos".to_string(),
 
-        pin_folder: "📌 Ordner anheften".to_string(),
-        unpin_folder: "✖ Ordner loslösen".to_string(),
-        rename_pinned_folder: "✏ Ordner umbenennen".to_string(),
+        pin_folder: "Ordner anheften".to_string(),
+        unpin_folder: "Ordner loslösen".to_string(),
+        rename_pinned_folder: "Ordner umbenennen".to_string(),
 
         selected_directory: "Ausgewählter Ordner:".to_string(),
         selected_file: "Ausgewählte Datei:".to_string(),
@@ -49,9 +49,9 @@ fn get_labels_german() -> FileDialogLabels {
         file_filter_all_files: "Alle Dateien".to_string(),
         save_extension_any: "Alle".to_string(),
 
-        open_button: "🗀  Öffnen".to_string(),
-        save_button: "📥  Speichern".to_string(),
-        cancel_button: "🚫 Abbrechen".to_string(),
+        open_button: "Öffnen".to_string(),
+        save_button: "Speichern".to_string(),
+        cancel_button: "Abbrechen".to_string(),
 
         overwrite_file_modal_text: "existiert bereits. Möchtest du es überschreiben?".to_string(),
 

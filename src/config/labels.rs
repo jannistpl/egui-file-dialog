@@ -11,9 +11,9 @@
 /// use egui_file_dialog::{FileDialog, FileDialogLabels};
 ///
 /// let labels_german = FileDialogLabels {
-///     title_select_directory: "📁 Ordner Öffnen".to_string(),
-///     title_select_file: "📂 Datei Öffnen".to_string(),
-///     title_save_file: "📥 Datei Speichern".to_string(),
+///     title_select_directory: "Ordner Öffnen".to_string(),
+///     title_select_file: "Datei Öffnen".to_string(),
+///     title_save_file: "Datei Speichern".to_string(),
 ///     ..Default::default()
 /// };
 ///
@@ -147,13 +147,13 @@ impl Default for FileDialogLabels {
             heading_devices: "Devices".to_string(),
             heading_removable_devices: "Removable Devices".to_string(),
 
-            home_dir: "🏠  Home".to_string(),
-            desktop_dir: "🖵  Desktop".to_string(),
-            documents_dir: "🗐  Documents".to_string(),
-            downloads_dir: "📥  Downloads".to_string(),
-            audio_dir: "🎵  Audio".to_string(),
-            pictures_dir: "🖼  Pictures".to_string(),
-            videos_dir: "🎞  Videos".to_string(),
+            home_dir: "Home".to_string(),
+            desktop_dir: "Desktop".to_string(),
+            documents_dir: "Documents".to_string(),
+            downloads_dir: "Downloads".to_string(),
+            audio_dir: "Audio".to_string(),
+            pictures_dir: "Pictures".to_string(),
+            videos_dir: "Videos".to_string(),
 
             pin_folder: "Pin".to_string(),
             unpin_folder: "Unpin".to_string(),
