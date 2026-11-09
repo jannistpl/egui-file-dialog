@@ -72,7 +72,7 @@ struct MyApp {
 impl MyApp {
     pub fn new(_cc: &eframe::CreationContext) -> Self {
         Self {
-            file_dialog: FileDialog::new().id("egui_file_dialog"),
+            file_dialog: FileDialog::new().id(egui::Id::unique("egui_file_dialog")),
             language: Language::English,
 
             picked_file: None,

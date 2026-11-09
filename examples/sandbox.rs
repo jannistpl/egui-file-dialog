@@ -41,7 +41,7 @@ impl MyApp {
                 "",
                 Filter::new(|p: &Path| p.file_name().unwrap_or_default() == ".gitignore"),
             )
-            .id("egui_file_dialog");
+            .id(egui::Id::unique("egui_file_dialog"));
 
         if let Some(storage) = cc.storage {
             *file_dialog.storage_mut() =
