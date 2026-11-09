@@ -218,7 +218,7 @@ fn load_disks(canonicalize_paths: bool) -> Vec<Disk> {
     };
 
     // Collect disks from sysinfo
-    for disk in disks {
+    for disk in &disks {
         let mount_point = disk.mount_point();
         if mount_point != Path::new("/")
             && seen_mount_points.insert(mount_point.to_path_buf())
